@@ -1,4 +1,5 @@
 from math import isclose
+from statistics import mean
 
 
 def extract_node(g, n, key):
@@ -107,3 +108,26 @@ def scale_edges(g, key, vlim=None, slim=(1, 10)):
     for (n, m), value in zip(g.edges, vs):
         scale = (value - vlim[0]) / (vlim[1] - vlim[0])
         g.edges[n, m]['width'] = round(scale * (slim[1] - slim[0]) + slim[0])
+
+
+def heat_nodes(g, key):
+    vs = []
+    for n in g.nodes:
+        value = extract_node(g, n, key)
+        if not isinstance(value, int) and not isinstance(value, float):
+            raise TypeError('node heat value must be numeric')
+        vs.append(value)
+
+    vmin = min(vs)
+    vmax = max(vs)
+    if isclose(vmin, vmax):
+        raise ValueError('node heat minimum and maximum are too close')
+    vmid = mean(vs)
+
+    for n, value in zip(g.nodes, vs):
+        if value < vmid:
+            heat = (value - vmin) / (vmid - vmin)
+            g.nodes[n]['color'] = (round(heat * 255), round(heat * 255), 255)
+        else:
+            heat = (value - vmid) / (vmax - vmid)
+            g.nodes[n]['color'] = (255, round((1 - heat) * 255), round((1 - heat) * 255))
