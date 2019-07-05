@@ -35,30 +35,64 @@ def scale_nodes(g, key, vlim=None, slim=(5, 50)):
     for n in g.nodes:
         value = extract_node(g, n, key)
         if not isinstance(value, int) and not isinstance(value, float):
-            raise TypeError('scale value must be numeric')
+            raise TypeError('node scale value must be numeric')
         vs.append(value)
 
     if vlim is None:
         vlim = (min(vs), max(vs))
     else:
         if not isinstance(vlim, tuple):
-            raise TypeError('scale vlim must be a tuple')
+            raise TypeError('node scale vlim must be a tuple')
         if len(vlim) != 2:
-            raise ValueError('scale vlim must have exactly two elements')
+            raise ValueError('node scale vlim must have exactly two elements')
         if (not isinstance(vlim[0], int) and not isinstance(vlim[0], float)) or (not isinstance(vlim[1], int) and not isinstance(vlim[1], float)):
-            raise TypeError('both scale vlim elements must be numeric')
+            raise TypeError('both node scale vlim elements must be numeric')
     if vlim[0] >= vlim[1]:
-        raise TypeError('scale vlim minimum must be smaller than maximum')
+        raise TypeError('node scale vlim minimum must be smaller than maximum')
 
     if not isinstance(slim, tuple):
-        raise TypeError('scale slim must be a tuple')
+        raise TypeError('node scale slim must be a tuple')
     if len(slim) != 2:
-        raise ValueError('scale slim must have exactly two elements')
+        raise ValueError('node scale slim must have exactly two elements')
     if not isinstance(slim[0], int) or not isinstance(slim[1], int):
-        raise TypeError('both scale slim elements must be integers')
+        raise TypeError('both node scale slim elements must be integers')
     if slim[0] >= slim[1]:
-        raise TypeError('scale slim minimum must be smaller than maximum')
+        raise TypeError('node scale slim minimum must be smaller than maximum')
 
     for n, value in zip(g.nodes, vs):
         size = (value - vlim[0]) / (vlim[1] - vlim[0])
         g.nodes[n]['size'] = int(size * (slim[1] - slim[0]) + slim[0])
+
+
+def scale_edges(g, key, vlim=None, slim=(1, 10)):
+    vs = []
+    for n, m in g.edges:
+        value = extract_edge(g, n, m, key)
+        if not isinstance(value, int) and not isinstance(value, float):
+            raise TypeError('edge scale value must be numeric')
+        vs.append(value)
+
+    if vlim is None:
+        vlim = (min(vs), max(vs))
+    else:
+        if not isinstance(vlim, tuple):
+            raise TypeError('edge scale vlim must be a tuple')
+        if len(vlim) != 2:
+            raise ValueError('edge scale vlim must have exactly two elements')
+        if (not isinstance(vlim[0], int) and not isinstance(vlim[0], float)) or (not isinstance(vlim[1], int) and not isinstance(vlim[1], float)):
+            raise TypeError('both edge scale vlim elements must be numeric')
+    if vlim[0] >= vlim[1]:
+        raise TypeError('edge scale vlim minimum must be smaller than maximum')
+
+    if not isinstance(slim, tuple):
+        raise TypeError('edge scale slim must be a tuple')
+    if len(slim) != 2:
+        raise ValueError('edge scale slim must have exactly two elements')
+    if not isinstance(slim[0], int) or not isinstance(slim[1], int):
+        raise TypeError('both edge scale slim elements must be integers')
+    if slim[0] >= slim[1]:
+        raise TypeError('edge scale slim minimum must be smaller than maximum')
+
+    for (n, m), value in zip(g.edges, vs):
+        width = (value - vlim[0]) / (vlim[1] - vlim[0])
+        g.edges[n, m]['width'] = int(width * (slim[1] - slim[0]) + slim[0])
