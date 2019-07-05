@@ -2,7 +2,7 @@ import networkx
 
 from math import isclose
 
-from .exploring import extract_nodes
+from .exploring import extract_node
 
 
 LAYOUTS = {
@@ -41,12 +41,11 @@ def normalize(g):
 
 
 def scatter(g, xkey, ykey):
-    xs = extract_nodes(g, xkey)
-    ys = extract_nodes(g, ykey)
-
-    for n, x, y in zip(g.nodes, xs, ys):
+    for n in g.nodes:
+        x = extract_node(g, n, xkey)
         if not isinstance(x, int) and not isinstance(x, float):
             raise TypeError('non-numeric x in node ' + str(n))
+        y = extract_node(g, n, ykey)
         if not isinstance(y, int) and not isinstance(y, float):
             raise TypeError('non-numeric y in node ' + str(n))
 
