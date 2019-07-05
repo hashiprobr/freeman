@@ -6,9 +6,8 @@ from networkx import NetworkXError
 
 
 EDGE_SPACE = 5
-
-HEAD_SIZE = 10
-HEAD_ANGLE = 0.5
+EDGE_SIZE = 10
+EDGE_ANGLE = 0.5
 
 
 graph_width = 800
@@ -327,16 +326,16 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, local_size, 
         sx, sy = _scale(dx, dy, width, height, radius)
         x0 = x1 + sx
         y0 = y1 + sy
-        sx, sy = _scale(dx, dy, width, height, HEAD_SIZE)
+        sx, sy = _scale(dx, dy, width, height, EDGE_SIZE)
 
-        rx, ry = _rotate(sx, sy, width, height, -HEAD_ANGLE)
+        rx, ry = _rotate(sx, sy, width, height, -EDGE_ANGLE)
         x1 = x0 + rx
         y1 = y0 + ry
         edge_trace['x'].extend([x0, x1, None])
         edge_trace['y'].extend([y0, y1, None])
 
         if not g.has_edge(m, n):
-            rx, ry = _rotate(sx, sy, width, height, HEAD_ANGLE)
+            rx, ry = _rotate(sx, sy, width, height, EDGE_ANGLE)
             x1 = x0 + rx
             y1 = y0 + ry
             edge_trace['x'].extend([x0, x1, None])
