@@ -131,3 +131,26 @@ def heat_nodes(g, key):
         else:
             heat = (value - vmid) / (vmax - vmid)
             g.nodes[n]['color'] = (255, round((1 - heat) * 255), round((1 - heat) * 255))
+
+
+def heat_edges(g, key):
+    vs = []
+    for n, m in g.edges:
+        value = extract_edge(g, n, m, key)
+        if not isinstance(value, int) and not isinstance(value, float):
+            raise TypeError('edge heat value must be numeric')
+        vs.append(value)
+
+    vmin = min(vs)
+    vmax = max(vs)
+    if isclose(vmin, vmax):
+        raise ValueError('edge heat minimum and maximum are too close')
+    vmid = mean(vs)
+
+    for (n, m), value in zip(g.edges, vs):
+        if value < vmid:
+            heat = (value - vmin) / (vmid - vmin)
+            g.edges[n, m]['color'] = (round(heat * 255), round(heat * 255), 255)
+        else:
+            heat = (value - vmid) / (vmax - vmid)
+            g.edges[n, m]['color'] = (255, round((1 - heat) * 255), round((1 - heat) * 255))
