@@ -462,7 +462,7 @@ class Animation:
 
     def play(self):
         if not self.frames:
-            raise NetworkXError('no frames have been recorded')
+            raise NetworkXError('animation must have at least one frame')
 
         number_of_nodes = self.frames[0]['number_of_nodes']
         number_of_edges = self.frames[0]['number_of_edges']
@@ -473,13 +473,13 @@ class Animation:
 
         for index, frame in enumerate(self.frames):
             if frame.pop('number_of_nodes') != number_of_nodes:
-                raise ValueError('number of nodes varies from frame to frame')
+                raise ValueError('animation frames must have the same number of nodes')
             if frame.pop('number_of_edges') != number_of_edges:
-                raise ValueError('number of edges varies from frame to frame')
+                raise ValueError('animation frames must have the same number of edges')
             if frame.pop('width') != width:
-                raise ValueError('width varies from frame to frame')
+                raise ValueError('animation frames must have the same local width')
             if frame.pop('height') != height:
-                raise ValueError('height varies from frame to frame')
+                raise ValueError('animation frames must have the same local height')
 
             frame['name'] = index
 
