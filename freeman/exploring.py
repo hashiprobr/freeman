@@ -9,7 +9,7 @@ def extract_node(g, n, key):
         return key[n]
     if callable(key):
         return key(n)
-    return TypeError('key must be a string, a dictionary, or a callable')
+    raise TypeError('key must be a string, a dictionary, or a callable')
 
 
 def extract_edge(g, n, m, key):
@@ -19,7 +19,7 @@ def extract_edge(g, n, m, key):
         return key[n, m]
     if callable(key):
         return key(n, m)
-    return TypeError('key must be a string, a dictionary, or a callable')
+    raise TypeError('key must be a string, a dictionary, or a callable')
 
 
 def extract_nodes(g, key, filter=None):

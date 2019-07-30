@@ -58,13 +58,25 @@ def copy_edge(g, h, n, m):
     g.edges[n, m].update(h.edges[n, m])
 
 
-def set_nodes(g, key, value, filter=None):
+def set_each_node(g, key, value, filter=None):
+    for n in g.nodes:
+        if filter is None or filter(n):
+            g.nodes[n][key] = extract_node(g, n, value)
+
+
+def set_each_edge(g, key, value, filter=None):
+    for n, m in g.edges:
+        if filter is None or filter(n, m):
+            g.edges[n, m][key] = extract_edge(g, n, m, value)
+
+
+def set_all_nodes(g, key, value, filter=None):
     for n in g.nodes:
         if filter is None or filter(n):
             g.nodes[n][key] = value
 
 
-def set_edges(g, key, value, filter=None):
+def set_all_edges(g, key, value, filter=None):
     for n, m in g.edges:
         if filter is None or filter(n, m):
             g.edges[n, m][key] = value
