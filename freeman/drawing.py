@@ -49,6 +49,15 @@ def _rotate(dx, dy, width, height, angle):
     return rx / width, ry / height
 
 
+def _correct(c):
+    sc = c / 255
+
+    if sc > 0.03928:
+        return ((sc + 0.055) / 1.055)**2.4
+
+    return sc / 12.92
+
+
 def _convert(color):
     r = color[0]
     g = color[1]
@@ -186,10 +195,15 @@ def _build_node_trace(size, color, labpos, border=True):
         hoverinfo = 'none'
         mode = 'markers+text'
 
-    if labpos == 'middle center' and 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2] < 128:
-        fontcolor = (255, 255, 255)
-    else:
-        fontcolor = (0, 0, 0)
+    fontcolor = (0, 0, 0)
+
+    if labpos == 'middle center':
+        r = _correct(color[0])
+        g = _correct(color[1])
+        b = _correct(color[2])
+
+        if (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05)**2 < 0.0525:
+            fontcolor = (255, 255, 255)
 
     return {
         'x': [],
