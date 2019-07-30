@@ -178,7 +178,7 @@ def _build_edge_key(g, n, m):
     return size, width, color, labflip, labdist, labfrac
 
 
-def _build_node_trace(size, color, labpos):
+def _build_node_trace(size, color, labpos, border=True):
     if labpos == 'hover':
         hoverinfo = 'text'
         mode = 'markers'
@@ -202,7 +202,7 @@ def _build_node_trace(size, color, labpos):
             'size': size,
             'color': _convert(color),
             'line': {
-                'width': 1,
+                'width': int(border),
                 'color': 'rgb(0, 0, 0)',
             },
         },
@@ -219,9 +219,11 @@ def _build_node_label_trace(width, height, bottom, left, right, top):
         'hoverinfo': 'none',
         'mode': 'markers',
         'marker': {
+            'size': 0,
             'color': 'rgba(255, 255, 255, 0.0)',
             'line': {
                 'width': 0,
+                'color': 'rgba(255, 255, 255, 0.0)',
             },
         },
     }
@@ -424,26 +426,44 @@ class Animation:
     def reset(self):
         self.frames.clear()
 
-    def rec(self, g):
+    def rec(self, g, h=None):
+        if h is None:
+            h = g
+        else:
+            if not all(h.has_node(n) for n in g.nodes):
+                raise ValueError('graph nodes must be a subset of template nodes')
+            if not all(h.has_edge(n, m) for n, m in g.edges):
+                raise ValueError('graph edges must be a subset of template edges')
+
         local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
         local_width += local_left + local_right
         local_height += local_bottom + local_top
 
         node_traces = []
         node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
-        for n in g.nodes:
-            size, color, labpos = _build_node_key(g, n)
-            node_trace = _build_node_trace(size, color, labpos)
+        for n in h.nodes:
+            if g.has_node(n):
+                size, color, labpos = _build_node_key(g, n)
+                node_trace = _build_node_trace(size, color, labpos)
+                _add_node(g, n, node_trace)
+            else:
+                size, _, labpos = _build_node_key(h, n)
+                node_trace = _build_node_trace(size, (255, 255, 255, 0.0), labpos, False)
+                _add_node(h, n, node_trace)
             node_traces.append(node_trace)
-            _add_node(g, n, node_trace)
 
         edge_traces = []
         edge_label_trace = _build_edge_label_trace()
-        for n, m in g.edges:
-            size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
-            edge_trace = _build_edge_trace(width, color)
+        for n, m in h.edges:
+            if g.has_edge(n, m):
+                size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+                edge_trace = _build_edge_trace(width, color)
+                _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, size, width, labflip, labdist, labfrac)
+            else:
+                size, width, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
+                edge_trace = _build_edge_trace(width, (255, 255, 255, 0.0))
+                _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, size, width, labflip, labdist, labfrac)
             edge_traces.append(edge_trace)
-            _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, size, width, labflip, labdist, labfrac)
 
         data = edge_traces
         data.extend(node_traces)
@@ -451,8 +471,8 @@ class Animation:
         data.append(node_label_trace)
 
         frame = {
-            'number_of_nodes': g.number_of_nodes(),
-            'number_of_edges': g.number_of_edges(),
+            'number_of_nodes': h.number_of_nodes(),
+            'number_of_edges': h.number_of_edges(),
             'width': local_width,
             'height': local_height,
             'data': data,

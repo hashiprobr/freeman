@@ -46,6 +46,18 @@ def load(path, key='random', *args, **kwargs):
     return g
 
 
+def copy_node(g, h, n):
+    if not g.has_node(n):
+        g.add_node(n)
+    g.nodes[n].update(h.nodes[n])
+
+
+def copy_edge(g, h, n, m):
+    if not g.has_edge(n, m):
+        g.add_edge(n, m)
+    g.edges[n, m].update(h.edges[n, m])
+
+
 def set_nodes(g, key, value, filter=None):
     for n in g.nodes:
         if filter is None or filter(n):
