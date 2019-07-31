@@ -7,6 +7,8 @@ from IPython.display import display
 from networkx import NetworkXError
 from pyvis.network import Network
 
+from .exploring import extract_node, extract_edge
+
 
 CACHE_DIR = '__fmcache__'
 
@@ -75,6 +77,16 @@ def _convert(color):
         return 'rgba({}, {}, {}, {})'.format(r, g, b, a)
 
     return 'rgb({}, {}, {})'.format(r, g, b)
+
+
+def _stringify(value, ndigits):
+    if isinstance(value, float):
+        if isinf(value):
+            return '∞'
+
+        value = round(value, ndigits)
+
+    return str(value)
 
 
 def _build_graph_key(g):
@@ -366,38 +378,24 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
             edge_trace['y'].extend([y0, y1, None])
 
 
-def label_nodes(g, key=None):
+def label_nodes(g, map=None, ndigits=2):
     for n in g.nodes:
-        if key is None:
+        if map is None:
             g.nodes[n]['label'] = str(n)
         else:
-            if key in g.nodes[n]:
-                value = g.nodes[n][key]
+            value = extract_node(g, n, map)
 
-                if isinstance(value, float) and isinf(value):
-                    g.nodes[n]['label'] = '∞'
-                else:
-                    g.nodes[n]['label'] = str(value)
-            else:
-                if 'label' in g.nodes[n]:
-                    del g.nodes[n]['label']
+            g.nodes[n]['label'] = _stringify(value, ndigits)
 
 
-def label_edges(g, key=None):
+def label_edges(g, map=None, ndigits=2):
     for n, m in g.edges:
-        if key is None:
+        if map is None:
             g.edges[n, m]['label'] = '({}, {})'.format(n, m)
         else:
-            if key in g.edges[n, m]:
-                value = g.edges[n, m][key]
+            value = extract_edge(g, n, m, map)
 
-                if isinstance(value, float) and isinf(value):
-                    g.edges[n, m]['label'] = '∞'
-                else:
-                    g.edges[n, m]['label'] = str(value)
-            else:
-                if 'label' in g.edges[n, m]:
-                    del g.edges[n, m]['label']
+            g.edges[n, m]['label'] = _stringify(value, ndigits)
 
 
 def interact(g, path=None, physics=False):
@@ -439,8 +437,8 @@ def interact(g, path=None, physics=False):
             'physics': physics,
             'shape': 'dot',
             'size': size // 2,
-            'x': int((g.nodes[n]['pos'][0] - 0.5) * (0.9 * local_width - 24) + 0.5) + dx,
-            'y': int((0.5 - g.nodes[n]['pos'][1]) * (0.9 * local_height - 24) + 0.5) + dy,
+            'x': round((g.nodes[n]['pos'][0] - 0.5) * (0.9 * local_width - 24)) + dx,
+            'y': round((0.5 - g.nodes[n]['pos'][1]) * (0.9 * local_height - 24)) + dy,
         }
         label = g.nodes[n]['label'] if 'label' in g.nodes[n] else None
         if label:
