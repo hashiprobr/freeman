@@ -2,6 +2,12 @@ from math import isclose
 from statistics import mean
 
 
+def assert_numeric(value):
+    if not isinstance(value, int) and not isinstance(value, float):
+        raise TypeError('value must be numeric')
+    return value
+
+
 def extract_node(g, n, map):
     if isinstance(map, str):
         return g.nodes[n][map]
@@ -22,16 +28,16 @@ def extract_edge(g, n, m, map):
     raise TypeError('map must be a string, a dictionary, or a callable')
 
 
-def extract_nodes(g, key, filter=None):
+def extract_nodes(g, map, filter=None):
     for n in g.nodes:
         if filter is None or filter(n):
-            yield extract_node(g, n, key)
+            yield extract_node(g, n, map)
 
 
-def extract_edges(g, key, filter=None):
+def extract_edges(g, map, filter=None):
     for n, m in g.edges:
         if filter is None or filter(n, m):
-            yield extract_edge(g, n, m, key)
+            yield extract_edge(g, n, m, map)
 
 
 def scale_nodes(g, key, vlim=None, slim=(5, 50)):

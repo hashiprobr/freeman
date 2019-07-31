@@ -2,7 +2,7 @@ import networkx
 
 from math import isclose
 
-from .exploring import extract_node
+from .exploring import assert_numeric, extract_node
 
 
 def step_layout(g, ego=None, iterations=1, weight='weight'):
@@ -49,15 +49,10 @@ def normalize(g):
         g.nodes[n]['pos'] = (x, y)
 
 
-def scatter(g, xkey, ykey):
+def scatter(g, xmap, ymap):
     for n in g.nodes:
-        x = extract_node(g, n, xkey)
-        if not isinstance(x, int) and not isinstance(x, float):
-            raise TypeError('non-numeric x in node ' + str(n))
-        y = extract_node(g, n, ykey)
-        if not isinstance(y, int) and not isinstance(y, float):
-            raise TypeError('non-numeric y in node ' + str(n))
-
+        x = assert_numeric(extract_node(g, n, xmap))
+        y = assert_numeric(extract_node(g, n, ymap))
         g.nodes[n]['pos'] = (x, y)
 
     normalize(g)
