@@ -1,4 +1,5 @@
 from itertools import permutations, combinations
+from wrapt import ObjectProxy
 
 from .drawing import *
 from .moving import *
@@ -45,7 +46,7 @@ def load(path, key='random', *args, **kwargs):
             else:
                 raise ValueError('non-binary labflip in edge ({}, {})'.format(n, m))
 
-    return g
+    return FreemanGraph(g)
 
 
 def dyads(g, ordered=False):
@@ -114,3 +115,7 @@ def unset_edges(g, key, filter=None):
     for n, m in g.edges:
         if (filter is None or filter(n, m)) and key in g.edges[n, m]:
             del g.edges[n, m][key]
+
+
+class FreemanGraph(ObjectProxy):
+    pass
