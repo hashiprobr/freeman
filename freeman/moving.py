@@ -5,6 +5,14 @@ from math import isclose
 from .exploring import extract_node
 
 
+def step_layout(g, ego=None, iterations=1, weight='weight'):
+    before = networkx.get_node_attributes(g, 'pos')
+
+    fixed = None if ego is None else [ego]
+
+    return networkx.spring_layout(g, pos=before, fixed=fixed, iterations=iterations, weight=weight)
+
+
 LAYOUTS = {
     'bipartite': networkx.bipartite_layout,
     'circular': networkx.circular_layout,
@@ -14,6 +22,7 @@ LAYOUTS = {
     'shell': networkx.shell_layout,
     'spring': networkx.spring_layout,
     'spectral': networkx.spectral_layout,
+    'step': step_layout,
 }
 
 
@@ -54,7 +63,7 @@ def scatter(g, xkey, ykey):
     normalize(g)
 
 
-def move(g, key='random', *args, **kwargs):
+def move(g, key, *args, **kwargs):
     try:
         layout = LAYOUTS[key]
     except KeyError:
@@ -68,44 +77,37 @@ def move(g, key='random', *args, **kwargs):
     normalize(g)
 
 
-def attract(g, weight='weight', iterations=50, ego=None):
-    before = networkx.get_node_attributes(g, 'pos')
+def move_copy(g, h, key, *args, **kwargs):
+    move(h, key, *args, **kwargs)
 
-    fixed = None if ego is None else [ego]
+    for n in g.nodes:
+        g.nodes[n]['pos'] = h.nodes[n]['pos']
 
-    move(g, key='spring', pos=before, fixed=fixed, iterations=iterations, weight=weight)
 
-
-def attract_inverse(g, weight, iterations=50):
+def move_inverse(g, key, weight, *args, **kwargs):
     h = g.copy()
     for n, m in h.edges:
-        if weight in g.edges:
+        if weight in g.edges[n, m]:
             h.edges[n, m][weight] = 1 / g.edges[n, m][weight]
 
-    attract(h, weight, iterations=iterations)
-    for n in g.nodes:
-        g.nodes[n]['pos'] = h.nodes[n]['pos']
+    move_copy(g, h, key, *args, weight=weight, **kwargs)
 
 
-def attract_negative(g, weight, iterations=50):
+def move_negative(g, key, weight, *args, **kwargs):
     h = g.copy()
     for n, m in h.edges:
-        if weight in g.edges:
+        if weight in g.edges[n, m]:
             h.edges[n, m][weight] = -g.edges[n, m][weight]
 
-    attract(h, weight, iterations=iterations)
-    for n in g.nodes:
-        g.nodes[n]['pos'] = h.nodes[n]['pos']
+    move_copy(g, h, key, *args, weight=weight, **kwargs)
 
 
-def attract_complement(g, iterations=50):
+def move_complement(g, key, *args, **kwargs):
     h = networkx.complement(g)
     for n in h.nodes:
-        h.nodes[n]['pos'] = g.nodes[n]['pos']
+        h.nodes[n].update(g.nodes[n])
 
-    attract(h, iterations=iterations)
-    for n in g.nodes:
-        g.nodes[n]['pos'] = h.nodes[n]['pos']
+    move_copy(g, h, key, *args, **kwargs)
 
 
 def movement(g, h):

@@ -18,7 +18,7 @@ def load(path, key='random', *args, **kwargs):
         raise ValueError('some nodes have position, but others do not: ' + ', '.join([str(n) for n in free]))
 
     if free:
-        move(g, key=key, *args, **kwargs)
+        move(g, key, *args, **kwargs)
     else:
         for n in g.nodes:
             x = g.nodes[n]['x']
