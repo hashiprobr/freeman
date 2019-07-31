@@ -2,24 +2,24 @@ from math import isclose
 from statistics import mean
 
 
-def extract_node(g, n, key):
-    if isinstance(key, str):
-        return g.nodes[n][key]
-    if isinstance(key, dict):
-        return key[n]
-    if callable(key):
-        return key(n)
-    raise TypeError('key must be a string, a dictionary, or a callable')
+def extract_node(g, n, map):
+    if isinstance(map, str):
+        return g.nodes[n][map]
+    if isinstance(map, dict):
+        return map[n]
+    if callable(map):
+        return map(n)
+    raise TypeError('map must be a string, a dictionary, or a callable')
 
 
-def extract_edge(g, n, m, key):
-    if isinstance(key, str):
-        return g.edges[n, m][key]
-    if isinstance(key, dict):
-        return key[n, m]
-    if callable(key):
-        return key(n, m)
-    raise TypeError('key must be a string, a dictionary, or a callable')
+def extract_edge(g, n, m, map):
+    if isinstance(map, str):
+        return g.edges[n, m][map]
+    if isinstance(map, dict):
+        return map[n, m]
+    if callable(map):
+        return map(n, m)
+    raise TypeError('map must be a string, a dictionary, or a callable')
 
 
 def extract_nodes(g, key, filter=None):
