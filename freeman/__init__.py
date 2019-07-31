@@ -1,3 +1,5 @@
+from itertools import permutations, combinations
+
 from .drawing import *
 from .moving import *
 from .exploring import *
@@ -44,6 +46,26 @@ def load(path, key='random', *args, **kwargs):
                 raise ValueError('non-binary labflip in edge ({}, {})'.format(n, m))
 
     return g
+
+
+def dyads(g, ordered=False):
+    if ordered:
+        generator = permutations(g, 2)
+    else:
+        generator = combinations(g, 2)
+
+    for n, m in generator:
+        yield n, m
+
+
+def triads(g, ordered=False):
+    if ordered:
+        generator = permutations(g, 3)
+    else:
+        generator = combinations(g, 3)
+
+    for n, m, l in generator:
+        yield n, m, l
 
 
 def copy_node(g, h, n):
