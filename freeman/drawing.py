@@ -7,7 +7,7 @@ from networkx import NetworkXError
 
 EDGE_SPACE = 5
 EDGE_SIZE = 10
-EDGE_ANGLE = 0.5
+EDGE_ANGLE = 0.3
 
 
 graph_width = 800
@@ -146,7 +146,8 @@ def _build_node_key(g, n):
 
 
 def _build_edge_key(g, n, m):
-    size = g.nodes[m]['size'] if 'size' in g.nodes[m] else node_size
+    n_size = g.nodes[n]['size'] if 'size' in g.nodes[n] else node_size
+    m_size = g.nodes[m]['size'] if 'size' in g.nodes[m] else node_size
 
     width = g.edges[n, m]['width'] if 'width' in g.edges[n, m] else edge_width
     if not isinstance(width, int):
@@ -184,7 +185,7 @@ def _build_edge_key(g, n, m):
     if labfrac < 0 or labfrac > 1:
         raise ValueError('edge labfrac must be between 0 and 1')
 
-    return size, width, color, labflip, labdist, labfrac
+    return n_size, m_size, width, color, labflip, labdist, labfrac
 
 
 def _build_node_trace(size, color, labpos, border=True):
@@ -303,7 +304,7 @@ def _add_node(g, n, node_trace):
     node_trace['text'].append(text)
 
 
-def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, local_size, local_width, labflip, labdist, labfrac):
+def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_size, nm_width, labflip, labdist, labfrac):
     x0, y0 = g.nodes[n]['pos']
     x1, y1 = g.nodes[m]['pos']
 
@@ -316,8 +317,8 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, local_size, 
     dy = (x1 - x0) * ratio
 
     if isinstance(g, networkx.DiGraph) and g.has_edge(m, n):
-        space = (local_width + EDGE_SPACE) / 2
-        sx, sy = _scale(dx, dy, width, height, space)
+        edge_space = max(0, min(EDGE_SPACE, n_size - 2, m_size - 2))
+        sx, sy = _scale(dx, dy, width, height, edge_space / 2)
         x0 += sx
         y0 += sy
         x1 += sx
@@ -329,7 +330,7 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, local_size, 
     if labflip:
         dx = -dx
         dy = -dy
-    sx, sy = _scale(dx, dy, width, height, labdist + local_width / 2)
+    sx, sy = _scale(dx, dy, width, height, labdist + nm_width / 2)
     edge_label_trace['x'].append(x0 + labfrac * (x1 - x0) + sx)
     edge_label_trace['y'].append(y0 + labfrac * (y1 - y0) + sy)
     edge_label_trace['text'].append(g.edges[n, m]['label'] if 'label' in g.edges[n, m] else None)
@@ -338,11 +339,12 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, local_size, 
         dx = x0 - x1
         dy = y0 - y1
 
-        radius = local_size / 2
+        radius = m_size / 2
         sx, sy = _scale(dx, dy, width, height, radius)
         x0 = x1 + sx
         y0 = y1 + sy
-        sx, sy = _scale(dx, dy, width, height, EDGE_SIZE)
+        edge_size = max(1, min(EDGE_SIZE, m_size))
+        sx, sy = _scale(dx, dy, width, height, edge_size)
 
         rx, ry = _rotate(sx, sy, width, height, -EDGE_ANGLE)
         x1 = x0 + rx
@@ -409,11 +411,11 @@ def draw(g, toolbar=False):
     edge_traces = {}
     edge_label_trace = _build_edge_label_trace()
     for n, m in g.edges:
-        size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+        n_size, m_size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
         key = (width, color)
         if key not in edge_traces:
             edge_traces[key] = _build_edge_trace(width, color)
-        _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, size, width, labflip, labdist, labfrac)
+        _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
 
     data = list(edge_traces.values())
     data.extend(node_traces.values())
@@ -470,13 +472,13 @@ class Animation:
         edge_label_trace = _build_edge_label_trace()
         for n, m in h.edges:
             if g.has_edge(n, m):
-                size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+                n_size, m_size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
                 edge_trace = _build_edge_trace(width, color)
-                _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, size, width, labflip, labdist, labfrac)
+                _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
             else:
-                size, width, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
+                n_size, m_size, width, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
                 edge_trace = _build_edge_trace(width, (255, 255, 255, 0.0))
-                _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, size, width, labflip, labdist, labfrac)
+                _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
             edge_traces.append(edge_trace)
 
         data = edge_traces
