@@ -69,6 +69,60 @@ def colorize_nodes(g, map=None):
         h += s
 
 
+def _assert_limits(values, lower, upper):
+    values = list(assert_numerics(values))
+
+    if lower is None:
+        lower = min(values)
+    else:
+        lower = assert_numeric(lower)
+        if any(value < lower for value in values):
+            raise ValueError('lower bound must be below all values')
+
+    if upper is None:
+        upper = max(values)
+    else:
+        upper = assert_numeric(upper)
+        if any(value > upper for value in values):
+            raise ValueError('upper bound must be above all values')
+
+    return values, lower, upper
+
+
+def scale_nodes_size(g, map=None, lower=None, upper=None):
+    values, lower, upper = _assert_limits(extract_nodes(g, map), lower, upper)
+
+    for n, value in zip(g.nodes, values):
+        if lower == upper:
+            sc = 0.5
+        else:
+            sc = (value - lower) / (upper - lower)
+
+        g.nodes[n]['size'] = 5 + round(sc * 45)
+
+
+def scale_nodes_alpha(g, map=None, lower=None, upper=None, hue=None):
+    values, lower, upper = _assert_limits(extract_nodes(g, map), lower, upper)
+
+    for n, value in zip(g.nodes, values):
+        if lower == upper:
+            sc = 0.5
+        else:
+            sc = (value - lower) / (upper - lower)
+
+        if hue is None:
+            c = 255 - round(sc * 255)
+            g.nodes[n]['color'] = (c, c, c)
+        else:
+            if not isinstance(hue, int) and not isinstance(hue, float):
+                raise TypeError('hue must be numeric')
+            if hue < 0 or hue > 1:
+                raise ValueError('hue must be between 0 and 1')
+
+            sr, sg, sb = hsv_to_rgb(hue, sc, 1)
+            g.nodes[n]['color'] = (round(sr * 255), round(sg * 255), round(sb * 255))
+
+
 def scale_nodes(g, key, vlim=None, slim=(5, 50)):
     vs = []
     for n in g.nodes:
