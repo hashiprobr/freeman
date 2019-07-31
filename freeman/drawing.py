@@ -10,6 +10,7 @@ from pyvis.network import Network
 
 CACHE_DIR = '__fmcache__'
 
+EDGE_SCALE = 0.4
 EDGE_SPACE = 5
 EDGE_SIZE = 10
 EDGE_ANGLE = 0.3
@@ -399,16 +400,84 @@ def label_edges(g, key=None):
                     del g.edges[n, m]['label']
 
 
-def interact(g, path=None):
-    ig = Network(notebook=True)
-    ig.from_nx(g)
+def interact(g, path=None, physics=False):
+    local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
+    dx = local_left + local_right
+    dy = local_bottom + local_top
+    network = Network(
+        height='{}px'.format(local_height + dy),
+        width='{}px'.format(local_width + dx),
+        directed=isinstance(g, networkx.DiGraph),
+        notebook=True,
+        bgcolor='#ffffff',
+        font_color='#000000',
+        layout=None,
+    )
+
+    dx = local_left - dx // 2
+    dy = local_top - dy // 2
+    for n in g.nodes:
+        border_color = 'rgb(0, 0, 0)'
+        size, color, _ = _build_node_key(g, n)
+        options = {
+            'borderWidth': 1,
+            'borderWidthSelected': 1,
+            'color': {
+                'border': border_color,
+                'background': _convert(color),
+                'highlight': {
+                    'border': border_color,
+                    'background': _convert(color),
+                },
+                'hover': {
+                    'border': border_color,
+                    'background': _convert(color),
+                },
+            },
+            'label': ' ',
+            'labelHighlightBold': False,
+            'physics': physics,
+            'shape': 'dot',
+            'size': size // 2,
+            'x': int((g.nodes[n]['pos'][0] - 0.5) * (0.9 * local_width - 24) + 0.5) + dx,
+            'y': int((0.5 - g.nodes[n]['pos'][1]) * (0.9 * local_height - 24) + 0.5) + dy,
+        }
+        label = g.nodes[n]['label'] if 'label' in g.nodes[n] else None
+        if label:
+            options['title'] = label
+        network.add_node(n, **options)
+
+    for n, m in g.edges:
+        if n != m:
+            _, _, width, color, _, _, _ = _build_edge_key(g, n, m)
+            options = {
+                'color': {
+                    'color': _convert(color),
+                    'highlight': _convert(color),
+                    'hover': _convert(color),
+                },
+                'labelHighlightBold': False,
+                'selectionWidth': 0,
+                'width': width,
+            }
+            label = g.edges[n, m]['label'] if 'label' in g.edges[n, m] else None
+            if label:
+                options['title'] = label
+            network.add_edge(n, m, **options)
+            if network.directed:
+                network.edges[-1]['arrows'] = {
+                    'to': {
+                        'scaleFactor': EDGE_SCALE,
+                    },
+                }
 
     if path is None:
         if not os.path.exists(CACHE_DIR):
             os.mkdir(CACHE_DIR)
         path = os.path.join(CACHE_DIR, '{}.html'.format(id(g)))
 
-    iframe = ig.show(path)
+    iframe = network.show(path)
+
     display(iframe)
 
 
@@ -429,11 +498,12 @@ def draw(g, toolbar=False):
     edge_traces = {}
     edge_label_trace = _build_edge_label_trace()
     for n, m in g.edges:
-        n_size, m_size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
-        key = (width, color)
-        if key not in edge_traces:
-            edge_traces[key] = _build_edge_trace(width, color)
-        _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
+        if n != m:
+            n_size, m_size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+            key = (width, color)
+            if key not in edge_traces:
+                edge_traces[key] = _build_edge_trace(width, color)
+            _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
 
     data = list(edge_traces.values())
     data.extend(node_traces.values())
@@ -489,15 +559,16 @@ class Animation:
         edge_traces = []
         edge_label_trace = _build_edge_label_trace()
         for n, m in h.edges:
-            if g.has_edge(n, m):
-                n_size, m_size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
-                edge_trace = _build_edge_trace(width, color)
-                _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
-            else:
-                n_size, m_size, width, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
-                edge_trace = _build_edge_trace(width, (255, 255, 255, 0.0))
-                _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
-            edge_traces.append(edge_trace)
+            if n != m:
+                if g.has_edge(n, m):
+                    n_size, m_size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+                    edge_trace = _build_edge_trace(width, color)
+                    _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
+                else:
+                    n_size, m_size, width, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
+                    edge_trace = _build_edge_trace(width, (255, 255, 255, 0.0))
+                    _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
+                edge_traces.append(edge_trace)
 
         data = edge_traces
         data.extend(node_traces)
