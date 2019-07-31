@@ -1,5 +1,6 @@
 from math import isclose
 from statistics import mean
+from colorsys import hsv_to_rgb
 
 
 def assert_numeric(value):
@@ -43,6 +44,29 @@ def extract_edges(g, map, filter=None):
     for n, m in g.edges:
         if filter is None or filter(n, m):
             yield extract_edge(g, n, m, map)
+
+
+def colorize_nodes(g, map=None):
+    if map is None:
+        groups = [[n] for n in g.nodes]
+    else:
+        groups = {}
+        for n in g.nodes:
+            value = extract_node(g, n, map)
+            if value in groups:
+                groups[value].append(n)
+            else:
+                groups[value] = [n]
+        groups = groups.values()
+
+    h = 0
+    s = 1 / len(groups)
+    for group in groups:
+        sr, sg, sb = hsv_to_rgb(h, 1, 1)
+        color = (round(sr * 255), round(sg * 255), round(sb * 255))
+        for n in group:
+            g.nodes[n]['color'] = color
+        h += s
 
 
 def scale_nodes(g, key, vlim=None, slim=(5, 50)):
