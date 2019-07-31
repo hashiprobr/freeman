@@ -28,6 +28,11 @@ def extract_edge(g, n, m, map):
     raise TypeError('map must be a string, a dictionary, or a callable')
 
 
+def assert_numerics(values):
+    for value in values:
+        yield assert_numeric(value)
+
+
 def extract_nodes(g, map, filter=None):
     for n in g.nodes:
         if filter is None or filter(n):
