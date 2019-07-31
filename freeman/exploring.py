@@ -93,7 +93,7 @@ def scale_nodes_size(g, map=None, lower=None, upper=None):
     values, lower, upper = _assert_limits(extract_nodes(g, map), lower, upper)
 
     for n, value in zip(g.nodes, values):
-        if lower == upper:
+        if isclose(lower, upper):
             sc = 0.5
         else:
             sc = (value - lower) / (upper - lower)
@@ -105,7 +105,7 @@ def scale_edges_width(g, map=None, lower=None, upper=None):
     values, lower, upper = _assert_limits(extract_edges(g, map), lower, upper)
 
     for (n, m), value in zip(g.edges, values):
-        if lower == upper:
+        if isclose(lower, upper):
             sc = 0.5
         else:
             sc = (value - lower) / (upper - lower)
@@ -124,7 +124,7 @@ def scale_nodes_alpha(g, map=None, lower=None, upper=None, hue=None):
     values, lower, upper = _assert_limits(extract_nodes(g, map), lower, upper)
 
     for n, value in zip(g.nodes, values):
-        if lower == upper:
+        if isclose(lower, upper):
             sc = 0.5
         else:
             sc = (value - lower) / (upper - lower)
@@ -142,7 +142,7 @@ def scale_edges_alpha(g, map=None, lower=None, upper=None, hue=None):
     values, lower, upper = _assert_limits(extract_edges(g, map), lower, upper)
 
     for (n, m), value in zip(g.edges, values):
-        if lower == upper:
+        if isclose(lower, upper):
             sc = 0.5
         else:
             sc = (value - lower) / (upper - lower)
@@ -153,3 +153,33 @@ def scale_edges_alpha(g, map=None, lower=None, upper=None, hue=None):
             _assert_color(hue)
             sr, sg, sb = hsv_to_rgb(hue, 1, 1)
             g.edges[n, m]['color'] = (round(sr * 255), round(sg * 255), round(sb * 255), sc)
+
+
+def _assert_reference(values, lower, upper, middle):
+    if middle is None:
+        middle = mean(values)
+    else:
+        middle = assert_numeric(middle)
+        if middle < lower or middle > upper:
+            raise ValueError('middle must be between lower and upper')
+
+    return middle
+
+
+def heat_nodes(g, map=None, lower=None, upper=None, middle=None):
+    values, lower, upper = _assert_limits(extract_nodes(g, map), lower, upper)
+
+    middle = _assert_reference(values, lower, upper, middle)
+
+    for n, value in zip(g.nodes, values):
+        if isclose(lower, upper):
+            g.nodes[n]['color'] = (255, 255, 255)
+        else:
+            if value < middle:
+                sc = (value - lower) / (middle - lower)
+                c = round(sc * 255)
+                g.nodes[n]['color'] = (c, c, 255)
+            else:
+                sc = (value - middle) / (upper - middle)
+                c = 255 - round(sc * 255)
+                g.nodes[n]['color'] = (255, c, c)
