@@ -73,6 +73,28 @@ def colorize_nodes(g, map=None):
         h += s
 
 
+def colorize_edges(g, map=None):
+    if map is None:
+        groups = [[(n, m)] for n, m in g.edges]
+    else:
+        groups = {}
+        for n, m in g.edges:
+            value = extract_edge(g, n, m, map)
+            if value in groups:
+                groups[value].append((n, m))
+            else:
+                groups[value] = [(n, m)]
+        groups = groups.values()
+
+    h = 0
+    s = 1 / len(groups)
+    for group in groups:
+        color = _transform(h, 1, 1)
+        for n, m in group:
+            g.edges[n, m]['color'] = color
+        h += s
+
+
 def _assert_limits(values, lower, upper):
     values = list(assert_numerics(values))
 
@@ -155,7 +177,7 @@ def scale_edges_alpha(g, map=None, lower=None, upper=None, hue=None):
         else:
             _assert_color(hue)
             sr, sg, sb = _transform(hue, 1, 1)
-            g.edges[n, m]['color'] = (round(sr * 255), round(sg * 255), round(sb * 255), sc)
+            g.edges[n, m]['color'] = (sr, sg, sb, sc)
 
 
 def _assert_reference(values, lower, upper, middle):
