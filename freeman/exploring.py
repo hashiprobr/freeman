@@ -3,6 +3,11 @@ from statistics import mean
 from colorsys import hsv_to_rgb
 
 
+def _transform(h, s, v):
+    sr, sg, sb = hsv_to_rgb(h, s, v)
+    return round(sr * 255), round(sg * 255), round(sb * 255)
+
+
 def assert_numeric(value):
     if not isinstance(value, int) and not isinstance(value, float):
         raise TypeError('value must be numeric')
@@ -62,8 +67,7 @@ def colorize_nodes(g, map=None):
     h = 0
     s = 1 / len(groups)
     for group in groups:
-        sr, sg, sb = hsv_to_rgb(h, 1, 1)
-        color = (round(sr * 255), round(sg * 255), round(sb * 255))
+        color = _transform(h, 1, 1)
         for n in group:
             g.nodes[n]['color'] = color
         h += s
@@ -134,8 +138,7 @@ def scale_nodes_alpha(g, map=None, lower=None, upper=None, hue=None):
             g.nodes[n]['color'] = (c, c, c)
         else:
             _assert_color(hue)
-            sr, sg, sb = hsv_to_rgb(hue, sc, 1)
-            g.nodes[n]['color'] = (round(sr * 255), round(sg * 255), round(sb * 255))
+            g.nodes[n]['color'] = _transform(hue, sc, 1)
 
 
 def scale_edges_alpha(g, map=None, lower=None, upper=None, hue=None):
@@ -151,7 +154,7 @@ def scale_edges_alpha(g, map=None, lower=None, upper=None, hue=None):
             g.edges[n, m]['color'] = (0, 0, 0, sc)
         else:
             _assert_color(hue)
-            sr, sg, sb = hsv_to_rgb(hue, 1, 1)
+            sr, sg, sb = _transform(hue, 1, 1)
             g.edges[n, m]['color'] = (round(sr * 255), round(sg * 255), round(sb * 255), sc)
 
 
@@ -183,3 +186,20 @@ def heat_nodes(g, map=None, lower=None, upper=None, middle=None):
                 sc = (value - middle) / (upper - middle)
                 c = 255 - round(sc * 255)
                 g.nodes[n]['color'] = (255, c, c)
+
+
+def heat_edges(g, map=None, lower=None, upper=None, middle=None):
+    values, lower, upper = _assert_limits(extract_edges(g, map), lower, upper)
+
+    middle = _assert_reference(values, lower, upper, middle)
+
+    for (n, m), value in zip(g.edges, values):
+        if isclose(lower, upper):
+            g.edges[n, m]['color'] = (255, 255, 255)
+        else:
+            if value < middle:
+                sc = (value - lower) / (middle - lower)
+                g.edges[n, m]['color'] = (0, 0, 255, 1 - sc)
+            else:
+                sc = (value - middle) / (upper - middle)
+                g.edges[n, m]['color'] = (255, 0, 0, sc)
