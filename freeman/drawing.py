@@ -1,9 +1,14 @@
+import os
 import networkx
 import plotly
 
 from math import isclose, isinf, sqrt, cos, sin
+from IPython.display import display
 from networkx import NetworkXError
+from pyvis.network import Network
 
+
+CACHE_DIR = '__fmcache__'
 
 EDGE_SPACE = 5
 EDGE_SIZE = 10
@@ -392,6 +397,19 @@ def label_edges(g, key=None):
             else:
                 if 'label' in g.edges[n, m]:
                     del g.edges[n, m]['label']
+
+
+def interact(g, path=None):
+    ig = Network(notebook=True)
+    ig.from_nx(g)
+
+    if path is None:
+        if not os.path.exists(CACHE_DIR):
+            os.mkdir(CACHE_DIR)
+        path = os.path.join(CACHE_DIR, '{}.html'.format(id(g)))
+
+    iframe = ig.show(path)
+    display(iframe)
 
 
 def draw(g, toolbar=False):
