@@ -89,6 +89,13 @@ def _assert_limits(values, lower, upper):
     return values, lower, upper
 
 
+def _assert_color(component):
+    if not isinstance(component, int) and not isinstance(component, float):
+        raise TypeError('component must be numeric')
+    if component < 0 or component > 1:
+        raise ValueError('component must be between 0 and 1')
+
+
 def scale_nodes_size(g, map=None, lower=None, upper=None):
     values, lower, upper = _assert_limits(extract_nodes(g, map), lower, upper)
 
@@ -114,10 +121,35 @@ def scale_nodes_alpha(g, map=None, lower=None, upper=None, hue=None):
             c = 255 - round(sc * 255)
             g.nodes[n]['color'] = (c, c, c)
         else:
-            if not isinstance(hue, int) and not isinstance(hue, float):
-                raise TypeError('hue must be numeric')
-            if hue < 0 or hue > 1:
-                raise ValueError('hue must be between 0 and 1')
-
+            _assert_color(hue)
             sr, sg, sb = hsv_to_rgb(hue, sc, 1)
             g.nodes[n]['color'] = (round(sr * 255), round(sg * 255), round(sb * 255))
+
+
+def scale_edges_width(g, map=None, lower=None, upper=None):
+    values, lower, upper = _assert_limits(extract_edges(g, map), lower, upper)
+
+    for (n, m), value in zip(g.edges, values):
+        if lower == upper:
+            sc = 0.5
+        else:
+            sc = (value - lower) / (upper - lower)
+
+        g.edges[n, m]['width'] = 1 + round(sc * 9)
+
+
+def scale_edges_alpha(g, map=None, lower=None, upper=None, hue=None):
+    values, lower, upper = _assert_limits(extract_edges(g, map), lower, upper)
+
+    for (n, m), value in zip(g.edges, values):
+        if lower == upper:
+            sc = 0.5
+        else:
+            sc = (value - lower) / (upper - lower)
+
+        if hue is None:
+            g.edges[n, m]['color'] = (0, 0, 0, sc)
+        else:
+            _assert_color(hue)
+            sr, sg, sb = hsv_to_rgb(hue, 1, 1)
+            g.edges[n, m]['color'] = (round(sr * 255), round(sg * 255), round(sb * 255), sc)
