@@ -24,13 +24,8 @@ def load_graph(path, key='random', *args, **kwargs):
         move(g, key, *args, **kwargs)
     else:
         for n in g.nodes:
-            x = g.nodes[n]['x']
-            if not isinstance(x, int) and not isinstance(x, float):
-                raise TypeError('non-numeric x in node ' + str(n))
-            y = g.nodes[n]['y']
-            if not isinstance(y, int) and not isinstance(y, float):
-                raise TypeError('non-numeric y in node ' + str(n))
-
+            x = assert_numeric(g.nodes[n]['x'])
+            y = assert_numeric(g.nodes[n]['y'])
             g.nodes[n]['pos'] = (x, y)
             del g.nodes[n]['x']
             del g.nodes[n]['y']
@@ -44,7 +39,7 @@ def load_graph(path, key='random', *args, **kwargs):
             if value == 0 or value == 1:
                 g.edges[n, m]['labflip'] = bool(value)
             else:
-                raise ValueError('non-binary labflip in edge ({}, {})'.format(n, m))
+                raise ValueError('labflip must be binary')
 
     return FreemanGraph(g)
 
@@ -115,10 +110,6 @@ class FreemanGraph(ObjectProxy):
     def draw(self, toolbar=False):
         draw(self, toolbar)
 
-    def extract_node(self, n, map):
-        return extract_node(self, n, map)
-    def extract_edge(self, n, m, map):
-        return extract_edge(self, n, m, map)
     def extract_nodes(self, map, filter=None):
         return extract_nodes(self, map, filter)
     def extract_edges(self, map, filter=None):
