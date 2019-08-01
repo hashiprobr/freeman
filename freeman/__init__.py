@@ -139,16 +139,12 @@ class FreemanGraph(ObjectProxy):
         scatter(self, xmap, ymap)
     def move(self, key, *args, **kwargs):
         move(self, key, *args, **kwargs)
-    def move_copy(self, h, key, *args, **kwargs):
-        move_copy(self, h, key, *args, **kwargs)
     def move_inverse(self, key, weight, *args, **kwargs):
         move_inverse(self, key, weight, *args, **kwargs)
     def move_negative(self, key, weight, *args, **kwargs):
         move_negative(self, key, weight, *args, **kwargs)
     def move_complement(self, key, *args, **kwargs):
         move_complement(self, key, *args, **kwargs)
-    def movement(self, h):
-        return movement(self, h)
 
     def dyads(self, ordered=False):
         return dyads(self, ordered)
