@@ -116,7 +116,7 @@ def label_nodes(g, map=None, ndigits=2):
 def label_edges(g, map=None, ndigits=2):
     for n, m in g.edges:
         if map is None:
-            g.edges[n, m]['label'] = '({}, {})'.format(n, m)
+            g.edges[n, m]['label'] = str((n, m))
         else:
             value = extract_edge(g, n, m, map)
 

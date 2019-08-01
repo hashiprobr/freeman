@@ -4,6 +4,7 @@ from wrapt import ObjectProxy
 from .drawing import *
 from .exploring import *
 from .moving import *
+from .analyzing import *
 
 
 def load(path, key='random', *args, **kwargs):
@@ -145,6 +146,55 @@ class FreemanGraph(ObjectProxy):
         move_negative(self, key, weight, *args, **kwargs)
     def move_complement(self, key, *args, **kwargs):
         move_complement(self, key, *args, **kwargs)
+
+    def save_nodes(self, maps):
+        save_nodes(self, maps)
+    def save_edges(self, maps):
+        save_edges(self, maps)
+    def chisquare_nodes(self, rows, cols, rmap=None, cmap=None):
+        return chisquare_nodes(self, rows, cols, rmap, cmap)
+    def chisquare_edges(self, rows, cols, rmap=None, cmap=None):
+        return chisquare_edges(self, rows, cols, rmap, cmap)
+    def correlation_nodes(self, x, y, xmap=None, ymap=None):
+        return correlation_nodes(self, x, y, xmap, ymap)
+    def correlation_edges(self, x, y, xmap=None, ymap=None):
+        return correlation_edges(self, x, y, xmap, ymap)
+    def student_nodes(self, rows, cols, rmap=None, cmap=None):
+        return student_nodes(self, rows, cols, rmap, cmap)
+    def student_edges(self, rows, cols, rmap=None, cmap=None):
+        return student_edges(self, rows, cols, rmap, cmap)
+    def linregress_nodes(self, X, y, Xmap=None, ymap=None):
+        return linregress_nodes(self, X, y, Xmap, ymap)
+    def linregress_edges(self, X, y, Xmap=None, ymap=None):
+        return linregress_edges(self, X, y, Xmap, ymap)
+    def logregress_nodes(self, X, y, Xmap=None, ymap=None, max_iter=100):
+        return logregress_nodes(self, X, y, Xmap, ymap)
+    def logregress_edges(self, X, y, Xmap=None, ymap=None, max_iter=100):
+        return logregress_edges(self, X, y, Xmap, ymap)
+    def encode_nodes(self, X, Xmap=None):
+        encode_nodes(self, X, Xmap)
+    def encode_edges(self, X, Xmap=None):
+        encode_edges(self, X, Xmap)
+    def scatterplot_nodes(self, x, y, xmap=None, ymap=None, control=None):
+        scatterplot_nodes(self, x, y, xmap, ymap, control)
+    def scatterplot_edges(self, x, y, xmap=None, ymap=None, control=None):
+        scatterplot_edges(self, x, y, xmap, ymap, control)
+    def pairplot_nodes(self, cols, maps=None, control=None):
+        pairplot_nodes(self, cols, maps, control)
+    def pairplot_edges(self, cols, maps=None, control=None):
+        pairplot_edges(self, cols, maps, control)
+    def doubleplot_nodes(self, group, hue, groupmap=None, huemap=None):
+        doubleplot_nodes(self, group, hue, groupmap, huemap)
+    def doubleplot_edges(self, group, hue, groupmap=None, huemap=None):
+        doubleplot_edges(self, group, hue, groupmap, huemap)
+    def jointplot_nodes(self, x, y, xmap=None, ymap=None):
+        jointplot_nodes(self, x, y, xmap, ymap)
+    def jointplot_edges(self, x, y, xmap=None, ymap=None):
+        jointplot_edges(self, x, y, xmap, ymap)
+    def boxplot_nodes(self, x, y, xmap=None, ymap=None, control=None):
+        boxplot_nodes(self, x, y, xmap, ymap, control)
+    def boxplot_edges(self, x, y, xmap=None, ymap=None, control=None):
+        boxplot_edges(self, x, y, xmap, ymap, control)
 
     def dyads(self, ordered=False):
         return dyads(self, ordered)
