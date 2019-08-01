@@ -6,7 +6,7 @@ from .exploring import *
 from .moving import *
 
 
-def load_graph(path, key='random', *args, **kwargs):
+def load(path, key='random', *args, **kwargs):
     g = networkx.read_gml(path, label='id')
 
     if isinstance(g, networkx.MultiGraph):
