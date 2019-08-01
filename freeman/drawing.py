@@ -2,12 +2,10 @@ import os
 import networkx
 import plotly
 
-from math import isclose, isinf, sqrt, cos, sin
+from math import isclose, sqrt, cos, sin
 from IPython.display import display
 from networkx import NetworkXError
 from pyvis.network import Network
-
-from .exploring import extract_node, extract_edge
 
 
 CACHE_DIR = '__fmcache__'
@@ -77,16 +75,6 @@ def _convert(color):
         return 'rgba({}, {}, {}, {})'.format(r, g, b, a)
 
     return 'rgb({}, {}, {})'.format(r, g, b)
-
-
-def _stringify(value, ndigits):
-    if isinstance(value, float):
-        if isinf(value):
-            return '∞'
-
-        value = round(value, ndigits)
-
-    return str(value)
 
 
 def _build_graph_key(g):
@@ -376,26 +364,6 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
             y1 = y0 + ry
             edge_trace['x'].extend([x0, x1, None])
             edge_trace['y'].extend([y0, y1, None])
-
-
-def label_nodes(g, map=None, ndigits=2):
-    for n in g.nodes:
-        if map is None:
-            g.nodes[n]['label'] = str(n)
-        else:
-            value = extract_node(g, n, map)
-
-            g.nodes[n]['label'] = _stringify(value, ndigits)
-
-
-def label_edges(g, map=None, ndigits=2):
-    for n, m in g.edges:
-        if map is None:
-            g.edges[n, m]['label'] = '({}, {})'.format(n, m)
-        else:
-            value = extract_edge(g, n, m, map)
-
-            g.edges[n, m]['label'] = _stringify(value, ndigits)
 
 
 def interact(g, path=None, physics=False):
