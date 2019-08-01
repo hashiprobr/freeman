@@ -16,7 +16,11 @@ def _stringify(value, ndigits):
 def _transform(h, s, v):
     sr, sg, sb = hsv_to_rgb(h, s, v)
 
-    return round(sr * 255), round(sg * 255), round(sb * 255)
+    r = round(sr * 255)
+    g = round(sg * 255)
+    b = round(sb * 255)
+
+    return r, g, b
 
 
 def _assert_limits(values, lower, upper):
@@ -25,36 +29,35 @@ def _assert_limits(values, lower, upper):
     if lower is None:
         lower = min(values)
     else:
-        lower = assert_numeric(lower)
+        assert_numeric(lower)
         if any(value < lower for value in values):
             raise ValueError('lower bound must be below all values')
 
     if upper is None:
         upper = max(values)
     else:
-        upper = assert_numeric(upper)
+        assert_numeric(upper)
         if any(value > upper for value in values):
             raise ValueError('upper bound must be above all values')
 
     return values, lower, upper
 
 
-def _assert_color(component):
-    if not isinstance(component, int) and not isinstance(component, float):
-        raise TypeError('component must be numeric')
-    if component < 0 or component > 1:
-        raise ValueError('component must be between 0 and 1')
-
-
 def _assert_reference(values, lower, upper, middle):
     if middle is None:
         middle = mean(values)
     else:
-        middle = assert_numeric(middle)
+        assert_numeric(middle)
         if middle < lower or middle > upper:
             raise ValueError('middle must be between lower and upper')
 
     return middle
+
+
+def _assert_color(component):
+    assert_numeric(component)
+    if component < 0 or component > 1:
+        raise ValueError('component must be between 0 and 1')
 
 
 def assert_numeric(value):
@@ -218,8 +221,8 @@ def scale_edges_alpha(g, map, lower=None, upper=None, hue=None):
             g.edges[n, m]['color'] = (0, 0, 0, sc)
         else:
             _assert_color(hue)
-            sr, sg, sb = _transform(hue, 1, 1)
-            g.edges[n, m]['color'] = (sr, sg, sb, sc)
+            color = _transform(hue, 1, 1)
+            g.edges[n, m]['color'] = (*color, sc)
 
 
 def heat_nodes(g, map, lower=None, upper=None, middle=None):
