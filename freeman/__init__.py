@@ -2,8 +2,8 @@ from itertools import permutations, combinations
 from wrapt import ObjectProxy
 
 from .drawing import *
-from .moving import *
 from .exploring import *
+from .moving import *
 
 
 def load_graph(path, key='random', *args, **kwargs):
@@ -51,22 +51,14 @@ def load_graph(path, key='random', *args, **kwargs):
 
 def dyads(g, ordered=False):
     if ordered:
-        generator = permutations(g, 2)
-    else:
-        generator = combinations(g, 2)
-
-    for n, m in generator:
-        yield n, m
+        return permutations(g, 2)
+    return combinations(g, 2)
 
 
 def triads(g, ordered=False):
     if ordered:
-        generator = permutations(g, 3)
-    else:
-        generator = combinations(g, 3)
-
-    for n, m, l in generator:
-        yield n, m, l
+        return permutations(g, 3)
+    return combinations(g, 3)
 
 
 def copy_node(g, h, n):
@@ -165,7 +157,7 @@ class FreemanGraph(ObjectProxy):
     def move_complement(self, key, *args, **kwargs):
         move_complement(self, key, *args, **kwargs)
     def movement(self, h):
-        movement(self, h)
+        return movement(self, h)
 
     def dyads(self, ordered=False):
         return dyads(self, ordered)
