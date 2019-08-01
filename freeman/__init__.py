@@ -6,7 +6,7 @@ from .moving import *
 from .exploring import *
 
 
-def load(path, key='random', *args, **kwargs):
+def load_graph(path, key='random', *args, **kwargs):
     g = networkx.read_gml(path, label='id')
 
     if isinstance(g, networkx.MultiGraph):
@@ -118,4 +118,72 @@ def unset_edges(g, key, filter=None):
 
 
 class FreemanGraph(ObjectProxy):
-    pass
+    def dyads(self, ordered=False):
+        return dyads(self, ordered)
+    def triads(self, ordered=False):
+        return triads(self, ordered)
+    def copy_node(self, h, n):
+        copy_node(self, h, n)
+    def copy_edge(self, h, n, m):
+        copy_edge(self, h, n, m)
+    def set_each_node(self, key, map, filter=None):
+        set_each_node(self, key, map, filter)
+    def set_each_edge(self, key, map, filter=None):
+        set_each_edge(self, key, map, filter)
+    def set_all_nodes(self, key, value, filter=None):
+        set_all_nodes(self, key, value, filter)
+    def set_all_edges(self, key, value, filter=None):
+        set_all_edges(self, key, value, filter)
+    def unset_nodes(self, key, filter=None):
+        unset_nodes(self, key, filter)
+    def unset_edges(self, key, filter=None):
+        unset_edges(self, key, filter)
+
+    def label_nodes(self, map=None, ndigits=2):
+        label_nodes(self, map, ndigits)
+    def label_edges(self, map=None, ndigits=2):
+        label_edges(self, map, ndigits)
+    def interact(self, path=None, physics=False):
+        interact(self, path, physics)
+    def draw(self, toolbar=False):
+        draw(self, toolbar)
+
+    def extract_node(self, n, map):
+        return extract_node(self, n, map)
+    def extract_edge(self, n, m, map):
+        return extract_edge(self, n, m, map)
+    def extract_nodes(self, map, filter=None):
+        return extract_nodes(self, map, filter)
+    def extract_edges(self, map, filter=None):
+        return extract_edges(self, map, filter)
+    def colorize_nodes(self, map=None):
+        colorize_nodes(self, map)
+    def colorize_edges(self, map=None):
+        colorize_edges(self, map)
+    def scale_nodes_size(self, map, lower=None, upper=None):
+        scale_nodes_size(self, map, lower, upper)
+    def scale_edges_width(self, map, lower=None, upper=None):
+        scale_edges_width(self, map, lower, upper)
+    def scale_nodes_alpha(self, map, lower=None, upper=None, hue=None):
+        scale_nodes_alpha(self, map, lower, upper, hue)
+    def scale_edges_alpha(self, map, lower=None, upper=None, hue=None):
+        scale_edges_alpha(self, map, lower, upper, hue)
+    def heat_nodes(self, map, lower=None, upper=None, middle=None):
+        heat_nodes(self, map, lower, upper, middle)
+    def heat_edges(self, map, lower=None, upper=None, middle=None):
+        heat_edges(self, map, lower, upper, middle)
+
+    def scatter(self, xmap, ymap):
+        scatter(self, xmap, ymap)
+    def move(self, key, *args, **kwargs):
+        move(self, key, *args, **kwargs)
+    def move_copy(self, h, key, *args, **kwargs):
+        move_copy(self, h, key, *args, **kwargs)
+    def move_inverse(self, key, weight, *args, **kwargs):
+        move_inverse(self, key, weight, *args, **kwargs)
+    def move_negative(self, key, weight, *args, **kwargs):
+        move_negative(self, key, weight, *args, **kwargs)
+    def move_complement(self, key, *args, **kwargs):
+        move_complement(self, key, *args, **kwargs)
+    def movement(self, h):
+        movement(self, h)

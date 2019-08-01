@@ -115,7 +115,7 @@ def _assert_limits(values, lower, upper):
     return values, lower, upper
 
 
-def scale_nodes_size(g, map=None, lower=None, upper=None):
+def scale_nodes_size(g, map, lower=None, upper=None):
     values, lower, upper = _assert_limits(extract_nodes(g, map), lower, upper)
 
     for n, value in zip(g.nodes, values):
@@ -127,7 +127,7 @@ def scale_nodes_size(g, map=None, lower=None, upper=None):
         g.nodes[n]['size'] = 5 + round(sc * 45)
 
 
-def scale_edges_width(g, map=None, lower=None, upper=None):
+def scale_edges_width(g, map, lower=None, upper=None):
     values, lower, upper = _assert_limits(extract_edges(g, map), lower, upper)
 
     for (n, m), value in zip(g.edges, values):
@@ -146,7 +146,7 @@ def _assert_color(component):
         raise ValueError('component must be between 0 and 1')
 
 
-def scale_nodes_alpha(g, map=None, lower=None, upper=None, hue=None):
+def scale_nodes_alpha(g, map, lower=None, upper=None, hue=None):
     values, lower, upper = _assert_limits(extract_nodes(g, map), lower, upper)
 
     for n, value in zip(g.nodes, values):
@@ -163,7 +163,7 @@ def scale_nodes_alpha(g, map=None, lower=None, upper=None, hue=None):
             g.nodes[n]['color'] = _transform(hue, sc, 1)
 
 
-def scale_edges_alpha(g, map=None, lower=None, upper=None, hue=None):
+def scale_edges_alpha(g, map, lower=None, upper=None, hue=None):
     values, lower, upper = _assert_limits(extract_edges(g, map), lower, upper)
 
     for (n, m), value in zip(g.edges, values):
@@ -191,7 +191,7 @@ def _assert_reference(values, lower, upper, middle):
     return middle
 
 
-def heat_nodes(g, map=None, lower=None, upper=None, middle=None):
+def heat_nodes(g, map, lower=None, upper=None, middle=None):
     values, lower, upper = _assert_limits(extract_nodes(g, map), lower, upper)
 
     middle = _assert_reference(values, lower, upper, middle)
@@ -210,7 +210,7 @@ def heat_nodes(g, map=None, lower=None, upper=None, middle=None):
                 g.nodes[n]['color'] = (255, c, c)
 
 
-def heat_edges(g, map=None, lower=None, upper=None, middle=None):
+def heat_edges(g, map, lower=None, upper=None, middle=None):
     values, lower, upper = _assert_limits(extract_edges(g, map), lower, upper)
 
     middle = _assert_reference(values, lower, upper, middle)
