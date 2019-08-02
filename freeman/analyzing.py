@@ -90,7 +90,7 @@ def correlation(x, y, max_perm):
             if (r < 0 and result <= r) or r == 0 or (r > 0 and result >= r):
                 above += 1
             total += 1
-        p = above / total
+        p = 2 * (above / total)
     return r, p
 
 
