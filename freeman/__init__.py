@@ -154,10 +154,10 @@ class FreemanGraph(ObjectProxy):
         return correlation_nodes(self, x, y, xmap, ymap)
     def correlation_edges(self, x, y, xmap=None, ymap=None):
         return correlation_edges(self, x, y, xmap, ymap)
-    def chisquared_nodes(self, rows, cols, rmap=None, cmap=None):
-        return chisquared_nodes(self, rows, cols, rmap, cmap)
-    def chisquared_edges(self, rows, cols, rmap=None, cmap=None):
-        return chisquared_edges(self, rows, cols, rmap, cmap)
+    def chisquared_nodes(self, rows, cols, rmap=None, cmap=None, max_perm=None):
+        return chisquared_nodes(self, rows, cols, rmap, cmap, max_perm)
+    def chisquared_edges(self, rows, cols, rmap=None, cmap=None, max_perm=None):
+        return chisquared_edges(self, rows, cols, rmap, cmap, max_perm)
     def student_nodes(self, a, b, amap=None, bmap=None, max_perm=None):
         return student_nodes(self, a, b, amap, bmap, max_perm)
     def student_edges(self, a, b, amap=None, bmap=None, max_perm=None):

@@ -99,30 +99,46 @@ def correlation_edges(g, x, y, xmap=None, ymap=None):
     return correlation(g.graph['edgeframe'], x, y)
 
 
-def chisquared(df, rows, cols):
-    observed = pd.crosstab(df[rows], df[cols])
+def chisquared(rows, cols, max_perm):
+    observed = pd.crosstab(rows, cols)
     c, p, _, _ = chi2_contingency(observed)
+    if max_perm is not None:
+        original = list(cols)
+        if max_perm == 0:
+            resamples = permutations(original)
+        else:
+            resamples = _permutations(original, max_perm)
+        above = 0
+        total = 0
+        for resample in resamples:
+            result, _ = chisquared(rows, pd.Series(resample), None)
+            if result >= c:
+                above += 1
+            total += 1
+            p = above / total
     return c, p
 
 
-def chisquared_nodes(g, rows, cols, rmap=None, cmap=None):
+def chisquared_nodes(g, rows, cols, rmap=None, cmap=None, max_perm=None):
     maps = _filter({
         rows: rmap,
         cols: cmap,
     })
     if maps:
         save_nodes(g, maps)
-    return chisquared(g.graph['nodeframe'], rows, cols)
+    df = g.graph['nodeframe']
+    return chisquared(df[rows], df[cols], max_perm)
 
 
-def chisquared_edges(g, rows, cols, rmap=None, cmap=None):
+def chisquared_edges(g, rows, cols, rmap=None, cmap=None, max_perm=None):
     maps = _filter({
         rows: rmap,
         cols: cmap,
     })
     if maps:
         save_edges(g, maps)
-    return chisquared(g.graph['edgeframe'], rows, cols)
+    df = g.graph['edgeframe']
+    return chisquared(df[rows], df[cols], max_perm)
 
 
 def student(a, b, max_perm):
@@ -133,11 +149,11 @@ def student(a, b, max_perm):
         _, p = ttest_ind(a, b)
     if p is not None and max_perm is not None:
         size = a.size
-        merged = list(pd.concat([a, b]))
+        original = list(pd.concat([a, b]))
         if max_perm == 0:
-            resamples = permutations(merged)
+            resamples = permutations(original)
         else:
-            resamples = _permutations(merged, max_perm)
+            resamples = _permutations(original, max_perm)
         above = 0
         total = 0
         for resample in resamples:
