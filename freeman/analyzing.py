@@ -1,6 +1,7 @@
 import pandas as pd
 import seaborn as sns
 
+from itertools import combinations
 from scipy.stats import pearsonr, chi2_contingency, ttest_ind
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import OneHotEncoder
@@ -118,9 +119,12 @@ def chisquared_edges(g, rows, cols, rmap=None, cmap=None):
     return chisquared(g.graph['edgeframe'], rows, cols)
 
 
-def student(df, a, b):
-    d = abs(df[a].mean() - df[b].mean())
-    _, p = ttest_ind(df[a], df[b])
+def student(a, b):
+    d = abs(a.mean() - b.mean())
+    if a.size < 2 or b.size < 2 or a.var() == 0 or b.var() == 0:
+        p = None
+    else:
+        _, p = ttest_ind(a, b)
     return d, p
 
 
@@ -131,7 +135,8 @@ def student_nodes(g, a, b, amap=None, bmap=None):
     })
     if maps:
         save_nodes(g, maps)
-    return student(g.graph['nodeframe'], a, b)
+    df = g.graph['nodeframe']
+    return student(df[a], df[b])
 
 
 def student_edges(g, a, b, amap=None, bmap=None):
@@ -141,7 +146,42 @@ def student_edges(g, a, b, amap=None, bmap=None):
     })
     if maps:
         save_edges(g, maps)
-    return student(g.graph['edgeframe'], a, b)
+    df = g.graph['edgeframe']
+    return student(df[a], df[b])
+
+
+def pairstudent(df, x, y):
+    data = {}
+    for value in df[x]:
+        if value not in data:
+            data[value] = df[df[x] == value][y]
+    result = {}
+    for a, b in combinations(data, 2):
+        if data[a].empty or data[b].empty:
+            result[a, b] = None
+        else:
+            result[a, b] = student(data[a], data[b])
+    return result
+
+
+def pairstudent_nodes(g, x, y, xmap=None, ymap=None):
+    maps = _filter({
+        x: xmap,
+        y: ymap,
+    })
+    if maps:
+        save_nodes(g, maps)
+    return pairstudent(g.graph['nodeframe'], x, y)
+
+
+def pairstudent_edges(g, x, y, xmap=None, ymap=None):
+    maps = _filter({
+        x: xmap,
+        y: ymap,
+    })
+    if maps:
+        save_edges(g, maps)
+    return pairstudent(g.graph['edgeframe'], x, y)
 
 
 def linregress(df, X, y):
