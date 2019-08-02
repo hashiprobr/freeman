@@ -75,28 +75,45 @@ def concat_edges(graphs, col):
     return concat({value: g.graph['edgeframe'] for value, g in graphs.items()}, col)
 
 
-def correlation(df, x, y):
-    return pearsonr(df[x], df[y])
+def correlation(x, y, max_perm):
+    r, p = pearsonr(x, y)
+    if max_perm is not None:
+        original = list(y)
+        if max_perm == 0:
+            resamples = permutations(original)
+        else:
+            resamples = _permutations(original, max_perm)
+        above = 0
+        total = 0
+        for resample in resamples:
+            result, _ = correlation(x, pd.Series(resample), None)
+            if (r < 0 and result <= r) or r == 0 or (r > 0 and result >= r):
+                above += 1
+            total += 1
+        p = above / total
+    return r, p
 
 
-def correlation_nodes(g, x, y, xmap=None, ymap=None):
+def correlation_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         save_nodes(g, maps)
-    return correlation(g.graph['nodeframe'], x, y)
+    df = g.graph['nodeframe']
+    return correlation(df[x], df[y], max_perm)
 
 
-def correlation_edges(g, x, y, xmap=None, ymap=None):
+def correlation_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         save_edges(g, maps)
-    return correlation(g.graph['edgeframe'], x, y)
+    df = g.graph['edgeframe']
+    return correlation(df[x], df[y], max_perm)
 
 
 def chisquared(rows, cols, max_perm):
@@ -115,7 +132,7 @@ def chisquared(rows, cols, max_perm):
             if result >= c:
                 above += 1
             total += 1
-            p = above / total
+        p = above / total
     return c, p
 
 
@@ -161,7 +178,7 @@ def student(a, b, max_perm):
             if result >= d:
                 above += 1
             total += 1
-            p = above / total
+        p = above / total
     return d, p
 
 
