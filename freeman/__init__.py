@@ -41,7 +41,7 @@ def load(path, key='random', *args, **kwargs):
             else:
                 raise ValueError('labflip must be binary')
 
-    return FreemanGraph(g)
+    return Graph(g)
 
 
 def dyads(g, ordered=False):
@@ -108,7 +108,7 @@ def unset_edges(g, key, filter=None):
             del g.edges[n, m][key]
 
 
-class FreemanGraph(ObjectProxy):
+class Graph(ObjectProxy):
     def interact(self, path=None, physics=False):
         interact(self, path, physics)
     def draw(self, toolbar=False):

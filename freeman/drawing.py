@@ -551,6 +551,12 @@ class Animation:
 
         self.frames.append(frame)
 
+    def burst(self, graphs):
+        u = networkx.compose_all(graphs)
+
+        for g in graphs:
+            self.rec(g, u)
+
     def play(self):
         if not self.frames:
             raise NetworkXError('animation must have at least one frame')
