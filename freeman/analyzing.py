@@ -1,7 +1,7 @@
 import pandas as pd
 import seaborn as sns
 
-from scipy.stats import chi2_contingency, pearsonr, ttest_ind
+from scipy.stats import pearsonr, chi2_contingency, ttest_ind
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import OneHotEncoder
 
@@ -54,30 +54,18 @@ def save_edges(g, maps):
         g.graph['edgeframe'][col] = list(extract_edges(g, map))
 
 
-def chisquare(df, rows, cols):
-    observed = pd.crosstab(df[rows], df[cols])
-    _, p, _, expected = chi2_contingency(observed)
-    return pd.DataFrame(expected), p
+def concat(dfs, col):
+    for value, df in dfs.items():
+        df[col] = value
+    return pd.concat(dfs.values())
 
 
-def chisquare_nodes(g, rows, cols, rmap=None, cmap=None):
-    maps = _filter({
-        rows: rmap,
-        cols: cmap,
-    })
-    if maps:
-        save_nodes(g, maps)
-    return chisquare(g.graph['nodeframe'], rows, cols)
+def concat_nodes(graphs, col):
+    return concat({value: g.graph['nodeframe'] for value, g in graphs.items()}, col)
 
 
-def chisquare_edges(g, rows, cols, rmap=None, cmap=None):
-    maps = _filter({
-        rows: rmap,
-        cols: cmap,
-    })
-    if maps:
-        save_edges(g, maps)
-    return chisquare(g.graph['edgeframe'], rows, cols)
+def concat_edges(graphs, col):
+    return concat({value: g.graph['edgeframe'] for value, g in graphs.items()}, col)
 
 
 def correlation(df, x, y):
@@ -104,36 +92,63 @@ def correlation_edges(g, x, y, xmap=None, ymap=None):
     return correlation(g.graph['edgeframe'], x, y)
 
 
-def student(df, rows, cols):
-    _, p = ttest_ind(x, y)
-    return p
+def chisquared(df, rows, cols):
+    observed = pd.crosstab(df[rows], df[cols])
+    c, p, _, _ = chi2_contingency(observed)
+    return c, p
 
 
-def student_nodes(g, rows, cols, rmap=None, cmap=None):
+def chisquared_nodes(g, rows, cols, rmap=None, cmap=None):
     maps = _filter({
         rows: rmap,
         cols: cmap,
     })
     if maps:
         save_nodes(g, maps)
-    return student(g.graph['nodeframe'], rows, cols)
+    return chisquared(g.graph['nodeframe'], rows, cols)
 
 
-def student_edges(g, rows, cols, rmap=None, cmap=None):
+def chisquared_edges(g, rows, cols, rmap=None, cmap=None):
     maps = _filter({
         rows: rmap,
         cols: cmap,
     })
     if maps:
         save_edges(g, maps)
-    return student(g.graph['edgeframe'], rows, cols)
+    return chisquared(g.graph['edgeframe'], rows, cols)
+
+
+def student(df, a, b):
+    d = abs(df[a].mean() - df[b].mean())
+    _, p = ttest_ind(df[a], df[b])
+    return d, p
+
+
+def student_nodes(g, a, b, amap=None, bmap=None):
+    maps = _filter({
+        a: amap,
+        b: bmap,
+    })
+    if maps:
+        save_nodes(g, maps)
+    return student(g.graph['nodeframe'], a, b)
+
+
+def student_edges(g, a, b, amap=None, bmap=None):
+    maps = _filter({
+        a: amap,
+        b: bmap,
+    })
+    if maps:
+        save_edges(g, maps)
+    return student(g.graph['edgeframe'], a, b)
 
 
 def linregress(df, X, y):
-    dfX = zip(*(df[x] for x in X))
+    dfX = list(zip(*(df[x] for x in X)))
     model = LinearRegression()
     model.fit(dfX, df[y])
-    return [coef for coef in model.coef_], model.score(X, y)
+    return [coef for coef in model.coef_], model.score(dfX, df[y])
 
 
 def linregress_nodes(g, X, y, Xmap=None, ymap=None):
@@ -151,10 +166,10 @@ def linregress_edges(g, X, y, Xmap=None, ymap=None):
 
 
 def logregress(df, X, y, max_iter):
-    dfX = zip(*(df[x] for x in X))
+    dfX = list(zip(*(df[x] for x in X)))
     model = LogisticRegression(solver='lbfgs', max_iter=max_iter, multi_class='auto')
     model.fit(dfX, df[y])
-    return [coef for coef in model.coef_], model.score(X, y)
+    return {class_: [coef for coef in coef_] for class_, coef_ in zip(model.classes_, model.coef_)}, model.score(dfX, df[y])
 
 
 def logregress_nodes(g, X, y, Xmap=None, ymap=None, max_iter=100):
@@ -175,48 +190,58 @@ def encode(df, X):
     dfX = list(zip(*(df[x] for x in X)))
     encoder = OneHotEncoder(categories='auto', sparse=False)
     X = zip(*encoder.fit_transform(dfX))
-    for col, x in zip(encoder.get_feature_names(), X):
+    cols = encoder.get_feature_names()
+    for col, x in zip(cols, X):
         df[col] = x
+    return cols
 
 
 def encode_nodes(g, X, Xmap=None):
     if Xmap is not None:
         save_nodes(g, {x: xmap for x, xmap in zip(X, Xmap)})
-    encode(g.graph['nodeframe'], X)
+    return encode(g.graph['nodeframe'], X)
 
 
 def encode_edges(g, X, Xmap=None):
     if Xmap is not None:
         save_edges(g, {x: xmap for x, xmap in zip(X, Xmap)})
-    encode(g.graph['edgeframe'], X)
+    return encode(g.graph['edgeframe'], X)
 
 
-def barplot(df, group, hue):
-    sns.catplot(x=df[group], hue=df[hue], kind='count')
+def distplot(df, a):
+    sns.distplot(a=df[a])
 
 
-def barplot_nodes(g, group, hue, groupmap=None, huemap=None):
-    maps = _filter({
-        group: groupmap,
-        hue: huemap,
-    })
-    if maps:
-        save_nodes(g, maps)
-    barplot(g.graph['nodeframe'], group, hue)
+def distplot_nodes(g, a, amap=None):
+    if amap is not None:
+        save_nodes(g, {a: amap})
+    distplot(g.graph['nodeframe'], a)
 
 
-def barplot_edges(g, group, hue, groupmap=None, huemap=None):
-    maps = _filter({
-        group: groupmap,
-        hue: huemap,
-    })
-    if maps:
-        save_edges(g, maps)
-    barplot(g.graph['edgeframe'], group, hue)
+def distplot_edges(g, a, amap=None):
+    if amap is not None:
+        save_edges(g, {a: amap})
+    distplot(g.graph['edgeframe'], a)
+
+
+def barplot(df, x, control):
+    sns.catplot(data=df, x=x, kind='count', hue=control)
+
+
+def barplot_nodes(g, x, xmap=None, control=None):
+    if xmap is not None:
+        save_nodes(g, {x: xmap})
+    barplot(g.graph['nodeframe'], x, control)
+
+
+def barplot_edges(g, x, xmap=None, control=None):
+    if xmap is not None:
+        save_edges(g, {x: xmap})
+    barplot(g.graph['edgeframe'], x, control)
 
 
 def scatterplot(df, x, y, control):
-    sns.scatterplot(df[x], df[y], hue=control)
+    sns.scatterplot(data=df, x=x, y=y, hue=control)
 
 
 def scatterplot_nodes(g, x, y, xmap=None, ymap=None, control=None):
@@ -239,24 +264,24 @@ def scatterplot_edges(g, x, y, xmap=None, ymap=None, control=None):
     scatterplot(g.graph['edgeframe'], x, y, control)
 
 
-def pairplot(df, cols, control):
-    sns.pairplot(df[cols], hue=control)
+def pairplot(df, vars, control):
+    sns.pairplot(data=df, vars=vars, hue=control)
 
 
-def pairplot_nodes(g, cols, maps=None, control=None):
+def pairplot_nodes(g, vars, maps=None, control=None):
     if maps is not None:
-        save_nodes(g, {col: map for col, xmap in zip(cols, maps)})
-    pairplot(g.graph['nodeframe'], cols, control)
+        save_nodes(g, {col: map for col, map in zip(vars, maps)})
+    pairplot(g.graph['nodeframe'], vars, control)
 
 
-def pairplot_edges(g, cols, maps=None, control=None):
+def pairplot_edges(g, vars, maps=None, control=None):
     if maps is not None:
-        save_edges(g, {col: map for col, xmap in zip(cols, maps)})
-    pairplot(g.graph['edgeframe'], cols, control)
+        save_edges(g, {col: map for col, map in zip(vars, maps)})
+    pairplot(g.graph['edgeframe'], vars, control)
 
 
 def jointplot(df, x, y):
-    sns.jointplot(df[x], df[y], kind='hex')
+    sns.jointplot(x=df[x], y=df[y], kind='hex')
 
 
 def jointplot_nodes(g, x, y, xmap=None, ymap=None):
@@ -280,7 +305,7 @@ def jointplot_edges(g, x, y, xmap=None, ymap=None):
 
 
 def boxplot(df, x, y, control):
-    sns.catplot(x, y, hue=control, kind="box")
+    sns.boxplot(data=df, x=x, y=y, hue=control)
 
 
 def boxplot_nodes(g, x, y, xmap=None, ymap=None, control=None):

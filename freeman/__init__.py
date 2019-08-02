@@ -151,42 +151,46 @@ class FreemanGraph(ObjectProxy):
         save_nodes(self, maps)
     def save_edges(self, maps):
         save_edges(self, maps)
-    def chisquare_nodes(self, rows, cols, rmap=None, cmap=None):
-        return chisquare_nodes(self, rows, cols, rmap, cmap)
-    def chisquare_edges(self, rows, cols, rmap=None, cmap=None):
-        return chisquare_edges(self, rows, cols, rmap, cmap)
     def correlation_nodes(self, x, y, xmap=None, ymap=None):
         return correlation_nodes(self, x, y, xmap, ymap)
     def correlation_edges(self, x, y, xmap=None, ymap=None):
         return correlation_edges(self, x, y, xmap, ymap)
-    def student_nodes(self, rows, cols, rmap=None, cmap=None):
-        return student_nodes(self, rows, cols, rmap, cmap)
-    def student_edges(self, rows, cols, rmap=None, cmap=None):
-        return student_edges(self, rows, cols, rmap, cmap)
+    def chisquared_nodes(self, rows, cols, rmap=None, cmap=None):
+        return chisquared_nodes(self, rows, cols, rmap, cmap)
+    def chisquared_edges(self, rows, cols, rmap=None, cmap=None):
+        return chisquared_edges(self, rows, cols, rmap, cmap)
+    def student_nodes(self, a, b, amap=None, bmap=None):
+        return student_nodes(self, a, b, amap, bmap)
+    def student_edges(self, a, b, amap=None, bmap=None):
+        return student_edges(self, a, b, amap, bmap)
     def linregress_nodes(self, X, y, Xmap=None, ymap=None):
         return linregress_nodes(self, X, y, Xmap, ymap)
     def linregress_edges(self, X, y, Xmap=None, ymap=None):
         return linregress_edges(self, X, y, Xmap, ymap)
     def logregress_nodes(self, X, y, Xmap=None, ymap=None, max_iter=100):
-        return logregress_nodes(self, X, y, Xmap, ymap)
+        return logregress_nodes(self, X, y, Xmap, ymap, max_iter)
     def logregress_edges(self, X, y, Xmap=None, ymap=None, max_iter=100):
-        return logregress_edges(self, X, y, Xmap, ymap)
+        return logregress_edges(self, X, y, Xmap, ymap, max_iter)
     def encode_nodes(self, X, Xmap=None):
-        encode_nodes(self, X, Xmap)
+        return encode_nodes(self, X, Xmap)
     def encode_edges(self, X, Xmap=None):
-        encode_edges(self, X, Xmap)
-    def barplot_nodes(self, group, hue, groupmap=None, huemap=None):
-        barplot_nodes(self, group, hue, groupmap, huemap)
-    def barplot_edges(self, group, hue, groupmap=None, huemap=None):
-        barplot_edges(self, group, hue, groupmap, huemap)
+        return encode_edges(self, X, Xmap)
+    def distplot_nodes(self, a, amap=None):
+        distplot_nodes(self, a, amap)
+    def distplot_edges(self, a, amap=None):
+        distplot_edges(self, a, amap)
+    def barplot_nodes(self, x, xmap=None, control=None):
+        barplot_nodes(self, x, xmap, control)
+    def barplot_edges(self, x, xmap=None, control=None):
+        barplot_edges(self, x, xmap, control)
     def scatterplot_nodes(self, x, y, xmap=None, ymap=None, control=None):
         scatterplot_nodes(self, x, y, xmap, ymap, control)
     def scatterplot_edges(self, x, y, xmap=None, ymap=None, control=None):
         scatterplot_edges(self, x, y, xmap, ymap, control)
-    def pairplot_nodes(self, cols, maps=None, control=None):
-        pairplot_nodes(self, cols, maps, control)
-    def pairplot_edges(self, cols, maps=None, control=None):
-        pairplot_edges(self, cols, maps, control)
+    def pairplot_nodes(self, vars, maps=None, control=None):
+        pairplot_nodes(self, vars, maps, control)
+    def pairplot_edges(self, vars, maps=None, control=None):
+        pairplot_edges(self, vars, maps, control)
     def jointplot_nodes(self, x, y, xmap=None, ymap=None):
         jointplot_nodes(self, x, y, xmap, ymap)
     def jointplot_edges(self, x, y, xmap=None, ymap=None):
