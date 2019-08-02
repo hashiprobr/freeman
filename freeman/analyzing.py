@@ -191,6 +191,30 @@ def encode_edges(g, X, Xmap=None):
     encode(g.graph['edgeframe'], X)
 
 
+def barplot(df, group, hue):
+    sns.catplot(x=df[group], hue=df[hue], kind='count')
+
+
+def barplot_nodes(g, group, hue, groupmap=None, huemap=None):
+    maps = _filter({
+        group: groupmap,
+        hue: huemap,
+    })
+    if maps:
+        save_nodes(g, maps)
+    barplot(g.graph['nodeframe'], group, hue)
+
+
+def barplot_edges(g, group, hue, groupmap=None, huemap=None):
+    maps = _filter({
+        group: groupmap,
+        hue: huemap,
+    })
+    if maps:
+        save_edges(g, maps)
+    barplot(g.graph['edgeframe'], group, hue)
+
+
 def scatterplot(df, x, y, control):
     sns.scatterplot(df[x], df[y], hue=control)
 
@@ -229,30 +253,6 @@ def pairplot_edges(g, cols, maps=None, control=None):
     if maps is not None:
         save_edges(g, {col: map for col, xmap in zip(cols, maps)})
     pairplot(g.graph['edgeframe'], cols, control)
-
-
-def doubleplot(df, group, hue):
-    sns.catplot(x=df[group], hue=df[hue], kind='count')
-
-
-def doubleplot_nodes(g, group, hue, groupmap=None, huemap=None):
-    maps = _filter({
-        group: groupmap,
-        hue: huemap,
-    })
-    if maps:
-        save_nodes(g, maps)
-    doubleplot(g.graph['nodeframe'], group, hue)
-
-
-def doubleplot_edges(g, group, hue, groupmap=None, huemap=None):
-    maps = _filter({
-        group: groupmap,
-        hue: huemap,
-    })
-    if maps:
-        save_edges(g, maps)
-    doubleplot(g.graph['edgeframe'], group, hue)
 
 
 def jointplot(df, x, y):

@@ -175,6 +175,10 @@ class FreemanGraph(ObjectProxy):
         encode_nodes(self, X, Xmap)
     def encode_edges(self, X, Xmap=None):
         encode_edges(self, X, Xmap)
+    def barplot_nodes(self, group, hue, groupmap=None, huemap=None):
+        barplot_nodes(self, group, hue, groupmap, huemap)
+    def barplot_edges(self, group, hue, groupmap=None, huemap=None):
+        barplot_edges(self, group, hue, groupmap, huemap)
     def scatterplot_nodes(self, x, y, xmap=None, ymap=None, control=None):
         scatterplot_nodes(self, x, y, xmap, ymap, control)
     def scatterplot_edges(self, x, y, xmap=None, ymap=None, control=None):
@@ -183,10 +187,6 @@ class FreemanGraph(ObjectProxy):
         pairplot_nodes(self, cols, maps, control)
     def pairplot_edges(self, cols, maps=None, control=None):
         pairplot_edges(self, cols, maps, control)
-    def doubleplot_nodes(self, group, hue, groupmap=None, huemap=None):
-        doubleplot_nodes(self, group, hue, groupmap, huemap)
-    def doubleplot_edges(self, group, hue, groupmap=None, huemap=None):
-        doubleplot_edges(self, group, hue, groupmap, huemap)
     def jointplot_nodes(self, x, y, xmap=None, ymap=None):
         jointplot_nodes(self, x, y, xmap, ymap)
     def jointplot_edges(self, x, y, xmap=None, ymap=None):
