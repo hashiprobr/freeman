@@ -32,6 +32,69 @@ def _permutations(iterable, max_perm):
         yield sample(iterable, len(iterable))
 
 
+def _correlation(x, y, max_perm):
+    r, p = pearsonr(x, y)
+    if max_perm is not None:
+        original = list(y)
+        if max_perm == 0:
+            resamples = permutations(original)
+        else:
+            resamples = _permutations(original, max_perm)
+        above = 0
+        total = 0
+        for resample in resamples:
+            result, _ = _correlation(x, pd.Series(resample), None)
+            if (r < 0 and result <= r) or r == 0 or (r > 0 and result >= r):
+                above += 1
+            total += 1
+        p = 2 * (above / total)
+    return r, p
+
+
+def _chisquared(rows, cols, max_perm):
+    observed = pd.crosstab(rows, cols)
+    c, p, _, _ = chi2_contingency(observed)
+    if max_perm is not None:
+        original = list(cols)
+        if max_perm == 0:
+            resamples = permutations(original)
+        else:
+            resamples = _permutations(original, max_perm)
+        above = 0
+        total = 0
+        for resample in resamples:
+            result, _ = _chisquared(rows, pd.Series(resample), None)
+            if result >= c:
+                above += 1
+            total += 1
+        p = above / total
+    return c, p
+
+
+def _student(a, b, max_perm):
+    d = abs(a.mean() - b.mean())
+    if a.size < 2 or b.size < 2 or a.var() == 0 or b.var() == 0:
+        p = None
+    else:
+        _, p = ttest_ind(a, b)
+    if p is not None and max_perm is not None:
+        size = a.size
+        original = list(pd.concat([a, b]))
+        if max_perm == 0:
+            resamples = permutations(original)
+        else:
+            resamples = _permutations(original, max_perm)
+        above = 0
+        total = 0
+        for resample in resamples:
+            result, _ = _student(pd.Series(resample[:size]), pd.Series(resample[size:]), None)
+            if result >= d:
+                above += 1
+            total += 1
+        p = above / total
+    return d, p
+
+
 def _initialize_nodes(g):
     data = {
         'node': list(g.nodes),
@@ -75,23 +138,8 @@ def concat_edges(graphs, col):
     return concat({value: g.graph['edgeframe'] for value, g in graphs.items()}, col)
 
 
-def correlation(x, y, max_perm):
-    r, p = pearsonr(x, y)
-    if max_perm is not None:
-        original = list(y)
-        if max_perm == 0:
-            resamples = permutations(original)
-        else:
-            resamples = _permutations(original, max_perm)
-        above = 0
-        total = 0
-        for resample in resamples:
-            result, _ = correlation(x, pd.Series(resample), None)
-            if (r < 0 and result <= r) or r == 0 or (r > 0 and result >= r):
-                above += 1
-            total += 1
-        p = 2 * (above / total)
-    return r, p
+def correlation(df, x, y, max_perm):
+    return _correlation(df[x], df[y], max_perm)
 
 
 def correlation_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
@@ -101,8 +149,7 @@ def correlation_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
     })
     if maps:
         save_nodes(g, maps)
-    df = g.graph['nodeframe']
-    return correlation(df[x], df[y], max_perm)
+    return correlation(g.graph['nodeframe'], x, y, max_perm)
 
 
 def correlation_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
@@ -112,28 +159,11 @@ def correlation_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     })
     if maps:
         save_edges(g, maps)
-    df = g.graph['edgeframe']
-    return correlation(df[x], df[y], max_perm)
+    return correlation(g.graph['edgeframe'], x, y, max_perm)
 
 
-def chisquared(rows, cols, max_perm):
-    observed = pd.crosstab(rows, cols)
-    c, p, _, _ = chi2_contingency(observed)
-    if max_perm is not None:
-        original = list(cols)
-        if max_perm == 0:
-            resamples = permutations(original)
-        else:
-            resamples = _permutations(original, max_perm)
-        above = 0
-        total = 0
-        for resample in resamples:
-            result, _ = chisquared(rows, pd.Series(resample), None)
-            if result >= c:
-                above += 1
-            total += 1
-        p = above / total
-    return c, p
+def chisquared(df, rows, cols, max_perm):
+    return _chisquared(df[rows], df[cols], max_perm)
 
 
 def chisquared_nodes(g, rows, cols, rmap=None, cmap=None, max_perm=None):
@@ -143,8 +173,7 @@ def chisquared_nodes(g, rows, cols, rmap=None, cmap=None, max_perm=None):
     })
     if maps:
         save_nodes(g, maps)
-    df = g.graph['nodeframe']
-    return chisquared(df[rows], df[cols], max_perm)
+    return chisquared(g.graph['nodeframe'], rows, cols, max_perm)
 
 
 def chisquared_edges(g, rows, cols, rmap=None, cmap=None, max_perm=None):
@@ -154,32 +183,11 @@ def chisquared_edges(g, rows, cols, rmap=None, cmap=None, max_perm=None):
     })
     if maps:
         save_edges(g, maps)
-    df = g.graph['edgeframe']
-    return chisquared(df[rows], df[cols], max_perm)
+    return chisquared(g.graph['edgeframe'], rows, cols, max_perm)
 
 
-def student(a, b, max_perm):
-    d = abs(a.mean() - b.mean())
-    if a.size < 2 or b.size < 2 or a.var() == 0 or b.var() == 0:
-        p = None
-    else:
-        _, p = ttest_ind(a, b)
-    if p is not None and max_perm is not None:
-        size = a.size
-        original = list(pd.concat([a, b]))
-        if max_perm == 0:
-            resamples = permutations(original)
-        else:
-            resamples = _permutations(original, max_perm)
-        above = 0
-        total = 0
-        for resample in resamples:
-            result, _ = student(pd.Series(resample[:size]), pd.Series(resample[size:]), None)
-            if result >= d:
-                above += 1
-            total += 1
-        p = above / total
-    return d, p
+def student(df, a, b, max_perm):
+    return _student(df[a], df[b], max_perm)
 
 
 def student_nodes(g, a, b, amap=None, bmap=None, max_perm=None):
@@ -189,8 +197,7 @@ def student_nodes(g, a, b, amap=None, bmap=None, max_perm=None):
     })
     if maps:
         save_nodes(g, maps)
-    df = g.graph['nodeframe']
-    return student(df[a], df[b], max_perm)
+    return student(g.graph['nodeframe'], a, b, max_perm)
 
 
 def student_edges(g, a, b, amap=None, bmap=None, max_perm=None):
@@ -200,8 +207,7 @@ def student_edges(g, a, b, amap=None, bmap=None, max_perm=None):
     })
     if maps:
         save_edges(g, maps)
-    df = g.graph['edgeframe']
-    return student(df[a], df[b], max_perm)
+    return student(g.graph['edgeframe'], a, b, max_perm)
 
 
 def pairstudent(df, x, y, max_perm):
@@ -214,7 +220,7 @@ def pairstudent(df, x, y, max_perm):
         if data[a].empty or data[b].empty:
             result[a, b] = None
         else:
-            result[a, b] = student(data[a], data[b], max_perm)
+            result[a, b] = _student(data[a], data[b], max_perm)
     return result
 
 
