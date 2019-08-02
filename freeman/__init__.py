@@ -1,4 +1,3 @@
-from itertools import permutations
 from wrapt import ObjectProxy
 
 from .drawing import *
@@ -159,14 +158,14 @@ class FreemanGraph(ObjectProxy):
         return chisquared_nodes(self, rows, cols, rmap, cmap)
     def chisquared_edges(self, rows, cols, rmap=None, cmap=None):
         return chisquared_edges(self, rows, cols, rmap, cmap)
-    def student_nodes(self, a, b, amap=None, bmap=None):
-        return student_nodes(self, a, b, amap, bmap)
-    def student_edges(self, a, b, amap=None, bmap=None):
-        return student_edges(self, a, b, amap, bmap)
-    def pairstudent_nodes(self, x, y, xmap=None, ymap=None):
-        return pairstudent_nodes(self, x, y, xmap, ymap)
-    def pairstudent_edges(self, x, y, xmap=None, ymap=None):
-        return pairstudent_edges(self, x, y, xmap, ymap)
+    def student_nodes(self, a, b, amap=None, bmap=None, max_perm=None):
+        return student_nodes(self, a, b, amap, bmap, max_perm)
+    def student_edges(self, a, b, amap=None, bmap=None, max_perm=None):
+        return student_edges(self, a, b, amap, bmap, max_perm)
+    def pairstudent_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
+        return pairstudent_nodes(self, x, y, xmap, ymap, max_perm)
+    def pairstudent_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
+        return pairstudent_edges(self, x, y, xmap, ymap, max_perm)
     def linregress_nodes(self, X, y, Xmap=None, ymap=None):
         return linregress_nodes(self, X, y, Xmap, ymap)
     def linregress_edges(self, X, y, Xmap=None, ymap=None):

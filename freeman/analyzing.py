@@ -1,7 +1,8 @@
 import pandas as pd
 import seaborn as sns
 
-from itertools import combinations
+from random import sample
+from itertools import permutations, combinations
 from scipy.stats import pearsonr, chi2_contingency, ttest_ind
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import OneHotEncoder
@@ -24,6 +25,11 @@ def _filter(maps):
         if maps[col] is None:
             del maps[col]
     return maps
+
+
+def _permutations(iterable, max_perm):
+    for _ in range(max_perm):
+        yield sample(iterable, len(iterable))
 
 
 def _initialize_nodes(g):
@@ -119,16 +125,31 @@ def chisquared_edges(g, rows, cols, rmap=None, cmap=None):
     return chisquared(g.graph['edgeframe'], rows, cols)
 
 
-def student(a, b):
+def student(a, b, max_perm):
     d = abs(a.mean() - b.mean())
     if a.size < 2 or b.size < 2 or a.var() == 0 or b.var() == 0:
         p = None
     else:
         _, p = ttest_ind(a, b)
+    if p is not None and max_perm is not None:
+        size = a.size
+        merged = list(pd.concat([a, b]))
+        if max_perm == 0:
+            resamples = permutations(merged)
+        else:
+            resamples = _permutations(merged, max_perm)
+        above = 0
+        total = 0
+        for resample in resamples:
+            result, _ = student(pd.Series(resample[:size]), pd.Series(resample[size:]), None)
+            if result >= d:
+                above += 1
+            total += 1
+            p = above / total
     return d, p
 
 
-def student_nodes(g, a, b, amap=None, bmap=None):
+def student_nodes(g, a, b, amap=None, bmap=None, max_perm=None):
     maps = _filter({
         a: amap,
         b: bmap,
@@ -136,10 +157,10 @@ def student_nodes(g, a, b, amap=None, bmap=None):
     if maps:
         save_nodes(g, maps)
     df = g.graph['nodeframe']
-    return student(df[a], df[b])
+    return student(df[a], df[b], max_perm)
 
 
-def student_edges(g, a, b, amap=None, bmap=None):
+def student_edges(g, a, b, amap=None, bmap=None, max_perm=None):
     maps = _filter({
         a: amap,
         b: bmap,
@@ -147,10 +168,10 @@ def student_edges(g, a, b, amap=None, bmap=None):
     if maps:
         save_edges(g, maps)
     df = g.graph['edgeframe']
-    return student(df[a], df[b])
+    return student(df[a], df[b], max_perm)
 
 
-def pairstudent(df, x, y):
+def pairstudent(df, x, y, max_perm):
     data = {}
     for value in df[x]:
         if value not in data:
@@ -160,28 +181,28 @@ def pairstudent(df, x, y):
         if data[a].empty or data[b].empty:
             result[a, b] = None
         else:
-            result[a, b] = student(data[a], data[b])
+            result[a, b] = student(data[a], data[b], max_perm)
     return result
 
 
-def pairstudent_nodes(g, x, y, xmap=None, ymap=None):
+def pairstudent_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         save_nodes(g, maps)
-    return pairstudent(g.graph['nodeframe'], x, y)
+    return pairstudent(g.graph['nodeframe'], x, y, max_perm)
 
 
-def pairstudent_edges(g, x, y, xmap=None, ymap=None):
+def pairstudent_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         save_edges(g, maps)
-    return pairstudent(g.graph['edgeframe'], x, y)
+    return pairstudent(g.graph['edgeframe'], x, y, max_perm)
 
 
 def linregress(df, X, y):
