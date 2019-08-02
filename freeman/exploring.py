@@ -1,4 +1,4 @@
-from math import isclose, isinf
+from math import isclose, isinf, log
 from statistics import mean
 from colorsys import hsv_to_rgb
 
@@ -72,6 +72,8 @@ def assert_numerics(values):
 
 
 def extract_node(g, n, map):
+    if isinstance(map, Log):
+        return log(extract_node(g, n, map.wrapped) + map.shift)
     if isinstance(map, str):
         return g.nodes[n][map]
     if isinstance(map, dict):
@@ -82,6 +84,8 @@ def extract_node(g, n, map):
 
 
 def extract_edge(g, n, m, map):
+    if isinstance(map, Log):
+        return log(extract_edge(g, n, m, map.wrapped) + map.shift)
     if isinstance(map, str):
         return g.edges[n, m][map]
     if isinstance(map, dict):
@@ -259,3 +263,10 @@ def heat_edges(g, map, lower=None, upper=None, middle=None):
             else:
                 sc = (value - middle) / (upper - middle)
                 g.edges[n, m]['color'] = (255, 0, 0, sc)
+
+
+class Log:
+    def __init__(self, wrapped, shift=0):
+        self.wrapped = wrapped
+
+        self.shift = shift
