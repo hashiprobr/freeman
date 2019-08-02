@@ -564,13 +564,13 @@ class Animation:
 
         for index, frame in enumerate(self.frames):
             if frame.pop('number_of_nodes') != number_of_nodes:
-                raise ValueError('animation frames must have the same number of nodes')
+                raise ValueError('frames must have the same number of nodes')
             if frame.pop('number_of_edges') != number_of_edges:
-                raise ValueError('animation frames must have the same number of edges')
+                raise ValueError('frames must have the same number of edges')
             if frame.pop('width') != width:
-                raise ValueError('animation frames must have the same local width')
+                raise ValueError('frames must have the same local width')
             if frame.pop('height') != height:
-                raise ValueError('animation frames must have the same local height')
+                raise ValueError('frames must have the same local height')
 
             frame['name'] = index
 

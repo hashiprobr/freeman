@@ -47,23 +47,27 @@ def load(path, key='random', *args, **kwargs):
 
 def dyads(g, ordered=False):
     if ordered:
-        return permutations(g, 2)
-    return combinations(g, 2)
+        return permutations(g.nodes, 2)
+    return combinations(g.nodes, 2)
 
 
 def triads(g, ordered=False):
     if ordered:
-        return permutations(g, 3)
-    return combinations(g, 3)
+        return permutations(g.nodes, 3)
+    return combinations(g.nodes, 3)
 
 
 def copy_node(g, h, n):
+    if not h.has_node(n):
+        raise ValueError('second graph must have the node')
     if not g.has_node(n):
         g.add_node(n)
     g.nodes[n].update(h.nodes[n])
 
 
 def copy_edge(g, h, n, m):
+    if not h.has_edge(n, m):
+        raise ValueError('second graph must have the edge')
     if not g.has_edge(n, m):
         g.add_edge(n, m)
     g.edges[n, m].update(h.edges[n, m])
