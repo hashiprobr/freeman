@@ -115,10 +115,6 @@ class FreemanGraph(ObjectProxy):
     def draw(self, toolbar=False):
         draw(self, toolbar)
 
-    def extract_nodes(self, map, filter=None):
-        return extract_nodes(self, map, filter)
-    def extract_edges(self, map, filter=None):
-        return extract_edges(self, map, filter)
     def label_nodes(self, map=None, ndigits=2):
         label_nodes(self, map, ndigits)
     def label_edges(self, map=None, ndigits=2):
