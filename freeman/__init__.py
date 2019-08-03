@@ -208,10 +208,10 @@ class Graph(ObjectProxy):
         return encode_nodes(self, X, Xmap)
     def encode_edges(self, X, Xmap=None):
         return encode_edges(self, X, Xmap)
-    def distplot_nodes(self, a, amap=None):
-        distplot_nodes(self, a, amap)
-    def distplot_edges(self, a, amap=None):
-        distplot_edges(self, a, amap)
+    def distplot_nodes(self, x, xmap=None):
+        distplot_nodes(self, x, xmap)
+    def distplot_edges(self, x, xmap=None):
+        distplot_edges(self, x, xmap)
     def barplot_nodes(self, x, xmap=None, control=None):
         barplot_nodes(self, x, xmap, control)
     def barplot_edges(self, x, xmap=None, control=None):
@@ -220,10 +220,10 @@ class Graph(ObjectProxy):
         scatterplot_nodes(self, x, y, xmap, ymap, control)
     def scatterplot_edges(self, x, y, xmap=None, ymap=None, control=None):
         scatterplot_edges(self, x, y, xmap, ymap, control)
-    def pairplot_nodes(self, vars, maps=None, control=None):
-        pairplot_nodes(self, vars, maps, control)
-    def pairplot_edges(self, vars, maps=None, control=None):
-        pairplot_edges(self, vars, maps, control)
+    def pairplot_nodes(self, cols, maps=None, control=None):
+        pairplot_nodes(self, cols, maps, control)
+    def pairplot_edges(self, cols, maps=None, control=None):
+        pairplot_edges(self, cols, maps, control)
     def jointplot_nodes(self, x, y, xmap=None, ymap=None):
         jointplot_nodes(self, x, y, xmap, ymap)
     def jointplot_edges(self, x, y, xmap=None, ymap=None):

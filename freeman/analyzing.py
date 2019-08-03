@@ -316,16 +316,16 @@ def distplot(df, a):
     sns.distplot(a=df[a])
 
 
-def distplot_nodes(g, a, amap=None):
-    if amap is not None:
-        set_nodecol(g, a, amap)
-    distplot(g.nodeframe, a)
+def distplot_nodes(g, x, xmap=None):
+    if xmap is not None:
+        set_nodecol(g, x, xmap)
+    distplot(g.nodeframe, x)
 
 
-def distplot_edges(g, a, amap=None):
-    if amap is not None:
-        set_edgecol(g, a, amap)
-    distplot(g.edgeframe, a)
+def distplot_edges(g, x, xmap=None):
+    if xmap is not None:
+        set_edgecol(g, x, xmap)
+    distplot(g.edgeframe, x)
 
 
 def barplot(df, x, control):
@@ -368,20 +368,20 @@ def scatterplot_edges(g, x, y, xmap=None, ymap=None, control=None):
     scatterplot(g.edgeframe, x, y, control)
 
 
-def pairplot(df, vars, control):
-    sns.pairplot(data=df, vars=vars, hue=control)
+def pairplot(df, cols, control):
+    sns.pairplot(data=df, vars=cols, hue=control)
 
 
-def pairplot_nodes(g, vars, maps=None, control=None):
+def pairplot_nodes(g, cols, maps=None, control=None):
     if maps is not None:
-        set_nodecols(g, {col: map for col, map in zip(vars, maps)})
-    pairplot(g.nodeframe, vars, control)
+        set_nodecols(g, {col: map for col, map in zip(cols, maps)})
+    pairplot(g.nodeframe, cols, control)
 
 
-def pairplot_edges(g, vars, maps=None, control=None):
+def pairplot_edges(g, cols, maps=None, control=None):
     if maps is not None:
-        set_edgecols(g, {col: map for col, map in zip(vars, maps)})
-    pairplot(g.edgeframe, vars, control)
+        set_edgecols(g, {col: map for col, map in zip(cols, maps)})
+    pairplot(g.edgeframe, cols, control)
 
 
 def jointplot(df, x, y):
