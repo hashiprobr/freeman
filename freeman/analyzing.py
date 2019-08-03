@@ -312,8 +312,8 @@ def encode_edges(g, X, Xmap=None):
     return encode(g.edgeframe, X)
 
 
-def distplot(df, a):
-    sns.distplot(a=df[a])
+def distplot(df, x):
+    sns.distplot(a=df[x])
 
 
 def distplot_nodes(g, x, xmap=None):
