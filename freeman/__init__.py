@@ -187,10 +187,10 @@ class Graph(ObjectProxy):
         return student_nodes(self, a, b, amap, bmap, max_perm)
     def student_edges(self, a, b, amap=None, bmap=None, max_perm=None):
         return student_edges(self, a, b, amap, bmap, max_perm)
-    def pairstudent_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return pairstudent_nodes(self, x, y, xmap, ymap, max_perm)
-    def pairstudent_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return pairstudent_edges(self, x, y, xmap, ymap, max_perm)
+    def allstudent_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
+        return allstudent_nodes(self, x, y, xmap, ymap, max_perm)
+    def allstudent_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
+        return allstudent_edges(self, x, y, xmap, ymap, max_perm)
     def linregress_nodes(self, X, y, Xmap=None, ymap=None):
         return linregress_nodes(self, X, y, Xmap, ymap)
     def linregress_edges(self, X, y, Xmap=None, ymap=None):

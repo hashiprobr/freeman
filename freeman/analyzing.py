@@ -206,11 +206,11 @@ def student_edges(g, a, b, amap=None, bmap=None, max_perm=None):
     return student(g.edgeframe, a, b, max_perm)
 
 
-def pairstudent(df, x, y, max_perm):
+def allstudent(df, x, y, max_perm):
     data = {}
-    for value in df[x]:
+    for value in df[y]:
         if value not in data:
-            data[value] = df[df[x] == value][y]
+            data[value] = df[df[y] == value][x]
     result = {}
     for a, b in combinations(data, 2):
         if data[a].empty or data[b].empty:
@@ -220,24 +220,24 @@ def pairstudent(df, x, y, max_perm):
     return result
 
 
-def pairstudent_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
+def allstudent_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         save_nodes(g, maps)
-    return pairstudent(g.nodeframe, x, y, max_perm)
+    return allstudent(g.nodeframe, x, y, max_perm)
 
 
-def pairstudent_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
+def allstudent_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         save_edges(g, maps)
-    return pairstudent(g.edgeframe, x, y, max_perm)
+    return allstudent(g.edgeframe, x, y, max_perm)
 
 
 def linregress(df, X, y):
@@ -401,7 +401,7 @@ def jointplot_edges(g, x, y, xmap=None, ymap=None):
 
 
 def boxplot(df, x, y, control):
-    sns.boxplot(data=df, x=x, y=y, hue=control)
+    sns.boxplot(data=df, x=x, y=y, orient='h', hue=control)
 
 
 def boxplot_nodes(g, x, y, xmap=None, ymap=None, control=None):
