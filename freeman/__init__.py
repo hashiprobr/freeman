@@ -109,6 +109,31 @@ def unset_edges(g, key, filter=None):
 
 
 class Graph(ObjectProxy):
+    def __init__(self, g):
+        super().__init__(g)
+        self._nodeframe = None
+        self._edgeframe = None
+
+    @property
+    def nodeframe(self):
+        if self._nodeframe is None:
+            initialize_nodes(self)
+        return self._nodeframe
+
+    @nodeframe.setter
+    def nodeframe(self, nodeframe):
+        self._nodeframe = nodeframe
+
+    @property
+    def edgeframe(self):
+        if self._edgeframe is None:
+            initialize_edges(self)
+        return self._edgeframe
+
+    @edgeframe.setter
+    def edgeframe(self, edgeframe):
+        self._edgeframe = edgeframe
+
     def interact(self, path=None, physics=False):
         interact(self, path, physics)
     def draw(self, toolbar=False):

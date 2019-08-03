@@ -95,33 +95,29 @@ def _student(a, b, max_perm):
     return d, p
 
 
-def _initialize_nodes(g):
+def initialize_nodes(g):
     data = {
         'node': list(g.nodes),
     }
-    g.graph['nodeframe'] = pd.DataFrame(data)
+    g.nodeframe = pd.DataFrame(data)
 
 
-def _initialize_edges(g):
+def initialize_edges(g):
     data = {
         'source': [n for n, m in g.edges],
         'target': [m for n, m in g.edges],
     }
-    g.graph['edgeframe'] = pd.DataFrame(data)
+    g.edgeframe = pd.DataFrame(data)
 
 
 def save_nodes(g, maps):
-    if 'nodeframe' not in g.graph:
-        _initialize_nodes(g)
     for col, map in maps.items():
-        g.graph['nodeframe'][col] = list(extract_nodes(g, map))
+        g.nodeframe[col] = list(extract_nodes(g, map))
 
 
 def save_edges(g, maps):
-    if 'edgeframe' not in g.graph:
-        _initialize_edges(g)
     for col, map in maps.items():
-        g.graph['edgeframe'][col] = list(extract_edges(g, map))
+        g.edgeframe[col] = list(extract_edges(g, map))
 
 
 def concat(dfs, col):
@@ -131,11 +127,11 @@ def concat(dfs, col):
 
 
 def concat_nodes(graphs, col):
-    return concat({value: g.graph['nodeframe'] for value, g in graphs.items()}, col)
+    return concat({value: g.nodeframe for value, g in graphs.items()}, col)
 
 
 def concat_edges(graphs, col):
-    return concat({value: g.graph['edgeframe'] for value, g in graphs.items()}, col)
+    return concat({value: g.edgeframe for value, g in graphs.items()}, col)
 
 
 def correlation(df, x, y, max_perm):
@@ -149,7 +145,7 @@ def correlation_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
     })
     if maps:
         save_nodes(g, maps)
-    return correlation(g.graph['nodeframe'], x, y, max_perm)
+    return correlation(g.nodeframe, x, y, max_perm)
 
 
 def correlation_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
@@ -159,7 +155,7 @@ def correlation_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     })
     if maps:
         save_edges(g, maps)
-    return correlation(g.graph['edgeframe'], x, y, max_perm)
+    return correlation(g.edgeframe, x, y, max_perm)
 
 
 def chisquared(df, rows, cols, max_perm):
@@ -173,7 +169,7 @@ def chisquared_nodes(g, rows, cols, rmap=None, cmap=None, max_perm=None):
     })
     if maps:
         save_nodes(g, maps)
-    return chisquared(g.graph['nodeframe'], rows, cols, max_perm)
+    return chisquared(g.nodeframe, rows, cols, max_perm)
 
 
 def chisquared_edges(g, rows, cols, rmap=None, cmap=None, max_perm=None):
@@ -183,7 +179,7 @@ def chisquared_edges(g, rows, cols, rmap=None, cmap=None, max_perm=None):
     })
     if maps:
         save_edges(g, maps)
-    return chisquared(g.graph['edgeframe'], rows, cols, max_perm)
+    return chisquared(g.edgeframe, rows, cols, max_perm)
 
 
 def student(df, a, b, max_perm):
@@ -197,7 +193,7 @@ def student_nodes(g, a, b, amap=None, bmap=None, max_perm=None):
     })
     if maps:
         save_nodes(g, maps)
-    return student(g.graph['nodeframe'], a, b, max_perm)
+    return student(g.nodeframe, a, b, max_perm)
 
 
 def student_edges(g, a, b, amap=None, bmap=None, max_perm=None):
@@ -207,7 +203,7 @@ def student_edges(g, a, b, amap=None, bmap=None, max_perm=None):
     })
     if maps:
         save_edges(g, maps)
-    return student(g.graph['edgeframe'], a, b, max_perm)
+    return student(g.edgeframe, a, b, max_perm)
 
 
 def pairstudent(df, x, y, max_perm):
@@ -231,7 +227,7 @@ def pairstudent_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
     })
     if maps:
         save_nodes(g, maps)
-    return pairstudent(g.graph['nodeframe'], x, y, max_perm)
+    return pairstudent(g.nodeframe, x, y, max_perm)
 
 
 def pairstudent_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
@@ -241,7 +237,7 @@ def pairstudent_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     })
     if maps:
         save_edges(g, maps)
-    return pairstudent(g.graph['edgeframe'], x, y, max_perm)
+    return pairstudent(g.edgeframe, x, y, max_perm)
 
 
 def linregress(df, X, y):
@@ -255,14 +251,14 @@ def linregress_nodes(g, X, y, Xmap=None, ymap=None):
     maps = _filter(_merge(X, y, Xmap, ymap))
     if maps:
         save_nodes(g, maps)
-    return linregress(g.graph['nodeframe'], X, y)
+    return linregress(g.nodeframe, X, y)
 
 
 def linregress_edges(g, X, y, Xmap=None, ymap=None):
     maps = _filter(_merge(X, y, Xmap, ymap))
     if maps:
         save_edges(g, maps)
-    return linregress(g.graph['edgeframe'], X, y)
+    return linregress(g.edgeframe, X, y)
 
 
 def logregress(df, X, y, max_iter):
@@ -276,14 +272,14 @@ def logregress_nodes(g, X, y, Xmap=None, ymap=None, max_iter=100):
     maps = _filter(_merge(X, y, Xmap, ymap))
     if maps:
         save_nodes(g, maps)
-    return logregress(g.graph['nodeframe'], X, y, max_iter)
+    return logregress(g.nodeframe, X, y, max_iter)
 
 
 def logregress_edges(g, X, y, Xmap=None, ymap=None, max_iter=100):
     maps = _filter(_merge(X, y, Xmap, ymap))
     if maps:
         save_edges(g, maps)
-    return logregress(g.graph['edgeframe'], X, y, max_iter)
+    return logregress(g.edgeframe, X, y, max_iter)
 
 
 def encode(df, X):
@@ -299,13 +295,13 @@ def encode(df, X):
 def encode_nodes(g, X, Xmap=None):
     if Xmap is not None:
         save_nodes(g, {x: xmap for x, xmap in zip(X, Xmap)})
-    return encode(g.graph['nodeframe'], X)
+    return encode(g.nodeframe, X)
 
 
 def encode_edges(g, X, Xmap=None):
     if Xmap is not None:
         save_edges(g, {x: xmap for x, xmap in zip(X, Xmap)})
-    return encode(g.graph['edgeframe'], X)
+    return encode(g.edgeframe, X)
 
 
 def distplot(df, a):
@@ -315,13 +311,13 @@ def distplot(df, a):
 def distplot_nodes(g, a, amap=None):
     if amap is not None:
         save_nodes(g, {a: amap})
-    distplot(g.graph['nodeframe'], a)
+    distplot(g.nodeframe, a)
 
 
 def distplot_edges(g, a, amap=None):
     if amap is not None:
         save_edges(g, {a: amap})
-    distplot(g.graph['edgeframe'], a)
+    distplot(g.edgeframe, a)
 
 
 def barplot(df, x, control):
@@ -331,13 +327,13 @@ def barplot(df, x, control):
 def barplot_nodes(g, x, xmap=None, control=None):
     if xmap is not None:
         save_nodes(g, {x: xmap})
-    barplot(g.graph['nodeframe'], x, control)
+    barplot(g.nodeframe, x, control)
 
 
 def barplot_edges(g, x, xmap=None, control=None):
     if xmap is not None:
         save_edges(g, {x: xmap})
-    barplot(g.graph['edgeframe'], x, control)
+    barplot(g.edgeframe, x, control)
 
 
 def scatterplot(df, x, y, control):
@@ -351,7 +347,7 @@ def scatterplot_nodes(g, x, y, xmap=None, ymap=None, control=None):
     })
     if maps:
         save_nodes(g, maps)
-    scatterplot(g.graph['nodeframe'], x, y, control)
+    scatterplot(g.nodeframe, x, y, control)
 
 
 def scatterplot_edges(g, x, y, xmap=None, ymap=None, control=None):
@@ -361,7 +357,7 @@ def scatterplot_edges(g, x, y, xmap=None, ymap=None, control=None):
     })
     if maps:
         save_edges(g, maps)
-    scatterplot(g.graph['edgeframe'], x, y, control)
+    scatterplot(g.edgeframe, x, y, control)
 
 
 def pairplot(df, vars, control):
@@ -371,13 +367,13 @@ def pairplot(df, vars, control):
 def pairplot_nodes(g, vars, maps=None, control=None):
     if maps is not None:
         save_nodes(g, {col: map for col, map in zip(vars, maps)})
-    pairplot(g.graph['nodeframe'], vars, control)
+    pairplot(g.nodeframe, vars, control)
 
 
 def pairplot_edges(g, vars, maps=None, control=None):
     if maps is not None:
         save_edges(g, {col: map for col, map in zip(vars, maps)})
-    pairplot(g.graph['edgeframe'], vars, control)
+    pairplot(g.edgeframe, vars, control)
 
 
 def jointplot(df, x, y):
@@ -391,7 +387,7 @@ def jointplot_nodes(g, x, y, xmap=None, ymap=None):
     })
     if maps:
         save_nodes(g, maps)
-    jointplot(g.graph['nodeframe'], x, y)
+    jointplot(g.nodeframe, x, y)
 
 
 def jointplot_edges(g, x, y, xmap=None, ymap=None):
@@ -401,7 +397,7 @@ def jointplot_edges(g, x, y, xmap=None, ymap=None):
     })
     if maps:
         save_edges(g, maps)
-    jointplot(g.graph['edgeframe'], x, y)
+    jointplot(g.edgeframe, x, y)
 
 
 def boxplot(df, x, y, control):
@@ -415,7 +411,7 @@ def boxplot_nodes(g, x, y, xmap=None, ymap=None, control=None):
     })
     if maps:
         save_nodes(g, maps)
-    boxplot(g.graph['nodeframe'], x, y, control)
+    boxplot(g.nodeframe, x, y, control)
 
 
 def boxplot_edges(g, x, y, xmap=None, ymap=None, control=None):
@@ -425,4 +421,4 @@ def boxplot_edges(g, x, y, xmap=None, ymap=None, control=None):
     })
     if maps:
         save_edges(g, maps)
-    boxplot(g.graph['edgeframe'], x, y, control)
+    boxplot(g.edgeframe, x, y, control)
