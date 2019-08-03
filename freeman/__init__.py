@@ -117,7 +117,7 @@ class Graph(ObjectProxy):
     @property
     def nodeframe(self):
         if self._nodeframe is None:
-            initialize_nodes(self)
+            set_nodeframe(self)
         return self._nodeframe
 
     @nodeframe.setter
@@ -127,7 +127,7 @@ class Graph(ObjectProxy):
     @property
     def edgeframe(self):
         if self._edgeframe is None:
-            initialize_edges(self)
+            set_edgeframe(self)
         return self._edgeframe
 
     @edgeframe.setter
@@ -171,10 +171,10 @@ class Graph(ObjectProxy):
     def move_complement(self, key, *args, **kwargs):
         move_complement(self, key, *args, **kwargs)
 
-    def save_nodes(self, maps):
-        save_nodes(self, maps)
-    def save_edges(self, maps):
-        save_edges(self, maps)
+    def set_nodecols(self, maps):
+        set_nodecols(self, maps)
+    def set_edgecols(self, maps):
+        set_edgecols(self, maps)
     def correlation_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
         return correlation_nodes(self, x, y, xmap, ymap, max_perm)
     def correlation_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
