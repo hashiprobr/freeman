@@ -51,11 +51,11 @@ def _correlation(x, y, max_perm):
     return r, p
 
 
-def _chisquared(rows, cols, max_perm):
-    observed = pd.crosstab(rows, cols)
+def _chisquared(x, y, max_perm):
+    observed = pd.crosstab(x, y)
     c, p, _, _ = chi2_contingency(observed)
     if max_perm is not None:
-        original = list(cols)
+        original = list(y)
         if max_perm == 0:
             resamples = permutations(original)
         else:
@@ -63,7 +63,7 @@ def _chisquared(rows, cols, max_perm):
         above = 0
         total = 0
         for resample in resamples:
-            result, _ = _chisquared(rows, pd.Series(resample), None)
+            result, _ = _chisquared(x, pd.Series(resample), None)
             if result >= c:
                 above += 1
             total += 1
@@ -158,28 +158,28 @@ def correlation_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     return correlation(g.edgeframe, x, y, max_perm)
 
 
-def chisquared(df, rows, cols, max_perm):
-    return _chisquared(df[rows], df[cols], max_perm)
+def chisquared(df, x, y, max_perm):
+    return _chisquared(df[x], df[y], max_perm)
 
 
-def chisquared_nodes(g, rows, cols, rmap=None, cmap=None, max_perm=None):
+def chisquared_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
-        rows: rmap,
-        cols: cmap,
+        x: xmap,
+        y: ymap,
     })
     if maps:
         save_nodes(g, maps)
-    return chisquared(g.nodeframe, rows, cols, max_perm)
+    return chisquared(g.nodeframe, x, y, max_perm)
 
 
-def chisquared_edges(g, rows, cols, rmap=None, cmap=None, max_perm=None):
+def chisquared_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
-        rows: rmap,
-        cols: cmap,
+        x: xmap,
+        y: ymap,
     })
     if maps:
         save_edges(g, maps)
-    return chisquared(g.edgeframe, rows, cols, max_perm)
+    return chisquared(g.edgeframe, x, y, max_perm)
 
 
 def student(df, a, b, max_perm):
