@@ -171,6 +171,10 @@ class Graph(ObjectProxy):
     def move_complement(self, key, *args, **kwargs):
         move_complement(self, key, *args, **kwargs)
 
+    def set_nodecol(self, col, map):
+        set_nodecol(self, col, map)
+    def set_edgecol(self, col, map):
+        set_edgecol(self, col, map)
     def set_nodecols(self, maps):
         set_nodecols(self, maps)
     def set_edgecols(self, maps):
