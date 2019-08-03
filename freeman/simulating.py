@@ -48,7 +48,7 @@ class Simulation:
         start_all = default_timer()
 
         repetition = 1
-        while repetition <= times:
+        while True:
             self.before_each()
             start_each = default_timer()
 
@@ -70,7 +70,10 @@ class Simulation:
             end_each = default_timer()
             self.after_each(repetition, iteration, end_each - start_each)
 
-            repetition += 1
+            if repetition < times:
+                repetition += 1
+            else:
+                break
 
         end_all = default_timer()
         self.after_all(repetition, end_all - start_all)
