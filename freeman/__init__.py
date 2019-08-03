@@ -4,6 +4,7 @@ from .drawing import *
 from .exploring import *
 from .moving import *
 from .analyzing import *
+from .simulating import *
 
 
 def load(path, key='random', *args, **kwargs):
