@@ -495,6 +495,7 @@ class Animation:
 
     def __enter__(self):
         self.reset()
+        return self
 
     def __exit__(self, type, value, traceback):
         self.play()
@@ -559,7 +560,6 @@ class Animation:
 
     def burst(self, graphs):
         u = networkx.compose_all(graphs)
-
         for g in graphs:
             self.rec(g, u)
 
