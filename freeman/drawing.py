@@ -493,6 +493,12 @@ class Animation:
     def __init__(self):
         self.frames = []
 
+    def __enter__(self):
+        self.reset()
+
+    def __exit__(self, type, value, traceback):
+        self.play()
+
     def reset(self):
         self.frames.clear()
 

@@ -142,7 +142,7 @@ def concat_edgeframes(graphs, col):
     return concat({value: g.edgeframe for value, g in graphs.items()}, col)
 
 
-def correlation(df, x, y, max_perm):
+def correlation(df, x, y, max_perm=None):
     return _correlation(df[x], df[y], max_perm)
 
 
@@ -166,7 +166,7 @@ def correlation_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     return correlation(g.edgeframe, x, y, max_perm)
 
 
-def chisquared(df, x, y, max_perm):
+def chisquared(df, x, y, max_perm=None):
     return _chisquared(df[x], df[y], max_perm)
 
 
@@ -190,7 +190,7 @@ def chisquared_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     return chisquared(g.edgeframe, x, y, max_perm)
 
 
-def student(df, a, b, max_perm):
+def student(df, a, b, max_perm=None):
     return _student(df[a], df[b], max_perm)
 
 
@@ -214,7 +214,7 @@ def student_edges(g, a, b, amap=None, bmap=None, max_perm=None):
     return student(g.edgeframe, a, b, max_perm)
 
 
-def allstudent(df, x, y, max_perm):
+def allstudent(df, x, y, max_perm=None):
     data = {}
     for value in df[y]:
         if value not in data:
