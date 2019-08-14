@@ -32,7 +32,7 @@ def _permutations(iterable, max_perm):
         yield sample(iterable, len(iterable))
 
 
-def _correlation(x, y, max_perm):
+def _cortest(x, y, max_perm):
     r, p = pearsonr(x, y)
     if max_perm is not None:
         original = list(y)
@@ -43,7 +43,7 @@ def _correlation(x, y, max_perm):
         above = 0
         total = 0
         for resample in resamples:
-            result, _ = _correlation(x, pd.Series(resample), None)
+            result, _ = _cortest(x, pd.Series(resample), None)
             if (r < 0 and result <= r) or r == 0 or (r > 0 and result >= r):
                 above += 1
             total += 1
@@ -51,7 +51,7 @@ def _correlation(x, y, max_perm):
     return r, p
 
 
-def _chisquared(x, y, max_perm):
+def _chitest(x, y, max_perm):
     observed = pd.crosstab(x, y)
     c, p, _, _ = chi2_contingency(observed)
     if max_perm is not None:
@@ -63,7 +63,7 @@ def _chisquared(x, y, max_perm):
         above = 0
         total = 0
         for resample in resamples:
-            result, _ = _chisquared(x, pd.Series(resample), None)
+            result, _ = _chitest(x, pd.Series(resample), None)
             if result >= c:
                 above += 1
             total += 1
@@ -71,7 +71,7 @@ def _chisquared(x, y, max_perm):
     return c, p
 
 
-def _student(a, b, max_perm):
+def _ttest(a, b, max_perm):
     d = abs(a.mean() - b.mean())
     if a.size < 2 or b.size < 2 or a.var() == 0 or b.var() == 0:
         p = None
@@ -87,7 +87,7 @@ def _student(a, b, max_perm):
         above = 0
         total = 0
         for resample in resamples:
-            result, _ = _student(pd.Series(resample[:size]), pd.Series(resample[size:]), None)
+            result, _ = _ttest(pd.Series(resample[:size]), pd.Series(resample[size:]), None)
             if result >= d:
                 above += 1
             total += 1
@@ -142,79 +142,55 @@ def concat_edgeframes(graphs, col):
     return concat({value: g.edgeframe for value, g in graphs.items()}, col)
 
 
-def correlation(df, x, y, max_perm=None):
-    return _correlation(df[x], df[y], max_perm)
+def cortest(df, x, y, max_perm=None):
+    return _cortest(df[x], df[y], max_perm)
 
 
-def correlation_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
+def cortest_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_nodecols(g, maps)
-    return correlation(g.nodeframe, x, y, max_perm)
+    return cortest(g.nodeframe, x, y, max_perm)
 
 
-def correlation_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
+def cortest_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_edgecols(g, maps)
-    return correlation(g.edgeframe, x, y, max_perm)
+    return cortest(g.edgeframe, x, y, max_perm)
 
 
-def chisquared(df, x, y, max_perm=None):
-    return _chisquared(df[x], df[y], max_perm)
+def chitest(df, x, y, max_perm=None):
+    return _chitest(df[x], df[y], max_perm)
 
 
-def chisquared_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
+def chitest_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_nodecols(g, maps)
-    return chisquared(g.nodeframe, x, y, max_perm)
+    return chitest(g.nodeframe, x, y, max_perm)
 
 
-def chisquared_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
+def chitest_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_edgecols(g, maps)
-    return chisquared(g.edgeframe, x, y, max_perm)
+    return chitest(g.edgeframe, x, y, max_perm)
 
 
-def student(df, a, b, max_perm=None):
-    return _student(df[a], df[b], max_perm)
-
-
-def student_nodes(g, a, b, amap=None, bmap=None, max_perm=None):
-    maps = _filter({
-        a: amap,
-        b: bmap,
-    })
-    if maps:
-        set_nodecols(g, maps)
-    return student(g.nodeframe, a, b, max_perm)
-
-
-def student_edges(g, a, b, amap=None, bmap=None, max_perm=None):
-    maps = _filter({
-        a: amap,
-        b: bmap,
-    })
-    if maps:
-        set_edgecols(g, maps)
-    return student(g.edgeframe, a, b, max_perm)
-
-
-def allstudent(df, x, y, max_perm=None):
+def mixtest(df, x, y, max_perm=None):
     data = {}
     for value in df[y]:
         if value not in data:
@@ -224,28 +200,28 @@ def allstudent(df, x, y, max_perm=None):
         if data[a].empty or data[b].empty:
             result[a, b] = None
         else:
-            result[a, b] = _student(data[a], data[b], max_perm)
+            result[a, b] = _ttest(data[a], data[b], max_perm)
     return result
 
 
-def allstudent_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
+def mixtest_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_nodecols(g, maps)
-    return allstudent(g.nodeframe, x, y, max_perm)
+    return mixtest(g.nodeframe, x, y, max_perm)
 
 
-def allstudent_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
+def mixtest_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_edgecols(g, maps)
-    return allstudent(g.edgeframe, x, y, max_perm)
+    return mixtest(g.edgeframe, x, y, max_perm)
 
 
 def linregress(df, X, y):
@@ -312,20 +288,20 @@ def encode_edges(g, X, Xmap=None):
     return encode(g.edgeframe, X)
 
 
-def distplot(df, x):
+def displot(df, x):
     sns.distplot(a=df[x])
 
 
-def distplot_nodes(g, x, xmap=None):
+def displot_nodes(g, x, xmap=None):
     if xmap is not None:
         set_nodecol(g, x, xmap)
-    distplot(g.nodeframe, x)
+    displot(g.nodeframe, x)
 
 
-def distplot_edges(g, x, xmap=None):
+def displot_edges(g, x, xmap=None):
     if xmap is not None:
         set_edgecol(g, x, xmap)
-    distplot(g.edgeframe, x)
+    displot(g.edgeframe, x)
 
 
 def barplot(df, x, control):
@@ -344,68 +320,68 @@ def barplot_edges(g, x, xmap=None, control=None):
     barplot(g.edgeframe, x, control)
 
 
-def scatterplot(df, x, y, control):
+def scaplot(df, x, y, control):
     sns.scatterplot(data=df, x=x, y=y, hue=control)
 
 
-def scatterplot_nodes(g, x, y, xmap=None, ymap=None, control=None):
+def scaplot_nodes(g, x, y, xmap=None, ymap=None, control=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_nodecols(g, maps)
-    scatterplot(g.nodeframe, x, y, control)
+    scaplot(g.nodeframe, x, y, control)
 
 
-def scatterplot_edges(g, x, y, xmap=None, ymap=None, control=None):
+def scaplot_edges(g, x, y, xmap=None, ymap=None, control=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_edgecols(g, maps)
-    scatterplot(g.edgeframe, x, y, control)
+    scaplot(g.edgeframe, x, y, control)
 
 
-def pairplot(df, cols, control):
+def matplot(df, cols, control):
     sns.pairplot(data=df, vars=cols, hue=control)
 
 
-def pairplot_nodes(g, cols, maps=None, control=None):
+def matplot_nodes(g, cols, maps=None, control=None):
     if maps is not None:
         set_nodecols(g, {col: map for col, map in zip(cols, maps)})
-    pairplot(g.nodeframe, cols, control)
+    matplot(g.nodeframe, cols, control)
 
 
-def pairplot_edges(g, cols, maps=None, control=None):
+def matplot_edges(g, cols, maps=None, control=None):
     if maps is not None:
         set_edgecols(g, {col: map for col, map in zip(cols, maps)})
-    pairplot(g.edgeframe, cols, control)
+    matplot(g.edgeframe, cols, control)
 
 
-def jointplot(df, x, y):
+def hexplot(df, x, y):
     sns.jointplot(x=df[x], y=df[y], kind='hex')
 
 
-def jointplot_nodes(g, x, y, xmap=None, ymap=None):
+def hexplot_nodes(g, x, y, xmap=None, ymap=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_nodecols(g, maps)
-    jointplot(g.nodeframe, x, y)
+    hexplot(g.nodeframe, x, y)
 
 
-def jointplot_edges(g, x, y, xmap=None, ymap=None):
+def hexplot_edges(g, x, y, xmap=None, ymap=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_edgecols(g, maps)
-    jointplot(g.edgeframe, x, y)
+    hexplot(g.edgeframe, x, y)
 
 
 def boxplot(df, x, y, control):

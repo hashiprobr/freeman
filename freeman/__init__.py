@@ -180,22 +180,18 @@ class Graph(ObjectProxy):
         set_nodecols(self, maps)
     def set_edgecols(self, maps):
         set_edgecols(self, maps)
-    def correlation_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return correlation_nodes(self, x, y, xmap, ymap, max_perm)
-    def correlation_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return correlation_edges(self, x, y, xmap, ymap, max_perm)
-    def chisquared_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return chisquared_nodes(self, x, y, xmap, ymap, max_perm)
-    def chisquared_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return chisquared_edges(self, x, y, xmap, ymap, max_perm)
-    def student_nodes(self, a, b, amap=None, bmap=None, max_perm=None):
-        return student_nodes(self, a, b, amap, bmap, max_perm)
-    def student_edges(self, a, b, amap=None, bmap=None, max_perm=None):
-        return student_edges(self, a, b, amap, bmap, max_perm)
-    def allstudent_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return allstudent_nodes(self, x, y, xmap, ymap, max_perm)
-    def allstudent_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return allstudent_edges(self, x, y, xmap, ymap, max_perm)
+    def cortest_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
+        return cortest_nodes(self, x, y, xmap, ymap, max_perm)
+    def cortest_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
+        return cortest_edges(self, x, y, xmap, ymap, max_perm)
+    def chitest_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
+        return chitest_nodes(self, x, y, xmap, ymap, max_perm)
+    def chitest_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
+        return chitest_edges(self, x, y, xmap, ymap, max_perm)
+    def mixtest_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
+        return mixtest_nodes(self, x, y, xmap, ymap, max_perm)
+    def mixtest_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
+        return mixtest_edges(self, x, y, xmap, ymap, max_perm)
     def linregress_nodes(self, X, y, Xmap=None, ymap=None):
         return linregress_nodes(self, X, y, Xmap, ymap)
     def linregress_edges(self, X, y, Xmap=None, ymap=None):
@@ -208,26 +204,26 @@ class Graph(ObjectProxy):
         return encode_nodes(self, X, Xmap)
     def encode_edges(self, X, Xmap=None):
         return encode_edges(self, X, Xmap)
-    def distplot_nodes(self, x, xmap=None):
-        distplot_nodes(self, x, xmap)
-    def distplot_edges(self, x, xmap=None):
-        distplot_edges(self, x, xmap)
+    def displot_nodes(self, x, xmap=None):
+        displot_nodes(self, x, xmap)
+    def displot_edges(self, x, xmap=None):
+        displot_edges(self, x, xmap)
     def barplot_nodes(self, x, xmap=None, control=None):
         barplot_nodes(self, x, xmap, control)
     def barplot_edges(self, x, xmap=None, control=None):
         barplot_edges(self, x, xmap, control)
-    def scatterplot_nodes(self, x, y, xmap=None, ymap=None, control=None):
-        scatterplot_nodes(self, x, y, xmap, ymap, control)
-    def scatterplot_edges(self, x, y, xmap=None, ymap=None, control=None):
-        scatterplot_edges(self, x, y, xmap, ymap, control)
-    def pairplot_nodes(self, cols, maps=None, control=None):
-        pairplot_nodes(self, cols, maps, control)
-    def pairplot_edges(self, cols, maps=None, control=None):
-        pairplot_edges(self, cols, maps, control)
-    def jointplot_nodes(self, x, y, xmap=None, ymap=None):
-        jointplot_nodes(self, x, y, xmap, ymap)
-    def jointplot_edges(self, x, y, xmap=None, ymap=None):
-        jointplot_edges(self, x, y, xmap, ymap)
+    def scaplot_nodes(self, x, y, xmap=None, ymap=None, control=None):
+        scaplot_nodes(self, x, y, xmap, ymap, control)
+    def scaplot_edges(self, x, y, xmap=None, ymap=None, control=None):
+        scaplot_edges(self, x, y, xmap, ymap, control)
+    def matplot_nodes(self, cols, maps=None, control=None):
+        matplot_nodes(self, cols, maps, control)
+    def matplot_edges(self, cols, maps=None, control=None):
+        matplot_edges(self, cols, maps, control)
+    def hexplot_nodes(self, x, y, xmap=None, ymap=None):
+        hexplot_nodes(self, x, y, xmap, ymap)
+    def hexplot_edges(self, x, y, xmap=None, ymap=None):
+        hexplot_edges(self, x, y, xmap, ymap)
     def boxplot_nodes(self, x, y, xmap=None, ymap=None, control=None):
         boxplot_nodes(self, x, y, xmap, ymap, control)
     def boxplot_edges(self, x, y, xmap=None, ymap=None, control=None):
