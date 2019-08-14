@@ -245,7 +245,7 @@ def linregress_edges(g, X, y, Xmap=None, ymap=None):
     return linregress(g.edgeframe, X, y)
 
 
-def logregress(df, X, y, max_iter):
+def logregress(df, X, y, max_iter=100):
     dfX = list(zip(*(df[x] for x in X)))
     model = LogisticRegression(solver='lbfgs', max_iter=max_iter, multi_class='auto')
     model.fit(dfX, df[y])
@@ -304,7 +304,7 @@ def displot_edges(g, x, xmap=None):
     displot(g.edgeframe, x)
 
 
-def barplot(df, x, control):
+def barplot(df, x, control=None):
     sns.catplot(data=df, x=x, kind='count', hue=control)
 
 
@@ -320,7 +320,7 @@ def barplot_edges(g, x, xmap=None, control=None):
     barplot(g.edgeframe, x, control)
 
 
-def scaplot(df, x, y, control):
+def scaplot(df, x, y, control=None):
     sns.scatterplot(data=df, x=x, y=y, hue=control)
 
 
@@ -344,7 +344,7 @@ def scaplot_edges(g, x, y, xmap=None, ymap=None, control=None):
     scaplot(g.edgeframe, x, y, control)
 
 
-def matplot(df, cols, control):
+def matplot(df, cols, control=None):
     sns.pairplot(data=df, vars=cols, hue=control)
 
 
@@ -384,7 +384,7 @@ def hexplot_edges(g, x, y, xmap=None, ymap=None):
     hexplot(g.edgeframe, x, y)
 
 
-def boxplot(df, x, y, control):
+def boxplot(df, x, y, control=None):
     sns.boxplot(data=df, x=x, y=y, orient='h', hue=control)
 
 
