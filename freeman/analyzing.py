@@ -1,6 +1,7 @@
 import pandas as pd
 import seaborn as sns
 
+from math import isclose
 from random import sample
 from itertools import permutations, combinations
 from scipy.stats import pearsonr, chi2_contingency, ttest_ind
@@ -72,12 +73,10 @@ def _chitest(x, y, max_perm):
 
 
 def _ttest(a, b, max_perm):
-    d = abs(a.mean() - b.mean())
-    if a.size < 2 or b.size < 2 or a.var() == 0 or b.var() == 0:
-        p = None
-    else:
-        _, p = ttest_ind(a, b)
-    if p is not None and max_perm is not None:
+    if a.empty or b.empty or (isclose(a.var(), 0) and isclose(b.var(), 0)):
+        return None
+    t, p = ttest_ind(a, b, equal_var=False)
+    if max_perm is not None:
         size = a.size
         original = list(pd.concat([a, b]))
         if max_perm == 0:
@@ -88,11 +87,11 @@ def _ttest(a, b, max_perm):
         total = 0
         for resample in resamples:
             result, _ = _ttest(pd.Series(resample[:size]), pd.Series(resample[size:]), None)
-            if result >= d:
+            if (t < 0 and result <= t) or t == 0 or (t > 0 and result >= t):
                 above += 1
             total += 1
-        p = above / total
-    return d, p
+        p = 2 * (above / total)
+    return t, p
 
 
 def set_nodeframe(g):
@@ -190,6 +189,10 @@ def chitest_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     return chitest(g.edgeframe, x, y, max_perm)
 
 
+def ttest(a, b, max_perm=None):
+    return _ttest(pd.Series(a), pd.Series(b), max_perm)
+
+
 def mixtest(df, x, y, max_perm=None):
     data = {}
     for value in df[y]:
@@ -197,10 +200,7 @@ def mixtest(df, x, y, max_perm=None):
             data[value] = df[df[y] == value][x]
     result = {}
     for a, b in combinations(data, 2):
-        if data[a].empty or data[b].empty:
-            result[a, b] = None
-        else:
-            result[a, b] = _ttest(data[a], data[b], max_perm)
+        result[a, b] = _ttest(data[a], data[b], max_perm)
     return result
 
 
