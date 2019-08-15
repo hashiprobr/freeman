@@ -188,6 +188,10 @@ class Graph(ObjectProxy):
         return chitest_nodes(self, x, y, xmap, ymap, max_perm)
     def chitest_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
         return chitest_edges(self, x, y, xmap, ymap, max_perm)
+    def reltest_nodes(self, a, b, amap=None, bmap=None, max_perm=None):
+        return reltest_nodes(self, a, b, amap, bmap, max_perm)
+    def reltest_edges(self, a, b, amap=None, bmap=None, max_perm=None):
+        return reltest_edges(self, a, b, amap, bmap, max_perm)
     def mixtest_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
         return mixtest_nodes(self, x, y, xmap, ymap, max_perm)
     def mixtest_edges(self, x, y, xmap=None, ymap=None, max_perm=None):

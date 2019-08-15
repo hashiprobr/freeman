@@ -2,9 +2,9 @@ import pandas as pd
 import seaborn as sns
 
 from math import isclose
-from random import sample
-from itertools import permutations, combinations
-from scipy.stats import pearsonr, chi2_contingency, ttest_ind
+from random import choices, sample
+from itertools import product, permutations, combinations
+from scipy.stats import pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import OneHotEncoder
 
@@ -26,6 +26,11 @@ def _filter(maps):
         if maps[col] is None:
             del maps[col]
     return maps
+
+
+def _product(iterable, size, max_perm):
+    for _ in range(max_perm):
+        yield choices(iterable, k=size)
 
 
 def _permutations(iterable, max_perm):
@@ -72,8 +77,8 @@ def _chitest(x, y, max_perm):
     return c, p
 
 
-def _ttest(a, b, max_perm):
-    if a.empty or b.empty or (isclose(a.var(), 0) and isclose(b.var(), 0)):
+def _indtest(a, b, max_perm):
+    if a.size < 2 or b.size < 2 or (isclose(a.var(), 0) and isclose(b.var(), 0)):
         return None
     t, p = ttest_ind(a, b, equal_var=False)
     if max_perm is not None:
@@ -86,7 +91,37 @@ def _ttest(a, b, max_perm):
         above = 0
         total = 0
         for resample in resamples:
-            result, _ = _ttest(pd.Series(resample[:size]), pd.Series(resample[size:]), None)
+            result, _ = _indtest(pd.Series(resample[:size]), pd.Series(resample[size:]), None)
+            if (t < 0 and result <= t) or t == 0 or (t > 0 and result >= t):
+                above += 1
+            total += 1
+        p = 2 * (above / total)
+    return t, p
+
+
+def _reltest(a, b, max_perm):
+    size = a.size
+    if size < 2 or size != b.size or a.equals(b) or (isclose(a.var(), 0) and isclose(b.var(), 0)):
+        return None
+    t, p = ttest_rel(a, b)
+    if max_perm is not None:
+        if max_perm == 0:
+            resamples = product([False, True], repeat=size)
+        else:
+            resamples = _product([False, True], size, max_perm)
+        above = 0
+        total = 0
+        for resample in resamples:
+            la = []
+            lb = []
+            for i, keep in enumerate(resample):
+                if keep:
+                    la.append(a[i])
+                    lb.append(b[i])
+                else:
+                    la.append(b[i])
+                    lb.append(a[i])
+            result, _ = _reltest(pd.Series(la), pd.Series(lb), None)
             if (t < 0 and result <= t) or t == 0 or (t > 0 and result >= t):
                 above += 1
             total += 1
@@ -189,8 +224,40 @@ def chitest_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
     return chitest(g.edgeframe, x, y, max_perm)
 
 
-def ttest(a, b, max_perm=None):
-    return _ttest(pd.Series(a), pd.Series(b), max_perm)
+def sintest(a, mean):
+    a = pd.Series(a)
+    if a.size < 2 or isclose(a.var(), 0):
+        return None
+    t, p = ttest_1samp(a, mean)
+    return t, p
+
+
+def indtest(a, b, max_perm=None):
+    return _indtest(pd.Series(a), pd.Series(b), max_perm)
+
+
+def reltest(df, a, b, max_perm=None):
+    return _reltest(df[a], df[b], max_perm)
+
+
+def reltest_nodes(g, a, b, amap=None, bmap=None, max_perm=None):
+    maps = _filter({
+        a: amap,
+        b: bmap,
+    })
+    if maps:
+        set_nodecols(g, maps)
+    return reltest(g.nodeframe, a, b, max_perm)
+
+
+def reltest_edges(g, a, b, amap=None, bmap=None, max_perm=None):
+    maps = _filter({
+        a: amap,
+        b: bmap,
+    })
+    if maps:
+        set_edgecols(g, maps)
+    return reltest(g.edgeframe, a, b, max_perm)
 
 
 def mixtest(df, x, y, max_perm=None):
@@ -200,7 +267,7 @@ def mixtest(df, x, y, max_perm=None):
             data[value] = df[df[y] == value][x]
     result = {}
     for a, b in combinations(data, 2):
-        result[a, b] = _ttest(data[a], data[b], max_perm)
+        result[a, b] = _indtest(data[a], data[b], max_perm)
     return result
 
 
