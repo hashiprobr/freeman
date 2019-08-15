@@ -7,6 +7,7 @@ from itertools import product, permutations, combinations
 from scipy.stats import pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import OneHotEncoder
+from prince import CA
 
 from .exploring import extract_nodes, extract_edges
 
@@ -449,6 +450,33 @@ def hexplot_edges(g, x, y, xmap=None, ymap=None):
     if maps:
         set_edgecols(g, maps)
     hexplot(g.edgeframe, x, y)
+
+
+def corplot(df, x, y):
+    observed = pd.crosstab(df[x], df[y])
+    ca = CA()
+    ca.fit(observed)
+    ca.plot_coordinates(observed)
+
+
+def corplot_nodes(g, x, y, xmap=None, ymap=None):
+    maps = _filter({
+        x: xmap,
+        y: ymap,
+    })
+    if maps:
+        set_nodecols(g, maps)
+    corplot(g.nodeframe, x, y)
+
+
+def corplot_edges(g, x, y, xmap=None, ymap=None):
+    maps = _filter({
+        x: xmap,
+        y: ymap,
+    })
+    if maps:
+        set_edgecols(g, maps)
+    corplot(g.edgeframe, x, y)
 
 
 def boxplot(df, x, y, control=None):

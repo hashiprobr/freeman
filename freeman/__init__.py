@@ -228,6 +228,10 @@ class Graph(ObjectProxy):
         hexplot_nodes(self, x, y, xmap, ymap)
     def hexplot_edges(self, x, y, xmap=None, ymap=None):
         hexplot_edges(self, x, y, xmap, ymap)
+    def corplot_nodes(self, x, y, xmap=None, ymap=None):
+        corplot_nodes(self, x, y, xmap, ymap)
+    def corplot_edges(self, x, y, xmap=None, ymap=None):
+        corplot_edges(self, x, y, xmap, ymap)
     def boxplot_nodes(self, x, y, xmap=None, ymap=None, control=None):
         boxplot_nodes(self, x, y, xmap, ymap, control)
     def boxplot_edges(self, x, y, xmap=None, ymap=None, control=None):
