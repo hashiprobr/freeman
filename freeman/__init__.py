@@ -176,66 +176,66 @@ class Graph(ObjectProxy):
         set_nodecol(self, col, map)
     def set_edgecol(self, col, map):
         set_edgecol(self, col, map)
-    def set_nodecols(self, maps):
-        set_nodecols(self, maps)
-    def set_edgecols(self, maps):
-        set_edgecols(self, maps)
-    def cortest_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return cortest_nodes(self, x, y, xmap, ymap, max_perm)
-    def cortest_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return cortest_edges(self, x, y, xmap, ymap, max_perm)
-    def chitest_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return chitest_nodes(self, x, y, xmap, ymap, max_perm)
-    def chitest_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return chitest_edges(self, x, y, xmap, ymap, max_perm)
-    def reltest_nodes(self, a, b, amap=None, bmap=None, max_perm=None):
-        return reltest_nodes(self, a, b, amap, bmap, max_perm)
-    def reltest_edges(self, a, b, amap=None, bmap=None, max_perm=None):
-        return reltest_edges(self, a, b, amap, bmap, max_perm)
-    def mixtest_nodes(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return mixtest_nodes(self, x, y, xmap, ymap, max_perm)
-    def mixtest_edges(self, x, y, xmap=None, ymap=None, max_perm=None):
-        return mixtest_edges(self, x, y, xmap, ymap, max_perm)
-    def linregress_nodes(self, X, y, Xmap=None, ymap=None):
-        return linregress_nodes(self, X, y, Xmap, ymap)
-    def linregress_edges(self, X, y, Xmap=None, ymap=None):
-        return linregress_edges(self, X, y, Xmap, ymap)
-    def logregress_nodes(self, X, y, Xmap=None, ymap=None, max_iter=100):
-        return logregress_nodes(self, X, y, Xmap, ymap, max_iter)
-    def logregress_edges(self, X, y, Xmap=None, ymap=None, max_iter=100):
-        return logregress_edges(self, X, y, Xmap, ymap, max_iter)
-    def encode_nodes(self, X, Xmap=None):
-        return encode_nodes(self, X, Xmap)
-    def encode_edges(self, X, Xmap=None):
-        return encode_edges(self, X, Xmap)
-    def displot_nodes(self, x, xmap=None):
-        displot_nodes(self, x, xmap)
-    def displot_edges(self, x, xmap=None):
-        displot_edges(self, x, xmap)
-    def barplot_nodes(self, x, xmap=None, control=None):
-        barplot_nodes(self, x, xmap, control)
-    def barplot_edges(self, x, xmap=None, control=None):
-        barplot_edges(self, x, xmap, control)
-    def scaplot_nodes(self, x, y, xmap=None, ymap=None, control=None):
-        scaplot_nodes(self, x, y, xmap, ymap, control)
-    def scaplot_edges(self, x, y, xmap=None, ymap=None, control=None):
-        scaplot_edges(self, x, y, xmap, ymap, control)
-    def matplot_nodes(self, cols, maps=None, control=None):
-        matplot_nodes(self, cols, maps, control)
-    def matplot_edges(self, cols, maps=None, control=None):
-        matplot_edges(self, cols, maps, control)
-    def contable_nodes(self, x, y, xmap=None, ymap=None):
-        return contable_nodes(self, x, y, xmap, ymap)
-    def contable_edges(self, x, y, xmap=None, ymap=None):
-        return contable_edges(self, x, y, xmap, ymap)
-    def corplot_nodes(self, x, y, xmap=None, ymap=None):
-        corplot_nodes(self, x, y, xmap, ymap)
-    def corplot_edges(self, x, y, xmap=None, ymap=None):
-        corplot_edges(self, x, y, xmap, ymap)
-    def boxplot_nodes(self, x, y, xmap=None, ymap=None, control=None):
-        boxplot_nodes(self, x, y, xmap, ymap, control)
-    def boxplot_edges(self, x, y, xmap=None, ymap=None, control=None):
-        boxplot_edges(self, x, y, xmap, ymap, control)
+    def set_nodecols(self):
+        set_nodecols(self)
+    def set_edgecols(self):
+        set_edgecols(self)
+    def cortest_nodes(self, x, y, max_perm=None):
+        return cortest_nodes(self, x, y, max_perm)
+    def cortest_edges(self, x, y, max_perm=None):
+        return cortest_edges(self, x, y, max_perm)
+    def chitest_nodes(self, x, y, max_perm=None):
+        return chitest_nodes(self, x, y, max_perm)
+    def chitest_edges(self, x, y, max_perm=None):
+        return chitest_edges(self, x, y, max_perm)
+    def reltest_nodes(self, a, b, max_perm=None):
+        return reltest_nodes(self, a, b, max_perm)
+    def reltest_edges(self, a, b, max_perm=None):
+        return reltest_edges(self, a, b, max_perm)
+    def mixtest_nodes(self, x, y, max_perm=None):
+        return mixtest_nodes(self, x, y, max_perm)
+    def mixtest_edges(self, x, y, max_perm=None):
+        return mixtest_edges(self, x, y, max_perm)
+    def linregress_nodes(self, X, y):
+        return linregress_nodes(self, X, y)
+    def linregress_edges(self, X, y):
+        return linregress_edges(self, X, y)
+    def logregress_nodes(self, X, y, max_iter=100):
+        return logregress_nodes(self, X, y, max_iter)
+    def logregress_edges(self, X, y, max_iter=100):
+        return logregress_edges(self, X, y, max_iter)
+    def encode_nodes(self, X):
+        return encode_nodes(self, X)
+    def encode_edges(self, X):
+        return encode_edges(self, X)
+    def displot_nodes(self, x):
+        displot_nodes(self, x)
+    def displot_edges(self, x):
+        displot_edges(self, x)
+    def barplot_nodes(self, x, control=None):
+        barplot_nodes(self, x, control)
+    def barplot_edges(self, x, control=None):
+        barplot_edges(self, x, control)
+    def scaplot_nodes(self, x, y, control=None):
+        scaplot_nodes(self, x, y, control)
+    def scaplot_edges(self, x, y, control=None):
+        scaplot_edges(self, x, y, control)
+    def matplot_nodes(self, cols, control=None):
+        matplot_nodes(self, cols, control)
+    def matplot_edges(self, cols, control=None):
+        matplot_edges(self, cols, control)
+    def contable_nodes(self, x, y):
+        return contable_nodes(self, x, y)
+    def contable_edges(self, x, y):
+        return contable_edges(self, x, y)
+    def corplot_nodes(self, x, y):
+        corplot_nodes(self, x, y)
+    def corplot_edges(self, x, y):
+        corplot_edges(self, x, y)
+    def boxplot_nodes(self, x, y, control=None):
+        boxplot_nodes(self, x, y, control)
+    def boxplot_edges(self, x, y, control=None):
+        boxplot_edges(self, x, y, control)
 
     def dyads(self, ordered=False):
         return dyads(self, ordered)

@@ -12,23 +12,6 @@ from prince import CA
 from .exploring import extract_nodes, extract_edges
 
 
-def _merge(X, y, Xmap, ymap):
-    if Xmap is None:
-        maps = {}
-    else:
-        maps = {x: xmap for x, xmap in zip(X, Xmap)}
-    maps[y] = ymap
-    return maps
-
-
-def _filter(maps):
-    cols = list(maps.keys())
-    for col in cols:
-        if maps[col] is None:
-            del maps[col]
-    return maps
-
-
 def _product(iterable, size, max_perm):
     for _ in range(max_perm):
         yield choices(iterable, k=size)
@@ -181,23 +164,11 @@ def cortest(df, x, y, max_perm=None):
     return _cortest(df[x], df[y], max_perm)
 
 
-def cortest_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_nodecols(g, maps)
+def cortest_nodes(g, x, y, max_perm=None):
     return cortest(g.nodeframe, x, y, max_perm)
 
 
-def cortest_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_edgecols(g, maps)
+def cortest_edges(g, x, y, max_perm=None):
     return cortest(g.edgeframe, x, y, max_perm)
 
 
@@ -205,23 +176,11 @@ def chitest(df, x, y, max_perm=None):
     return _chitest(df[x], df[y], max_perm)
 
 
-def chitest_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_nodecols(g, maps)
+def chitest_nodes(g, x, y, max_perm=None):
     return chitest(g.nodeframe, x, y, max_perm)
 
 
-def chitest_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_edgecols(g, maps)
+def chitest_edges(g, x, y, max_perm=None):
     return chitest(g.edgeframe, x, y, max_perm)
 
 
@@ -241,23 +200,11 @@ def reltest(df, a, b, max_perm=None):
     return _reltest(df[a], df[b], max_perm)
 
 
-def reltest_nodes(g, a, b, amap=None, bmap=None, max_perm=None):
-    maps = _filter({
-        a: amap,
-        b: bmap,
-    })
-    if maps:
-        set_nodecols(g, maps)
+def reltest_nodes(g, a, b, max_perm=None):
     return reltest(g.nodeframe, a, b, max_perm)
 
 
-def reltest_edges(g, a, b, amap=None, bmap=None, max_perm=None):
-    maps = _filter({
-        a: amap,
-        b: bmap,
-    })
-    if maps:
-        set_edgecols(g, maps)
+def reltest_edges(g, a, b, max_perm=None):
     return reltest(g.edgeframe, a, b, max_perm)
 
 
@@ -272,23 +219,11 @@ def mixtest(df, x, y, max_perm=None):
     return result
 
 
-def mixtest_nodes(g, x, y, xmap=None, ymap=None, max_perm=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_nodecols(g, maps)
+def mixtest_nodes(g, x, y, max_perm=None):
     return mixtest(g.nodeframe, x, y, max_perm)
 
 
-def mixtest_edges(g, x, y, xmap=None, ymap=None, max_perm=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_edgecols(g, maps)
+def mixtest_edges(g, x, y, max_perm=None):
     return mixtest(g.edgeframe, x, y, max_perm)
 
 
@@ -299,17 +234,11 @@ def linregress(df, X, y):
     return [coef for coef in model.coef_], model.score(dfX, df[y])
 
 
-def linregress_nodes(g, X, y, Xmap=None, ymap=None):
-    maps = _filter(_merge(X, y, Xmap, ymap))
-    if maps:
-        set_nodecols(g, maps)
+def linregress_nodes(g, X, y):
     return linregress(g.nodeframe, X, y)
 
 
-def linregress_edges(g, X, y, Xmap=None, ymap=None):
-    maps = _filter(_merge(X, y, Xmap, ymap))
-    if maps:
-        set_edgecols(g, maps)
+def linregress_edges(g, X, y):
     return linregress(g.edgeframe, X, y)
 
 
@@ -320,17 +249,11 @@ def logregress(df, X, y, max_iter=100):
     return {class_: [coef for coef in coef_] for class_, coef_ in zip(model.classes_, model.coef_)}, model.score(dfX, df[y])
 
 
-def logregress_nodes(g, X, y, Xmap=None, ymap=None, max_iter=100):
-    maps = _filter(_merge(X, y, Xmap, ymap))
-    if maps:
-        set_nodecols(g, maps)
+def logregress_nodes(g, X, y, max_iter=100):
     return logregress(g.nodeframe, X, y, max_iter)
 
 
-def logregress_edges(g, X, y, Xmap=None, ymap=None, max_iter=100):
-    maps = _filter(_merge(X, y, Xmap, ymap))
-    if maps:
-        set_edgecols(g, maps)
+def logregress_edges(g, X, y, max_iter=100):
     return logregress(g.edgeframe, X, y, max_iter)
 
 
@@ -344,15 +267,11 @@ def encode(df, X):
     return cols
 
 
-def encode_nodes(g, X, Xmap=None):
-    if Xmap is not None:
-        set_nodecols(g, {x: xmap for x, xmap in zip(X, Xmap)})
+def encode_nodes(g, X):
     return encode(g.nodeframe, X)
 
 
-def encode_edges(g, X, Xmap=None):
-    if Xmap is not None:
-        set_edgecols(g, {x: xmap for x, xmap in zip(X, Xmap)})
+def encode_edges(g, X):
     return encode(g.edgeframe, X)
 
 
@@ -360,15 +279,11 @@ def displot(df, x):
     sns.distplot(a=df[x])
 
 
-def displot_nodes(g, x, xmap=None):
-    if xmap is not None:
-        set_nodecol(g, x, xmap)
+def displot_nodes(g, x):
     displot(g.nodeframe, x)
 
 
-def displot_edges(g, x, xmap=None):
-    if xmap is not None:
-        set_edgecol(g, x, xmap)
+def displot_edges(g, x):
     displot(g.edgeframe, x)
 
 
@@ -376,15 +291,11 @@ def barplot(df, x, control=None):
     sns.catplot(data=df, x=x, kind='count', hue=control)
 
 
-def barplot_nodes(g, x, xmap=None, control=None):
-    if xmap is not None:
-        set_nodecol(g, x, xmap)
+def barplot_nodes(g, x, control=None):
     barplot(g.nodeframe, x, control)
 
 
-def barplot_edges(g, x, xmap=None, control=None):
-    if xmap is not None:
-        set_edgecol(g, x, xmap)
+def barplot_edges(g, x, control=None):
     barplot(g.edgeframe, x, control)
 
 
@@ -392,23 +303,11 @@ def scaplot(df, x, y, control=None):
     sns.scatterplot(data=df, x=x, y=y, hue=control)
 
 
-def scaplot_nodes(g, x, y, xmap=None, ymap=None, control=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_nodecols(g, maps)
+def scaplot_nodes(g, x, y, control=None):
     scaplot(g.nodeframe, x, y, control)
 
 
-def scaplot_edges(g, x, y, xmap=None, ymap=None, control=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_edgecols(g, maps)
+def scaplot_edges(g, x, y, control=None):
     scaplot(g.edgeframe, x, y, control)
 
 
@@ -416,15 +315,11 @@ def matplot(df, cols, control=None):
     sns.pairplot(data=df, vars=cols, hue=control)
 
 
-def matplot_nodes(g, cols, maps=None, control=None):
-    if maps is not None:
-        set_nodecols(g, {col: map for col, map in zip(cols, maps)})
+def matplot_nodes(g, cols, control=None):
     matplot(g.nodeframe, cols, control)
 
 
-def matplot_edges(g, cols, maps=None, control=None):
-    if maps is not None:
-        set_edgecols(g, {col: map for col, map in zip(cols, maps)})
+def matplot_edges(g, cols, control=None):
     matplot(g.edgeframe, cols, control)
 
 
@@ -432,23 +327,11 @@ def contable(df, x, y):
     return pd.crosstab(df[y], df[x], margins=True)
 
 
-def contable_nodes(g, x, y, xmap=None, ymap=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_nodecols(g, maps)
+def contable_nodes(g, x, y):
     return contable(g.nodeframe, x, y)
 
 
-def contable_edges(g, x, y, xmap=None, ymap=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_edgecols(g, maps)
+def contable_edges(g, x, y):
     return contable(g.edgeframe, x, y)
 
 
@@ -459,23 +342,11 @@ def corplot(df, x, y):
     ca.plot_coordinates(observed)
 
 
-def corplot_nodes(g, x, y, xmap=None, ymap=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_nodecols(g, maps)
+def corplot_nodes(g, x, y):
     corplot(g.nodeframe, x, y)
 
 
-def corplot_edges(g, x, y, xmap=None, ymap=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_edgecols(g, maps)
+def corplot_edges(g, x, y):
     corplot(g.edgeframe, x, y)
 
 
@@ -483,21 +354,9 @@ def boxplot(df, x, y, control=None):
     sns.boxplot(data=df, x=x, y=y, orient='h', hue=control)
 
 
-def boxplot_nodes(g, x, y, xmap=None, ymap=None, control=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_nodecols(g, maps)
+def boxplot_nodes(g, x, y, control=None):
     boxplot(g.nodeframe, x, y, control)
 
 
-def boxplot_edges(g, x, y, xmap=None, ymap=None, control=None):
-    maps = _filter({
-        x: xmap,
-        y: ymap,
-    })
-    if maps:
-        set_edgecols(g, maps)
+def boxplot_edges(g, x, y, control=None):
     boxplot(g.edgeframe, x, y, control)
