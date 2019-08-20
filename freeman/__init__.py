@@ -224,10 +224,10 @@ class Graph(ObjectProxy):
         matplot_nodes(self, cols, maps, control)
     def matplot_edges(self, cols, maps=None, control=None):
         matplot_edges(self, cols, maps, control)
-    def hexplot_nodes(self, x, y, xmap=None, ymap=None):
-        hexplot_nodes(self, x, y, xmap, ymap)
-    def hexplot_edges(self, x, y, xmap=None, ymap=None):
-        hexplot_edges(self, x, y, xmap, ymap)
+    def contable_nodes(self, x, y, xmap=None, ymap=None):
+        return contable_nodes(self, x, y, xmap, ymap)
+    def contable_edges(self, x, y, xmap=None, ymap=None):
+        return contable_edges(self, x, y, xmap, ymap)
     def corplot_nodes(self, x, y, xmap=None, ymap=None):
         corplot_nodes(self, x, y, xmap, ymap)
     def corplot_edges(self, x, y, xmap=None, ymap=None):

@@ -59,7 +59,7 @@ def _cortest(x, y, max_perm):
 
 
 def _chitest(x, y, max_perm):
-    observed = pd.crosstab(x, y)
+    observed = pd.crosstab(y, x)
     c, p, _, _ = chi2_contingency(observed)
     if max_perm is not None:
         original = list(y)
@@ -428,32 +428,32 @@ def matplot_edges(g, cols, maps=None, control=None):
     matplot(g.edgeframe, cols, control)
 
 
-def hexplot(df, x, y):
-    sns.jointplot(x=df[x], y=df[y], kind='hex')
+def contable(df, x, y):
+    return pd.crosstab(df[y], df[x], margins=True)
 
 
-def hexplot_nodes(g, x, y, xmap=None, ymap=None):
+def contable_nodes(g, x, y, xmap=None, ymap=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_nodecols(g, maps)
-    hexplot(g.nodeframe, x, y)
+    return contable(g.nodeframe, x, y)
 
 
-def hexplot_edges(g, x, y, xmap=None, ymap=None):
+def contable_edges(g, x, y, xmap=None, ymap=None):
     maps = _filter({
         x: xmap,
         y: ymap,
     })
     if maps:
         set_edgecols(g, maps)
-    hexplot(g.edgeframe, x, y)
+    return contable(g.edgeframe, x, y)
 
 
 def corplot(df, x, y):
-    observed = pd.crosstab(df[x], df[y])
+    observed = pd.crosstab(df[y], df[x])
     ca = CA()
     ca.fit(observed)
     ca.plot_coordinates(observed)
