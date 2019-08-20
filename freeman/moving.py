@@ -103,21 +103,3 @@ def move_complement(g, key, *args, **kwargs):
         h.nodes[n].update(g.nodes[n])
 
     move_copy(g, h, key, *args, **kwargs)
-
-
-def movement(g, h):
-    num_nodes = g.number_of_nodes()
-    if num_nodes != h.number_of_nodes():
-        raise ValueError('the graphs must have the same number of nodes')
-
-    u = networkx.DiGraph()
-
-    for n, (n1, n2) in enumerate(zip(g.nodes, h.nodes)):
-        m = n + num_nodes
-        u.add_node(n)
-        u.nodes[n].update(g.nodes[n1])
-        u.add_node(m)
-        u.nodes[m].update(h.nodes[n2])
-        u.add_edge(n, m)
-
-    return u
