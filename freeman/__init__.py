@@ -176,10 +176,10 @@ class Graph(ObjectProxy):
         set_nodecol(self, col, map)
     def set_edgecol(self, col, map):
         set_edgecol(self, col, map)
-    def set_nodecols(self):
-        set_nodecols(self)
-    def set_edgecols(self):
-        set_edgecols(self)
+    def set_nodecols(self, maps):
+        set_nodecols(self, maps)
+    def set_edgecols(self, maps):
+        set_edgecols(self, maps)
     def cortest_nodes(self, x, y, max_perm=None):
         return cortest_nodes(self, x, y, max_perm)
     def cortest_edges(self, x, y, max_perm=None):
