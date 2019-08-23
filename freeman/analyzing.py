@@ -1,7 +1,7 @@
 import pandas as pd
 import seaborn as sns
 
-from math import isclose
+from math import isclose, log
 from random import choices, sample
 from itertools import product, permutations, combinations
 from scipy.stats import pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
@@ -9,7 +9,28 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.preprocessing import OneHotEncoder
 from prince import CA
 
-from .exploring import extract_nodes, extract_edges
+from .exploring import extract_nodes, extract_edges, Log
+
+
+def _log(df, col):
+    return df[col.wrapped].apply(lambda x: log(x) + col.shift)
+
+
+def _value(df, col):
+    if isinstance(col, Log):
+        return _log(df, col)
+    return df[col]
+
+
+def _items(df, cols):
+    data = pd.DataFrame()
+    for col in cols:
+        if col is not None:
+            if isinstance(col, Log):
+                data[col.wrapped] = _log(df, col)
+            else:
+                data[col] = df[col]
+    return data
 
 
 def _product(iterable, size, max_perm):
@@ -161,7 +182,7 @@ def concat_edgeframes(graphs, col):
 
 
 def cortest(df, x, y, max_perm=None):
-    return _cortest(df[x], df[y], max_perm)
+    return _cortest(_value(df, x), _value(df, y), max_perm)
 
 
 def cortest_nodes(g, x, y, max_perm=None):
@@ -228,10 +249,11 @@ def mixtest_edges(g, x, y, max_perm=None):
 
 
 def linregress(df, X, y):
-    dfX = list(zip(*(df[x] for x in X)))
+    dfX = list(zip(*(_value(df, x) for x in X)))
+    dfy = _value(df, y)
     model = LinearRegression()
-    model.fit(dfX, df[y])
-    return [coef for coef in model.coef_], model.score(dfX, df[y])
+    model.fit(dfX, dfy)
+    return [coef for coef in model.coef_], model.score(dfX, dfy)
 
 
 def linregress_nodes(g, X, y):
@@ -300,7 +322,7 @@ def barplot_edges(g, x, control=None):
 
 
 def scaplot(df, x, y, control=None):
-    sns.scatterplot(data=df, x=x, y=y, hue=control)
+    sns.scatterplot(data=_items(df, [x, y, control]), x=x, y=y, hue=control)
 
 
 def scaplot_nodes(g, x, y, control=None):
@@ -312,7 +334,7 @@ def scaplot_edges(g, x, y, control=None):
 
 
 def matplot(df, cols, control=None):
-    sns.pairplot(data=df, vars=cols, hue=control)
+    sns.pairplot(data=_items(df, [*cols, control]), vars=cols, hue=control)
 
 
 def matplot_nodes(g, cols, control=None):
