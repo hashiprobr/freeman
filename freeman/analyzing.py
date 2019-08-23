@@ -266,9 +266,10 @@ def linregress_edges(g, X, y):
 
 def logregress(df, X, y, max_iter=100):
     dfX = list(zip(*(df[x] for x in X)))
+    dfy = df[y]
     model = LogisticRegression(solver='lbfgs', max_iter=max_iter, multi_class='auto')
-    model.fit(dfX, df[y])
-    return {class_: [coef for coef in coef_] for class_, coef_ in zip(model.classes_, model.coef_)}, model.score(dfX, df[y])
+    model.fit(dfX, dfy)
+    return {class_: [coef for coef in coef_] for class_, coef_ in zip(model.classes_, model.coef_)}, model.score(dfX, dfy)
 
 
 def logregress_nodes(g, X, y, max_iter=100):
