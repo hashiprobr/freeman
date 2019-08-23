@@ -284,7 +284,7 @@ def encode(df, X):
     dfX = list(zip(*(df[x] for x in X)))
     encoder = OneHotEncoder(categories='auto', sparse=False)
     X = zip(*encoder.fit_transform(dfX))
-    cols = encoder.get_feature_names()
+    cols = list(encoder.get_feature_names())
     for col, x in zip(cols, X):
         df[col] = x
     return cols
