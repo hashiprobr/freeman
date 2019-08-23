@@ -323,7 +323,8 @@ def barplot_edges(g, x, control=None):
 
 
 def scaplot(df, x, y, control=None):
-    sns.scatterplot(data=_items(df, [x, y, control]), x=x, y=y, hue=control)
+    data = _items(df, [x, y, control])
+    sns.scatterplot(data=data, x=data.columns[0], y=data.columns[1], hue=control)
 
 
 def scaplot_nodes(g, x, y, control=None):
