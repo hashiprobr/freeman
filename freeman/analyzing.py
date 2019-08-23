@@ -347,8 +347,20 @@ def matplot_edges(g, cols, control=None):
     matplot(g.edgeframe, cols, control)
 
 
+def valcount(df, x):
+    return df[x].value_counts(normalize=True)
+
+
+def valcount_nodes(g, x):
+    return valcount(g.nodeframe, x)
+
+
+def valcount_edges(g, x):
+    return valcount(g.edgeframe, x)
+
+
 def contable(df, x, y):
-    return pd.crosstab(df[y], df[x], margins=True)
+    return pd.crosstab(df[x], df[y], margins=True, normalize=True)
 
 
 def contable_nodes(g, x, y):
