@@ -5,7 +5,7 @@ from math import isclose, log
 from random import choices, sample
 from itertools import product, permutations, combinations
 from scipy.stats import pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
-from sklearn.linear_model import LinearRegression, LogisticRegression
+from statsmodels.api import OLS, Logit
 from sklearn.preprocessing import OneHotEncoder
 from prince import CA
 
@@ -249,11 +249,11 @@ def mixtest_edges(g, x, y, max_perm=None):
 
 
 def linregress(df, X, y):
-    dfX = list(zip(*(_value(df, x) for x in X)))
+    dfX = _items(df, X)
     dfy = _value(df, y)
-    model = LinearRegression()
-    model.fit(dfX, dfy)
-    return [coef for coef in model.coef_], model.score(dfX, dfy)
+    model = OLS(dfy, dfX)
+    result = model.fit()
+    return result.summary()
 
 
 def linregress_nodes(g, X, y):
@@ -265,11 +265,11 @@ def linregress_edges(g, X, y):
 
 
 def logregress(df, X, y, max_iter=100):
-    dfX = list(zip(*(df[x] for x in X)))
-    dfy = df[y]
-    model = LogisticRegression(solver='lbfgs', max_iter=max_iter, multi_class='auto')
-    model.fit(dfX, dfy)
-    return {class_: [coef for coef in coef_] for class_, coef_ in zip(model.classes_, model.coef_)}, model.score(dfX, dfy)
+    dfX = _items(df, X)
+    dfy = _value(df, y)
+    model = Logit(dfy, dfX)
+    result = model.fit_regularized()
+    return result.summary()
 
 
 def logregress_nodes(g, X, y, max_iter=100):
