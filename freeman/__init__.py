@@ -135,6 +135,9 @@ class Graph(ObjectProxy):
     def edgeframe(self, edgeframe):
         self._edgeframe = edgeframe
 
+    def copy(self):
+        return Graph(self.__wrapped__.copy())
+
     def interact(self, path=None, physics=False):
         interact(self, path, physics)
     def draw(self, toolbar=False):
