@@ -4,7 +4,7 @@ import seaborn as sns
 from math import isclose, log
 from random import choices, sample
 from itertools import product, permutations, combinations
-from scipy.stats import pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
+from scipy.stats import shapiro, normaltest, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
 from statsmodels.api import OLS, Logit
 from sklearn.preprocessing import OneHotEncoder
 from prince import CA
@@ -179,6 +179,22 @@ def concat_nodeframes(graphs, col):
 
 def concat_edgeframes(graphs, col):
     return concat({value: g.edgeframe for value, g in graphs.items()}, col)
+
+
+def nortest(df, a):
+    _, sw = shapiro(df[a])
+    _, ap = normaltest(df[a])
+    index = ['Shapiro-Wilk', 'D\'Agostino-Pearson']
+    columns = ['p-value']
+    return pd.DataFrame([ap, sw], index=index, columns=columns)
+
+
+def nortest_nodes(g, a):
+    return nortest(g.nodeframe, a)
+
+
+def nortest_edges(g, a):
+    return nortest(g.edgeframe, a)
 
 
 def cortest(df, x, y, max_perm=None):
