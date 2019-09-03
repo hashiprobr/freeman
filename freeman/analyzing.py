@@ -412,3 +412,6 @@ def boxplot_nodes(g, x, y, control=None):
 
 def boxplot_edges(g, x, y, control=None):
     boxplot(g.edgeframe, x, y, control)
+
+
+sns.set()

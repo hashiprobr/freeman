@@ -8,9 +8,9 @@ from .simulating import *
 
 
 def load(path, key='random', *args, **kwargs):
-    g = networkx.read_gml(path, label='id')
+    g = nx.read_gml(path, label='id')
 
-    if isinstance(g, networkx.MultiGraph):
+    if isinstance(g, nx.MultiGraph):
         raise NetworkXError('freeman does not support multigraphs')
 
     free = []
