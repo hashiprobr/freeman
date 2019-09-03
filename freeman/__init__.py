@@ -207,10 +207,10 @@ class Graph(ObjectProxy):
         return linregress_nodes(self, X, y)
     def linregress_edges(self, X, y):
         return linregress_edges(self, X, y)
-    def logregress_nodes(self, X, y, max_iter=100):
-        return logregress_nodes(self, X, y, max_iter)
-    def logregress_edges(self, X, y, max_iter=100):
-        return logregress_edges(self, X, y, max_iter)
+    def logregress_nodes(self, X, y):
+        return logregress_nodes(self, X, y)
+    def logregress_edges(self, X, y):
+        return logregress_edges(self, X, y)
     def encode_nodes(self, X):
         return encode_nodes(self, X)
     def encode_edges(self, X):

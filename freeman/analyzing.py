@@ -280,7 +280,7 @@ def linregress_edges(g, X, y):
     return linregress(g.edgeframe, X, y)
 
 
-def logregress(df, X, y, max_iter=100):
+def logregress(df, X, y):
     dfX = _items(df, X)
     dfy = _value(df, y)
     model = Logit(dfy, dfX)
@@ -288,12 +288,12 @@ def logregress(df, X, y, max_iter=100):
     return result.summary()
 
 
-def logregress_nodes(g, X, y, max_iter=100):
-    return logregress(g.nodeframe, X, y, max_iter)
+def logregress_nodes(g, X, y):
+    return logregress(g.nodeframe, X, y)
 
 
-def logregress_edges(g, X, y, max_iter=100):
-    return logregress(g.edgeframe, X, y, max_iter)
+def logregress_edges(g, X, y):
+    return logregress(g.edgeframe, X, y)
 
 
 def encode(df, X):
