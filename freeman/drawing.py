@@ -1,6 +1,7 @@
 import os
-import networkx
 import plotly
+
+import networkx as nx
 
 from math import isclose, sqrt, cos, sin
 from IPython.display import display
@@ -322,7 +323,7 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
     dx = (y0 - y1) / ratio
     dy = (x1 - x0) * ratio
 
-    if isinstance(g, networkx.DiGraph) and g.has_edge(m, n):
+    if isinstance(g, nx.DiGraph) and g.has_edge(m, n):
         edge_space = max(0, min(EDGE_SPACE, n_size - 2, m_size - 2))
         sx, sy = _scale(dx, dy, width, height, edge_space / 2)
         x0 += sx
@@ -341,7 +342,7 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
     edge_label_trace['y'].append(y0 + labfrac * (y1 - y0) + sy)
     edge_label_trace['text'].append(g.edges[n, m]['label'] if 'label' in g.edges[n, m] else None)
 
-    if isinstance(g, networkx.DiGraph):
+    if isinstance(g, nx.DiGraph):
         dx = x0 - x1
         dy = y0 - y1
 
@@ -373,7 +374,7 @@ def interact(g, path=None, physics=False):
     network = Network(
         height='{}px'.format(local_height + dy),
         width='{}px'.format(local_width + dx),
-        directed=isinstance(g, networkx.DiGraph),
+        directed=isinstance(g, nx.DiGraph),
         notebook=True,
         bgcolor='#ffffff',
         font_color='#000000',
@@ -477,7 +478,7 @@ def draw(g, toolbar=False):
     data.append(node_label_trace)
 
     layout = _build_layout(local_width, local_height)
-    if isinstance(g, networkx.DiGraph):
+    if isinstance(g, nx.DiGraph):
         layout['xaxis']['fixedrange'] = True
         layout['yaxis']['fixedrange'] = True
 
@@ -559,13 +560,13 @@ class Animation:
         self.frames.append(frame)
 
     def burst(self, graphs):
-        u = networkx.compose_all(graphs)
+        u = nx.compose_all(graphs)
         for g in graphs:
             self.rec(g, u)
 
     def play(self):
         if not self.frames:
-            raise NetworkXError('animation must have at least one frame')
+            raise nxError('animation must have at least one frame')
 
         number_of_nodes = self.frames[0]['number_of_nodes']
         number_of_edges = self.frames[0]['number_of_edges']

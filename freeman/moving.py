@@ -1,4 +1,4 @@
-import networkx
+import networkx as nx
 
 from math import isclose
 
@@ -6,22 +6,22 @@ from .exploring import assert_numeric, extract_node
 
 
 def step_layout(g, ego=None, iterations=1, weight='weight'):
-    before = networkx.get_node_attributes(g, 'pos')
+    before = nx.get_node_attributes(g, 'pos')
 
     fixed = None if ego is None else [ego]
 
-    return networkx.spring_layout(g, pos=before, fixed=fixed, iterations=iterations, weight=weight)
+    return nx.spring_layout(g, pos=before, fixed=fixed, iterations=iterations, weight=weight)
 
 
 LAYOUTS = {
-    'bipartite': networkx.bipartite_layout,
-    'circular': networkx.circular_layout,
-    'kamada_kawai': networkx.kamada_kawai_layout,
-    'planar': networkx.planar_layout,
-    'random': networkx.random_layout,
-    'shell': networkx.shell_layout,
-    'spring': networkx.spring_layout,
-    'spectral': networkx.spectral_layout,
+    'bipartite': nx.bipartite_layout,
+    'circular': nx.circular_layout,
+    'kamada_kawai': nx.kamada_kawai_layout,
+    'planar': nx.planar_layout,
+    'random': nx.random_layout,
+    'shell': nx.shell_layout,
+    'spring': nx.spring_layout,
+    'spectral': nx.spectral_layout,
     'step': step_layout,
 }
 
@@ -98,7 +98,7 @@ def move_negative(g, key, weight, *args, **kwargs):
 
 
 def move_complement(g, key, *args, **kwargs):
-    h = networkx.complement(g)
+    h = nx.complement(g)
     for n in h.nodes:
         h.nodes[n].update(g.nodes[n])
 
