@@ -152,8 +152,8 @@ class Graph(ObjectProxy):
         scale_nodes_size(self, map, lower, upper)
     def scale_edges_width(self, map, lower=None, upper=None):
         scale_edges_width(self, map, lower, upper)
-    def scale_nodes_alpha(self, map, lower=None, upper=None, hue=None):
-        scale_nodes_alpha(self, map, lower, upper, hue)
+    def scale_nodes_dark(self, map, lower=None, upper=None, hue=None):
+        scale_nodes_dark(self, map, lower, upper, hue)
     def scale_edges_alpha(self, map, lower=None, upper=None, hue=None):
         scale_edges_alpha(self, map, lower, upper, hue)
     def heat_nodes(self, map, lower=None, upper=None, middle=None):

@@ -195,7 +195,7 @@ def scale_edges_width(g, map, lower=None, upper=None):
         g.edges[n, m]['width'] = 1 + round(sc * 9)
 
 
-def scale_nodes_alpha(g, map, lower=None, upper=None, hue=None):
+def scale_nodes_dark(g, map, lower=None, upper=None, hue=None):
     values, lower, upper = _assert_bounds(extract_nodes(g, map), lower, upper)
 
     for n, value in zip(g.nodes, values):
