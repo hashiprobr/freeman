@@ -566,7 +566,7 @@ class Animation:
 
     def play(self):
         if not self.frames:
-            raise nxError('animation must have at least one frame')
+            raise NetworkXError('animation must have at least one frame')
 
         number_of_nodes = self.frames[0]['number_of_nodes']
         number_of_edges = self.frames[0]['number_of_edges']
