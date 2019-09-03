@@ -363,16 +363,23 @@ def matplot_edges(g, cols, control=None):
     matplot(g.edgeframe, cols, control)
 
 
-def valcount(df, x):
-    return df[x].value_counts(normalize=True)
+def valcount(df, x, order=None, transpose=False):
+    data = pd.DataFrame(df[x].value_counts(normalize=True))
+    data = data.round(2)
+    if order is not None:
+        data = data.reindex(order)
+    data.columns = ['All']
+    if transpose:
+        return data.transpose()
+    return data
 
 
-def valcount_nodes(g, x):
-    return valcount(g.nodeframe, x)
+def valcount_nodes(g, x, order=None, transpose=False):
+    return valcount(g.nodeframe, x, order, transpose)
 
 
-def valcount_edges(g, x):
-    return valcount(g.edgeframe, x)
+def valcount_edges(g, x, order=None, transpose=False):
+    return valcount(g.edgeframe, x, order, transpose)
 
 
 def contable(df, x, y):

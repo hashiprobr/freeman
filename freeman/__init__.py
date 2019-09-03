@@ -231,10 +231,10 @@ class Graph(ObjectProxy):
         matplot_nodes(self, cols, control)
     def matplot_edges(self, cols, control=None):
         matplot_edges(self, cols, control)
-    def valcount_nodes(self, x):
-        return valcount_nodes(self, x)
-    def valcount_edges(self, x):
-        return valcount_edges(self, x)
+    def valcount_nodes(self, x, order=None, transpose=False):
+        return valcount_nodes(self, x, order, transpose)
+    def valcount_edges(self, x, order=None, transpose=False):
+        return valcount_edges(self, x, order, transpose)
     def contable_nodes(self, x, y):
         return contable_nodes(self, x, y)
     def contable_edges(self, x, y):
