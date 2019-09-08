@@ -57,22 +57,6 @@ def triads(g, ordered=False):
     return combinations(g.nodes, 3)
 
 
-def copy_node(g, h, n):
-    if not h.has_node(n):
-        raise ValueError('second graph must have the node')
-    if not g.has_node(n):
-        g.add_node(n)
-    g.nodes[n].update(h.nodes[n])
-
-
-def copy_edge(g, h, n, m):
-    if not h.has_edge(n, m):
-        raise ValueError('second graph must have the edge')
-    if not g.has_edge(n, m):
-        g.add_edge(n, m)
-    g.edges[n, m].update(h.edges[n, m])
-
-
 def set_each_node(g, key, map, filter=None):
     for n in g.nodes:
         if filter is None or filter(n):
@@ -249,10 +233,6 @@ class Graph(ObjectProxy):
         return dyads(self, ordered)
     def triads(self, ordered=False):
         return triads(self, ordered)
-    def copy_node(self, h, n):
-        copy_node(self, h, n)
-    def copy_edge(self, h, n, m):
-        copy_edge(self, h, n, m)
     def set_each_node(self, key, map, filter=None):
         set_each_node(self, key, map, filter)
     def set_each_edge(self, key, map, filter=None):
