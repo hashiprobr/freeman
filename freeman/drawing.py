@@ -25,6 +25,13 @@ EDGE_SPACE = 5
 EDGE_SIZE = 10
 EDGE_ANGLE = 0.3
 
+EDGE_STYLES = {
+    'solid': False,
+    'dot': [3, 3],
+    'dash': [10, 8],
+    'dashdot': [10, 3, 2, 3],
+}
+
 
 graph_width = 800
 graph_height = 450
@@ -39,6 +46,7 @@ node_color = (255, 255, 255)
 node_labpos = 'middle center'
 
 edge_width = 1
+edge_style = 'solid'
 edge_color = (0, 0, 0)
 edge_labflip = False
 edge_labdist = 10
@@ -176,6 +184,10 @@ def _build_edge_key(g, n, m):
     if width <= 0:
         raise ValueError('edge width must be positive')
 
+    style = g.edges[n, m]['style'] if 'style' in g.edges[n, m] else edge_style
+    if style not in EDGE_STYLES:
+        raise ValueError('edge style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in EDGE_STYLES))
+
     color = g.edges[n, m]['color'] if 'color' in g.edges[n, m] else edge_color
     if not isinstance(color, tuple):
         raise TypeError('edge color must be a tuple')
@@ -206,7 +218,7 @@ def _build_edge_key(g, n, m):
     if labfrac < 0 or labfrac > 1:
         raise ValueError('edge labfrac must be between 0 and 1')
 
-    return n_size, m_size, width, color, labflip, labdist, labfrac
+    return n_size, m_size, width, style, color, labflip, labdist, labfrac
 
 
 def _build_node_trace(size, style, color, labpos, border=True):
@@ -266,7 +278,7 @@ def _build_node_label_trace(width, height, bottom, left, right, top):
     }
 
 
-def _build_edge_trace(width, color):
+def _build_edge_trace(width, style, color):
     return {
         'x': [],
         'y': [],
@@ -274,6 +286,7 @@ def _build_edge_trace(width, color):
         'mode': 'lines',
         'line': {
             'width': width,
+            'dash': style,
             'color': _convert(color),
         },
     }
@@ -431,13 +444,14 @@ def interact(g, path=None, physics=False):
 
     for n, m in g.edges:
         if n != m:
-            _, _, width, color, _, _, _ = _build_edge_key(g, n, m)
+            _, _, width, style, color, _, _, _ = _build_edge_key(g, n, m)
             options = {
                 'color': {
                     'color': _convert(color),
                     'highlight': _convert(color),
                     'hover': _convert(color),
                 },
+                'dashes': EDGE_STYLES[style],
                 'labelHighlightBold': False,
                 'selectionWidth': 0,
                 'width': width,
@@ -481,10 +495,10 @@ def draw(g, toolbar=False):
     edge_label_trace = _build_edge_label_trace()
     for n, m in g.edges:
         if n != m:
-            n_size, m_size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+            n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
             key = (width, color)
             if key not in edge_traces:
-                edge_traces[key] = _build_edge_trace(width, color)
+                edge_traces[key] = _build_edge_trace(width, style, color)
             _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
 
     data = list(edge_traces.values())
@@ -550,12 +564,12 @@ class Animation:
         for n, m in h.edges:
             if n != m:
                 if g.has_edge(n, m):
-                    n_size, m_size, width, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
-                    edge_trace = _build_edge_trace(width, color)
+                    n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+                    edge_trace = _build_edge_trace(width, style, color)
                     _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
                 else:
-                    n_size, m_size, width, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
-                    edge_trace = _build_edge_trace(width, (255, 255, 255, 0.0))
+                    n_size, m_size, width, style, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
+                    edge_trace = _build_edge_trace(width, style, (255, 255, 255, 0.0))
                     _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
                 edge_traces.append(edge_trace)
 
