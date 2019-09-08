@@ -144,10 +144,10 @@ def _build_node_key(g, n):
             raise TypeError('node labpos must be "hover" or a vertical position and an horizontal position separated by a space')
         vpos = ['bottom', 'middle', 'top']
         if words[0] not in vpos:
-            raise ValueError('node vertical position must be one of the following: ' + ', '.join(['"{}"'.format(v) for v in vpos]))
+            raise ValueError('node vertical position must be one of the following: ' + ', '.join('"{}"'.format(v) for v in vpos))
         hpos = ['left', 'center', 'right']
         if words[1] not in hpos:
-            raise ValueError('node horizontal position must be one of the following: ' + ', '.join(['"{}"'.format(h) for h in hpos]))
+            raise ValueError('node horizontal position must be one of the following: ' + ', '.join('"{}"'.format(h) for h in hpos))
 
     return size, color, labpos
 

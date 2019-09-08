@@ -62,7 +62,7 @@ def move(g, key, *args, **kwargs):
     try:
         layout = LAYOUTS[key]
     except KeyError:
-        raise KeyError('layout key must be one of the following: ' + ', '.join(['"{}"'.format(k) for k in LAYOUTS]))
+        raise KeyError('layout key must be one of the following: ' + ', '.join('"{}"'.format(k) for k in LAYOUTS))
 
     after = layout(g, *args, **kwargs)
 

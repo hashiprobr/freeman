@@ -19,7 +19,7 @@ def load(path, key='random', *args, **kwargs):
             free.append(n)
 
     if len(free) > 0 and len(free) < g.number_of_nodes():
-        raise ValueError('some nodes have position, but others do not: ' + ', '.join([str(n) for n in free]))
+        raise ValueError('some nodes have position, but others do not: ' + ', '.join(str(n) for n in free))
 
     if free:
         move(g, key, *args, **kwargs)
