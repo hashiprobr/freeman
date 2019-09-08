@@ -1,23 +1,16 @@
-import pandas as pd
-
 from math import inf
 from timeit import default_timer
 
 
 class Simulation:
-    def append(self, lists, xs):
-        for key, x in xs.items():
-            if key in lists:
-                lists[key].append(x)
-            else:
-                lists[key] = [x]
+    def print(self, datum):
+        print(', '.join('{}: {}'.format(key, value) for key, value in datum.items()))
 
-    def convert(self, data):
-        return pd.DataFrame(data)
-
-    def save(self, data, path):
-        df = self.convert(data)
-        df.to_csv(path)
+    def append(self, data, datum):
+        for key, value in datum.items():
+            if key not in data:
+                data[key] = []
+            data[key].append(value)
 
     def before_all(self):
         pass
