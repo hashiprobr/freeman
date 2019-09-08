@@ -11,6 +11,15 @@ from pyvis.network import Network
 
 CACHE_DIR = '__fmcache__'
 
+NODE_STYLES = {
+    'circle': 'dot',
+    'star': 'star',
+    'square': 'square',
+    'diamond': 'diamond',
+    'triangle-up': 'triangle',
+    'triangle-down': 'triangleDown',
+}
+
 EDGE_SCALE = 0.4
 EDGE_SPACE = 5
 EDGE_SIZE = 10
@@ -25,6 +34,7 @@ graph_right = 0
 graph_top = 0
 
 node_size = 20
+node_style = 'circle'
 node_color = (255, 255, 255)
 node_labpos = 'middle center'
 
@@ -125,6 +135,10 @@ def _build_node_key(g, n):
     if size <= 0:
         raise ValueError('node size must be positive')
 
+    style = g.nodes[n]['style'] if 'style' in g.nodes[n] else node_style
+    if style not in NODE_STYLES:
+        raise ValueError('node style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in NODE_STYLES))
+
     color = g.nodes[n]['color'] if 'color' in g.nodes[n] else node_color
     if not isinstance(color, tuple):
         raise TypeError('node color must be a tuple')
@@ -149,7 +163,7 @@ def _build_node_key(g, n):
         if words[1] not in hpos:
             raise ValueError('node horizontal position must be one of the following: ' + ', '.join('"{}"'.format(h) for h in hpos))
 
-    return size, color, labpos
+    return size, style, color, labpos
 
 
 def _build_edge_key(g, n, m):
@@ -195,7 +209,7 @@ def _build_edge_key(g, n, m):
     return n_size, m_size, width, color, labflip, labdist, labfrac
 
 
-def _build_node_trace(size, color, labpos, border=True):
+def _build_node_trace(size, style, color, labpos, border=True):
     if labpos == 'hover':
         hoverinfo = 'text'
         mode = 'markers'
@@ -222,6 +236,7 @@ def _build_node_trace(size, color, labpos, border=True):
         'mode': mode,
         'marker': {
             'size': size,
+            'symbol': style,
             'color': _convert(color),
             'line': {
                 'width': int(border),
@@ -385,7 +400,7 @@ def interact(g, path=None, physics=False):
     dy = local_top - dy // 2
     for n in g.nodes:
         border_color = 'rgb(0, 0, 0)'
-        size, color, _ = _build_node_key(g, n)
+        size, style, color, _ = _build_node_key(g, n)
         options = {
             'borderWidth': 1,
             'borderWidthSelected': 1,
@@ -404,7 +419,7 @@ def interact(g, path=None, physics=False):
             'label': ' ',
             'labelHighlightBold': False,
             'physics': physics,
-            'shape': 'dot',
+            'shape': NODE_STYLES[style],
             'size': size // 2,
             'x': round((g.nodes[n]['pos'][0] - 0.5) * (0.9 * local_width - 24)) + dx,
             'y': round((0.5 - g.nodes[n]['pos'][1]) * (0.9 * local_height - 24)) + dy,
@@ -456,10 +471,10 @@ def draw(g, toolbar=False):
     node_traces = {}
     node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
     for n in g.nodes:
-        size, color, labpos = _build_node_key(g, n)
+        size, style, color, labpos = _build_node_key(g, n)
         key = (size, color, labpos)
         if key not in node_traces:
-            node_traces[key] = _build_node_trace(size, color, labpos)
+            node_traces[key] = _build_node_trace(size, style, color, labpos)
         _add_node(g, n, node_traces[key])
 
     edge_traces = {}
@@ -521,12 +536,12 @@ class Animation:
         node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
         for n in h.nodes:
             if g.has_node(n):
-                size, color, labpos = _build_node_key(g, n)
-                node_trace = _build_node_trace(size, color, labpos)
+                size, style, color, labpos = _build_node_key(g, n)
+                node_trace = _build_node_trace(size, style, color, labpos)
                 _add_node(g, n, node_trace)
             else:
-                size, _, labpos = _build_node_key(h, n)
-                node_trace = _build_node_trace(size, (255, 255, 255, 0.0), labpos, False)
+                size, style, _, labpos = _build_node_key(h, n)
+                node_trace = _build_node_trace(size, style, (255, 255, 255, 0.0), labpos, False)
                 _add_node(h, n, node_trace)
             node_traces.append(node_trace)
 
