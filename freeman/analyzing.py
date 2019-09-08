@@ -264,36 +264,36 @@ def mixtest_edges(g, x, y, max_perm=None):
     return mixtest(g.edgeframe, x, y, max_perm)
 
 
-def linregress(df, X, y):
+def linregress(df, X, y, *args, **kwargs):
     dfX = _items(df, X)
     dfy = _value(df, y)
     model = OLS(dfy, dfX)
-    result = model.fit()
+    result = model.fit(*args, **kwargs)
     return result.summary()
 
 
-def linregress_nodes(g, X, y):
-    return linregress(g.nodeframe, X, y)
+def linregress_nodes(g, X, y, *args, **kwargs):
+    return linregress(g.nodeframe, X, y, *args, **kwargs)
 
 
-def linregress_edges(g, X, y):
-    return linregress(g.edgeframe, X, y)
+def linregress_edges(g, X, y, *args, **kwargs):
+    return linregress(g.edgeframe, X, y, *args, **kwargs)
 
 
-def logregress(df, X, y):
+def logregress(df, X, y, *args, **kwargs):
     dfX = _items(df, X)
     dfy = _value(df, y)
     model = Logit(dfy, dfX)
-    result = model.fit_regularized()
+    result = model.fit_regularized(*args, **kwargs)
     return result.summary()
 
 
-def logregress_nodes(g, X, y):
-    return logregress(g.nodeframe, X, y)
+def logregress_nodes(g, X, y, *args, **kwargs):
+    return logregress(g.nodeframe, X, y, *args, **kwargs)
 
 
-def logregress_edges(g, X, y):
-    return logregress(g.edgeframe, X, y)
+def logregress_edges(g, X, y, *args, **kwargs):
+    return logregress(g.edgeframe, X, y, *args, **kwargs)
 
 
 def encode(df, X):

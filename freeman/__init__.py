@@ -184,14 +184,14 @@ class Graph(ObjectProxy):
         return mixtest_nodes(self, x, y, max_perm)
     def mixtest_edges(self, x, y, max_perm=None):
         return mixtest_edges(self, x, y, max_perm)
-    def linregress_nodes(self, X, y):
-        return linregress_nodes(self, X, y)
-    def linregress_edges(self, X, y):
-        return linregress_edges(self, X, y)
-    def logregress_nodes(self, X, y):
-        return logregress_nodes(self, X, y)
-    def logregress_edges(self, X, y):
-        return logregress_edges(self, X, y)
+    def linregress_nodes(self, X, y, *args, **kwargs):
+        return linregress_nodes(self, X, y, *args, **kwargs)
+    def linregress_edges(self, X, y, *args, **kwargs):
+        return linregress_edges(self, X, y, *args, **kwargs)
+    def logregress_nodes(self, X, y, *args, **kwargs):
+        return logregress_nodes(self, X, y, *args, **kwargs)
+    def logregress_edges(self, X, y, *args, **kwargs):
+        return logregress_edges(self, X, y, *args, **kwargs)
     def encode_nodes(self, X):
         return encode_nodes(self, X)
     def encode_edges(self, X):
