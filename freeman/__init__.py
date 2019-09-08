@@ -33,6 +33,15 @@ def load(path, key='random', *args, **kwargs):
 
         normalize(g)
 
+    for n in g.nodes:
+        if 'border' in g.nodes[n]:
+            value = g.nodes[n]['border']
+
+            if value == 0 or value == 1:
+                g.nodes[n]['border'] = bool(value)
+            else:
+                raise ValueError('node border must be binary')
+
     for n, m in g.edges:
         if 'labflip' in g.edges[n, m]:
             value = g.edges[n, m]['labflip']
@@ -40,7 +49,7 @@ def load(path, key='random', *args, **kwargs):
             if value == 0 or value == 1:
                 g.edges[n, m]['labflip'] = bool(value)
             else:
-                raise ValueError('labflip must be binary')
+                raise ValueError('edge labflip must be binary')
 
     return Graph(g)
 

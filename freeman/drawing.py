@@ -42,6 +42,7 @@ graph_top = 0
 
 node_size = 20
 node_style = 'circle'
+node_border = True
 node_color = (255, 255, 255)
 node_labpos = 'middle center'
 
@@ -147,6 +148,10 @@ def _build_node_key(g, n):
     if style not in NODE_STYLES:
         raise ValueError('node style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in NODE_STYLES))
 
+    border = g.nodes[n]['border'] if 'border' in g.nodes[n] else node_border
+    if not isinstance(border, bool):
+        raise TypeError('node border must be a boolean')
+
     color = g.nodes[n]['color'] if 'color' in g.nodes[n] else node_color
     if not isinstance(color, tuple):
         raise TypeError('node color must be a tuple')
@@ -171,7 +176,7 @@ def _build_node_key(g, n):
         if words[1] not in hpos:
             raise ValueError('node horizontal position must be one of the following: ' + ', '.join('"{}"'.format(h) for h in hpos))
 
-    return size, style, color, labpos
+    return size, style, border, color, labpos
 
 
 def _build_edge_key(g, n, m):
@@ -221,7 +226,7 @@ def _build_edge_key(g, n, m):
     return n_size, m_size, width, style, color, labflip, labdist, labfrac
 
 
-def _build_node_trace(size, style, color, labpos, border=True):
+def _build_node_trace(size, style, border, color, labpos):
     if labpos == 'hover':
         hoverinfo = 'text'
         mode = 'markers'
@@ -413,9 +418,9 @@ def interact(g, path=None, physics=False):
     dy = local_top - dy // 2
     for n in g.nodes:
         border_color = 'rgb(0, 0, 0)'
-        size, style, color, _ = _build_node_key(g, n)
+        size, style, border, color, _ = _build_node_key(g, n)
         options = {
-            'borderWidth': 1,
+            'borderWidth': int(border),
             'borderWidthSelected': 1,
             'color': {
                 'border': border_color,
@@ -485,10 +490,10 @@ def draw(g, toolbar=False):
     node_traces = {}
     node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
     for n in g.nodes:
-        size, style, color, labpos = _build_node_key(g, n)
-        key = (size, color, labpos)
+        size, style, border, color, labpos = _build_node_key(g, n)
+        key = (size, style, border, color, labpos)
         if key not in node_traces:
-            node_traces[key] = _build_node_trace(size, style, color, labpos)
+            node_traces[key] = _build_node_trace(size, style, border, color, labpos)
         _add_node(g, n, node_traces[key])
 
     edge_traces = {}
@@ -496,7 +501,7 @@ def draw(g, toolbar=False):
     for n, m in g.edges:
         if n != m:
             n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
-            key = (width, color)
+            key = (width, style, color)
             if key not in edge_traces:
                 edge_traces[key] = _build_edge_trace(width, style, color)
             _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
@@ -550,12 +555,12 @@ class Animation:
         node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
         for n in h.nodes:
             if g.has_node(n):
-                size, style, color, labpos = _build_node_key(g, n)
-                node_trace = _build_node_trace(size, style, color, labpos)
+                size, style, border, color, labpos = _build_node_key(g, n)
+                node_trace = _build_node_trace(size, style, border, color, labpos)
                 _add_node(g, n, node_trace)
             else:
-                size, style, _, labpos = _build_node_key(h, n)
-                node_trace = _build_node_trace(size, style, (255, 255, 255, 0.0), labpos, False)
+                size, style, _, _, labpos = _build_node_key(h, n)
+                node_trace = _build_node_trace(size, style, False, (255, 255, 255, 0.0), labpos)
                 _add_node(h, n, node_trace)
             node_traces.append(node_trace)
 
