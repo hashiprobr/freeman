@@ -119,6 +119,19 @@ class Graph(ObjectProxy):
     def edgeframe(self, edgeframe):
         self._edgeframe = edgeframe
 
+    def copy(self):
+        return Graph(self.__wrapped__.copy())
+    def to_undirected(self):
+        return Graph(self.__wrapped__.to_undirected())
+    def to_directed(self):
+        return Graph(self.__wrapped__.to_directed())
+    def subgraph(self, nodes):
+        return Graph(self.__wrapped__.subgraph(nodes))
+    def edge_subgraph(self, edges):
+        return Graph(self.__wrapped__.edge_subgraph(edges))
+    def reverse(self):
+        return Graph(self.__wrapped__.reverse())
+
     def interact(self, path=None, physics=False):
         interact(self, path, physics)
     def draw(self, toolbar=False):
