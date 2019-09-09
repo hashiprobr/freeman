@@ -526,28 +526,23 @@ def draw(g, toolbar=False):
 
 class Animation:
     def __init__(self):
-        self.frames = []
+        self.graphs = []
 
     def __enter__(self):
-        self.reset()
+        self.erase()
         return self
 
     def __exit__(self, type, value, traceback):
         self.play()
 
-    def reset(self):
-        self.frames.clear()
+    def erase(self):
+        self.graphs.clear()
 
-    def rec(self, g, h=None):
-        if h is None:
-            h = g
-        else:
-            if not all(h.has_node(n) for n in g.nodes):
-                raise ValueError('graph nodes must be a subset of template nodes')
-            if not all(h.has_edge(n, m) for n, m in g.edges):
-                raise ValueError('graph edges must be a subset of template edges')
+    def rec(self, g):
+        self.graphs.append(g.copy())
 
-        local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
+    def render(self, g, h, local_width, local_height):
+        _, _, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
         local_width += local_left + local_right
         local_height += local_bottom + local_top
 
@@ -584,41 +579,59 @@ class Animation:
         data.append(node_label_trace)
 
         frame = {
-            'number_of_nodes': h.number_of_nodes(),
-            'number_of_edges': h.number_of_edges(),
-            'width': local_width,
-            'height': local_height,
             'data': data,
         }
 
-        self.frames.append(frame)
+        return frame
 
-    def burst(self, graphs):
-        u = nx.compose_all(graphs)
-        for g in graphs:
-            self.rec(g, u)
+    def play(self, width=None, height=None):
+        if width is None:
+            width = graph_width
+        if not isinstance(width, int):
+            raise TypeError('animation width must be an integer')
+        if width <= 0:
+            raise ValueError('animation width must be positive')
 
-    def play(self):
-        if not self.frames:
-            raise NetworkXError('animation must have at least one frame')
+        if height is None:
+            height = graph_height
+        if not isinstance(height, int):
+            raise TypeError('animation height must be an integer')
+        if height <= 0:
+            raise ValueError('animation height must be positive')
 
-        number_of_nodes = self.frames[0]['number_of_nodes']
-        number_of_edges = self.frames[0]['number_of_edges']
-        width = self.frames[0]['width']
-        height = self.frames[0]['height']
+        if len(self.graphs) < 2:
+            raise NetworkXError('animation must have at least two graphs')
+
+        last = self.graphs[-1]
+        number_of_nodes = last.number_of_nodes()
+        number_of_edges = last.number_of_edges()
+
+        h = False
+
+        for g in self.graphs[1:]:
+            if g.number_of_nodes() != number_of_nodes or g.number_of_edges() != number_of_edges:
+                h = True
+
+        h = nx.compose_all(self.graphs) if h else None
+
+        frames = []
+
+        for i, g in enumerate(self.graphs):
+            if h is None:
+                frames.append(self.render(g, g, width, height))
+            else:
+                if g != last:
+                    next = self.graphs[i + 1]
+                    for n in next.nodes:
+                        h.nodes[n].update(next.nodes[n])
+                    for n, m in next.edges:
+                        h.edges[n, m].update(next.edges[n, m])
+
+                frames.append(self.render(g, h, width, height))
 
         steps = []
 
-        for index, frame in enumerate(self.frames):
-            if frame.pop('number_of_nodes') != number_of_nodes:
-                raise ValueError('frames must have the same number of nodes')
-            if frame.pop('number_of_edges') != number_of_edges:
-                raise ValueError('frames must have the same number of edges')
-            if frame.pop('width') != width:
-                raise ValueError('frames must have the same local width')
-            if frame.pop('height') != height:
-                raise ValueError('frames must have the same local height')
-
+        for index, frame in enumerate(frames):
             frame['name'] = index
 
             step = {
@@ -662,9 +675,9 @@ class Animation:
         })
 
         figure = {
-            'data': self.frames[0]['data'],
+            'data': frames[0]['data'],
             'layout': layout,
-            'frames': self.frames,
+            'frames': frames,
         }
 
         plotly.offline.iplot(figure, config={'staticPlot': True}, show_link=False)
