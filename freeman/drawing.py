@@ -608,7 +608,7 @@ class Animation:
 
         h = False
 
-        for g in self.graphs[1:]:
+        for g in self.graphs[:-1]:
             if g.number_of_nodes() != number_of_nodes or g.number_of_edges() != number_of_edges:
                 h = True
 
