@@ -97,19 +97,27 @@ def _convert(color):
     return 'rgb({}, {}, {})'.format(r, g, b)
 
 
-def _build_graph_key(g):
+def _build_graph_width(g):
     width = g.graph['width'] if 'width' in g.graph else graph_width
     if not isinstance(width, int):
         raise TypeError('graph width must be an integer')
     if width <= 0:
         raise ValueError('graph width must be positive')
 
+    return width
+
+
+def _build_graph_height(g):
     height = g.graph['height'] if 'height' in g.graph else graph_height
     if not isinstance(height, int):
         raise TypeError('graph height must be an integer')
     if height <= 0:
         raise ValueError('graph height must be positive')
 
+    return height
+
+
+def _build_graph_border(g):
     bottom = g.graph['bottom'] if 'bottom' in g.graph else graph_bottom
     if not isinstance(bottom, int):
         raise TypeError('graph bottom must be an integer')
@@ -134,15 +142,30 @@ def _build_graph_key(g):
     if top < 0:
         raise ValueError('graph top must be non-negative')
 
+    return bottom, left, right, top
+
+
+def _build_graph_key(g):
+    width = _build_graph_width(g)
+    height = _build_graph_height(g)
+
+    bottom, left, right, top = _build_graph_border(g)
+
     return width, height, bottom, left, right, top
 
 
-def _build_node_key(g, n):
+def _build_node_size(g, n):
     size = g.nodes[n]['size'] if 'size' in g.nodes[n] else node_size
     if not isinstance(size, int):
         raise TypeError('node size must be an integer')
     if size <= 0:
         raise ValueError('node size must be positive')
+
+    return size
+
+
+def _build_node_key(g, n):
+    size = _build_node_size(g, n)
 
     style = g.nodes[n]['style'] if 'style' in g.nodes[n] else node_style
     if style not in NODE_STYLES:
@@ -180,8 +203,8 @@ def _build_node_key(g, n):
 
 
 def _build_edge_key(g, n, m):
-    n_size = g.nodes[n]['size'] if 'size' in g.nodes[n] else node_size
-    m_size = g.nodes[m]['size'] if 'size' in g.nodes[m] else node_size
+    n_size = _build_node_size(g, n)
+    m_size = _build_node_size(g, m)
 
     width = g.edges[n, m]['width'] if 'width' in g.edges[n, m] else edge_width
     if not isinstance(width, int):
@@ -525,24 +548,34 @@ def draw(g, toolbar=False):
 
 
 class Animation:
-    def __init__(self):
+    def __init__(self, width=None, height=None):
+        if width is not None:
+            if not isinstance(width, int):
+                raise TypeError('animation width must be an integer')
+            if width <= 0:
+                raise ValueError('animation width must be positive')
+
+        if height is not None:
+            if not isinstance(height, int):
+                raise TypeError('animation height must be an integer')
+            if height <= 0:
+                raise ValueError('animation height must be positive')
+
+        self.width = width
+        self.height = height
         self.graphs = []
 
     def __enter__(self):
-        self.erase()
         return self
 
     def __exit__(self, type, value, traceback):
         self.play()
 
-    def erase(self):
-        self.graphs.clear()
-
     def rec(self, g):
         self.graphs.append(g.copy())
 
     def render(self, g, h, local_width, local_height):
-        _, _, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
+        local_bottom, local_left, local_right, local_top = _build_graph_border(g)
         local_width += local_left + local_right
         local_height += local_bottom + local_top
 
@@ -584,38 +617,33 @@ class Animation:
 
         return frame
 
-    def play(self, width=None, height=None):
-        if width is None:
-            width = graph_width
-        if not isinstance(width, int):
-            raise TypeError('animation width must be an integer')
-        if width <= 0:
-            raise ValueError('animation width must be positive')
-
-        if height is None:
-            height = graph_height
-        if not isinstance(height, int):
-            raise TypeError('animation height must be an integer')
-        if height <= 0:
-            raise ValueError('animation height must be positive')
-
+    def play(self):
         if len(self.graphs) < 2:
-            raise NetworkXError('animation must have at least two graphs')
+            raise NetworkXError('animation must have at least two recs')
 
+        h = None
+        width = self.width
+        height = self.height
         last = self.graphs[-1]
         number_of_nodes = last.number_of_nodes()
         number_of_edges = last.number_of_edges()
-
-        h = False
+        local_width = _build_graph_width(last)
+        local_height = _build_graph_height(last)
 
         for g in self.graphs[:-1]:
-            if g.number_of_nodes() != number_of_nodes or g.number_of_edges() != number_of_edges:
-                h = True
+            if h is None and (g.number_of_nodes() != number_of_nodes or g.number_of_edges() != number_of_edges):
+                h = nx.compose_all(self.graphs)
+            if width is None and _build_graph_width(g) != local_width:
+                width = graph_width
+            if height is None and _build_graph_height(g) != local_height:
+                height = graph_height
 
-        h = nx.compose_all(self.graphs) if h else None
+        if width is None:
+            width = local_width
+        if height is None:
+            height = local_height
 
         frames = []
-
         for i, g in enumerate(self.graphs):
             if h is None:
                 frames.append(self.render(g, g, width, height))
@@ -626,20 +654,16 @@ class Animation:
                         h.nodes[n].update(next.nodes[n])
                     for n, m in next.edges:
                         h.edges[n, m].update(next.edges[n, m])
-
                 frames.append(self.render(g, h, width, height))
 
         steps = []
-
         for index, frame in enumerate(frames):
             frame['name'] = index
-
             step = {
                 'args': [[index], {'frame': {'redraw': False}, 'mode': 'immediate'}],
                 'label': '',
                 'method': 'animate',
             }
-
             steps.append(step)
 
         # parameters estimated from screenshots
