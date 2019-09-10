@@ -250,6 +250,8 @@ class Graph(ObjectProxy):
         boxplot_nodes(self, x, y, control)
     def boxplot_edges(self, x, y, control=None):
         boxplot_edges(self, x, y, control)
+    def girvan_newman(self):
+        girvan_newman(self)
 
     def dyads(self, ordered=False):
         return dyads(self, ordered)

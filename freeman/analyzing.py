@@ -1,15 +1,22 @@
 import pandas as pd
 import seaborn as sns
+import networkx as nx
 
 from math import isclose, log
 from random import choices, sample
 from itertools import product, permutations, combinations
 from scipy.stats import shapiro, normaltest, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
+from scipy.cluster.hierarchy import dendrogram
 from statsmodels.api import OLS, Logit
 from sklearn.preprocessing import OneHotEncoder
 from prince import CA
 
+from matplotlib import pyplot as plt
+
 from .exploring import extract_nodes, extract_edges, Log
+
+
+DPI = 100
 
 
 def _log(df, col):
@@ -314,6 +321,10 @@ def encode_edges(g, X):
     return encode(g.edgeframe, X)
 
 
+def resize_next_plot(width, height):
+    plt.figure(figsize=(width / DPI, height / DPI), dpi=DPI)
+
+
 def displot(df, x):
     sns.distplot(a=df[x])
 
@@ -419,6 +430,42 @@ def boxplot_nodes(g, x, y, control=None):
 
 def boxplot_edges(g, x, y, control=None):
     boxplot(g.edgeframe, x, y, control)
+
+
+def girvan_newman(g):
+    d = 0.0
+    linkage = []
+    clusters = []
+
+    for C in reversed(list(nx.community.girvan_newman(g))):
+        for c in C:
+            if c not in clusters:
+                if len(c) > 1:
+                    i = 0
+                    while clusters[i] is None or not clusters[i].issubset(c):
+                        i += 1
+                    j = clusters.index(c - clusters[i])
+                    d += 1
+                    linkage.append([i, j, d, len(c)])
+                    clusters[i] = None
+                    clusters[j] = None
+                clusters.append(c)
+
+    while len(linkage) < g.number_of_nodes() - 1:
+        j = len(clusters) - 1
+        i = 0
+        while clusters[i] is None:
+            i += 1
+        c = clusters[i] | clusters[j]
+        d += 1
+        linkage.append([i, j, d, len(c)])
+        clusters[i] = None
+        clusters[j] = None
+        clusters.append(c)
+
+    labels = [g.nodes[n]['label'] if 'label' in g.nodes[n] else str(n) for n in g.nodes]
+
+    dendrogram(linkage, orientation='right', labels=labels)
 
 
 sns.set()
