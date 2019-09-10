@@ -355,6 +355,19 @@ def barplot_edges(g, x, control=None):
     barplot(g.edgeframe, x, control)
 
 
+def linplot(df, x, y, control=None):
+    data = _items(df, [x, y, control])
+    sns.lineplot(data=data, x=data.columns[0], y=data.columns[1], hue=control)
+
+
+def linplot_nodes(g, x, y, control=None):
+    linplot(g.nodeframe, x, y, control)
+
+
+def linplot_edges(g, x, y, control=None):
+    linplot(g.edgeframe, x, y, control)
+
+
 def scaplot(df, x, y, control=None):
     data = _items(df, [x, y, control])
     sns.scatterplot(data=data, x=data.columns[0], y=data.columns[1], hue=control)

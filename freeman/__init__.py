@@ -264,6 +264,10 @@ class Graph(ObjectProxy):
         barplot_nodes(self, x, control)
     def barplot_edges(self, x, control=None):
         barplot_edges(self, x, control)
+    def linplot_nodes(self, x, y, control=None):
+        linplot_nodes(self, x, y, control)
+    def linplot_edges(self, x, y, control=None):
+        linplot_edges(self, x, y, control)
     def scaplot_nodes(self, x, y, control=None):
         scaplot_nodes(self, x, y, control)
     def scaplot_edges(self, x, y, control=None):
