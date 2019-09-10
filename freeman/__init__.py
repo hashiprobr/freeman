@@ -102,6 +102,25 @@ def unset_edges(g, key, filter=None):
             del g.edges[n, m][key]
 
 
+def skin_seaborn(g):
+    g.graph['width'] = 450
+    g.graph['height'] = 450
+    g.graph['bottom'] = 0
+    g.graph['left'] = 0
+    g.graph['right'] = 0
+    g.graph['top'] = 0
+
+    set_all_nodes(g, 'size', 10)
+    set_all_nodes(g, 'style', 'circle')
+    set_all_nodes(g, 'border', False)
+    set_all_nodes(g, 'labpos', 'hover')
+
+    set_all_edges(g, 'width', 1)
+    set_all_edges(g, 'style', 'solid')
+    set_all_edges(g, 'color', (0, 0, 0, 0.1))
+    unset_edges(g, 'label')
+
+
 class Graph(ObjectProxy):
     def __init__(self, g):
         super().__init__(g)
@@ -252,6 +271,8 @@ class Graph(ObjectProxy):
         boxplot_edges(self, x, y, control)
     def girvan_newman(self):
         girvan_newman(self)
+    def corplot_graph(self, nodes):
+        return corplot_graph(self, nodes)
 
     def dyads(self, ordered=False):
         return dyads(self, ordered)
@@ -269,3 +290,5 @@ class Graph(ObjectProxy):
         unset_nodes(self, key, filter)
     def unset_edges(self, key, filter=None):
         unset_edges(self, key, filter)
+    def skin_seaborn(self):
+        skin_seaborn(self)

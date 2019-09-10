@@ -14,6 +14,7 @@ from prince import CA
 from matplotlib import pyplot as plt
 
 from .exploring import extract_nodes, extract_edges, Log
+from .moving import normalize
 
 
 DPI = 100
@@ -471,6 +472,36 @@ def girvan_newman(g):
     labels = [g.nodes[n]['label'] if 'label' in g.nodes[n] else str(n) for n in g.nodes]
 
     dendrogram(linkage, orientation='right', labels=labels)
+
+
+def corplot_graph(g, nodes):
+    other = [m for m in g.nodes if m not in nodes and g.degree(m) > 0]
+    nodes = [n for n in nodes if g.degree(n) > 0]
+
+    data = {}
+    for m in other:
+        data[m] = [1 if g.has_edge(n, m) else 0 for n in nodes]
+    df = pd.DataFrame(data)
+
+    ca = CA()
+    ca.fit(df)
+    ca.plot_coordinates(df)
+
+    h = g.subgraph(nodes + other).copy()
+
+    pos = ca.row_coordinates(df)
+    for n, x, y in zip(nodes, pos[0], pos[1]):
+        h.nodes[n]['pos'] = (x, y)
+        h.nodes[n]['color'] = (76, 116, 172)
+
+    pos = ca.column_coordinates(df)
+    for m, x, y in zip(other, pos[0], pos[1]):
+        h.nodes[m]['pos'] = (x, y)
+        h.nodes[m]['color'] = (219, 130, 87)
+
+    normalize(h)
+
+    return h
 
 
 sns.set()
