@@ -305,9 +305,9 @@ def linregress_edges(g, X, y, *args, **kwargs):
 
 def logregress(df, X, y, *args, **kwargs):
     dfX = _items(df, X)
-    dfy = _value(df, y)
+    dfy = df[y]
     model = Logit(dfy, dfX)
-    result = model.fit_regularized(*args, **kwargs)
+    result = model.fit(*args, **kwargs)
     return result.summary()
 
 
@@ -320,9 +320,9 @@ def logregress_edges(g, X, y, *args, **kwargs):
 
 
 def intencode(df, X, categories='auto'):
-    cols = ['x_' + x for x in X]
     dfX = list(zip(*(df[x] for x in X)))
     encoder = OrdinalEncoder(categories)
+    cols = ['x_' + x for x in X]
     X = zip(*encoder.fit_transform(dfX))
     for col, x in zip(cols, X):
         df[col] = x
