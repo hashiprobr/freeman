@@ -117,7 +117,7 @@ def skin_seaborn(g):
 
     set_all_edges(g, 'width', 1)
     set_all_edges(g, 'style', 'solid')
-    set_all_edges(g, 'color', (0, 0, 0, 0.1))
+    set_all_edges(g, 'color', (135, 135, 138))
     unset_edges(g, 'label')
 
 
@@ -292,3 +292,22 @@ class Graph(ObjectProxy):
         unset_edges(self, key, filter)
     def skin_seaborn(self):
         skin_seaborn(self)
+
+
+def movement(g1, g2):
+    nodes = set(g1.nodes) & set(g2.nodes)
+
+    h = Graph(nx.DiGraph())
+
+    for i, n in enumerate(nodes):
+        j = len(nodes) + i
+
+        h.add_node(i)
+        h.nodes[i].update(g1.nodes[n])
+
+        h.add_node(j)
+        h.nodes[j].update(g2.nodes[n])
+
+        h.add_edge(i, j)
+
+    return h
