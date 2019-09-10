@@ -325,6 +325,11 @@ def resize_next_plot(width, height):
     plt.figure(figsize=(width / DPI, height / DPI), dpi=DPI)
 
 
+def resize_all_plots(width, height):
+    plt.rcParams['figure.figsize'] = (width / DPI, height / DPI)
+    plt.rcParams['figure.dpi'] = DPI
+
+
 def displot(df, x):
     sns.distplot(a=df[x])
 
