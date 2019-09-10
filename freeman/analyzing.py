@@ -320,7 +320,7 @@ def logregress_edges(g, X, y, *args, **kwargs):
 
 
 def intencode(df, X, categories='auto'):
-    cols = ['_{}_'.format(x) for x in X]
+    cols = ['x_' + x for x in X]
     dfX = list(zip(*(df[x] for x in X)))
     encoder = OrdinalEncoder(categories)
     X = zip(*encoder.fit_transform(dfX))
