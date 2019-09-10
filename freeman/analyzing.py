@@ -5,7 +5,7 @@ import networkx as nx
 from math import isclose, sqrt, log
 from random import choices, sample
 from itertools import product, permutations, combinations
-from scipy.stats import shapiro, normaltest, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
+from scipy.stats import shapiro, normaltest, kstest, norm, lognorm, powerlaw, expon, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
 from scipy.cluster.hierarchy import dendrogram
 from statsmodels.api import OLS, Logit
 from sklearn.preprocessing import OneHotEncoder
@@ -18,6 +18,8 @@ from .moving import normalize
 
 
 DPI = 100
+
+DEC = 6
 
 
 def _log(df, col):
@@ -67,7 +69,7 @@ def _cortest(x, y, max_perm):
                 above += 1
             total += 1
         p = 2 * (above / total)
-    return r, p
+    return r, round(p, DEC)
 
 
 def _chitest(x, y, max_perm):
@@ -94,7 +96,7 @@ def _chitest(x, y, max_perm):
                 above += 1
             total += 1
         p = above / total
-    return v, p
+    return v, round(p, DEC)
 
 
 def _indtest(a, b, max_perm):
@@ -116,7 +118,7 @@ def _indtest(a, b, max_perm):
                 above += 1
             total += 1
         p = 2 * (above / total)
-    return t, p
+    return t, round(p, DEC)
 
 
 def _reltest(a, b, max_perm):
@@ -146,7 +148,7 @@ def _reltest(a, b, max_perm):
                 above += 1
             total += 1
         p = 2 * (above / total)
-    return t, p
+    return t, round(p, DEC)
 
 
 def set_nodeframe(g):
@@ -196,20 +198,26 @@ def concat_edgeframes(graphs, col):
     return concat({value: g.edgeframe for value, g in graphs.items()}, col)
 
 
-def nortest(df, a):
-    _, sw = shapiro(df[a])
-    _, ap = normaltest(df[a])
-    index = ['Shapiro-Wilk', 'D\'Agostino-Pearson']
-    columns = ['p-value']
-    return pd.DataFrame([ap, sw], index=index, columns=columns)
+def distest(df, a):
+    data = {
+        'Shapiro-Wilk (normal)': shapiro(df[a]),
+        'D\'Agostino-Pearson (normal)': normaltest(df[a]),
+        'Kolmogorov-Smirnov (normal)': kstest(df[a], 'norm', norm.fit(df[a])),
+        'Kolmogorov-Smirnov (lognormal)': kstest(df[a], 'lognorm', lognorm.fit(df[a])),
+        'Kolmogorov-Smirnov (powerlaw)': kstest(df[a], 'powerlaw', powerlaw.fit(df[a])),
+        'Kolmogorov-Smirnov (exponential)': kstest(df[a], 'expon', expon.fit(df[a])),
+    }
+    keys = data.keys()
+    values = [p for _, p in data.values()]
+    return pd.DataFrame(values, index=keys, columns=['p-value']).round(DEC)
 
 
-def nortest_nodes(g, a):
-    return nortest(g.nodeframe, a)
+def distest_nodes(g, a):
+    return distest(g.nodeframe, a)
 
 
-def nortest_edges(g, a):
-    return nortest(g.edgeframe, a)
+def distest_edges(g, a):
+    return distest(g.edgeframe, a)
 
 
 def cortest(df, x, y, max_perm=None):
@@ -241,7 +249,7 @@ def sintest(a, mean):
     if a.size < 2 or isclose(a.var(), 0):
         return None
     t, p = ttest_1samp(a, mean)
-    return t, p
+    return t, round(p, DEC)
 
 
 def indtest(a, b, max_perm=None):
