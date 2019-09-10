@@ -2,7 +2,7 @@ import pandas as pd
 import seaborn as sns
 import networkx as nx
 
-from math import isclose, log
+from math import isclose, sqrt, log
 from random import choices, sample
 from itertools import product, permutations, combinations
 from scipy.stats import shapiro, normaltest, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
@@ -72,7 +72,7 @@ def _cortest(x, y, max_perm):
 
 def _chitest(x, y, max_perm):
     observed = pd.crosstab(y, x)
-    c, p, _, _ = chi2_contingency(observed)
+    chi2, p, _, _ = chi2_contingency(observed)
     if max_perm is not None:
         original = list(y)
         if max_perm == 0:
@@ -83,11 +83,18 @@ def _chitest(x, y, max_perm):
         total = 0
         for resample in resamples:
             result, _ = _chitest(x, pd.Series(resample), None)
-            if result >= c:
+            if result >= chi2:
                 above += 1
             total += 1
         p = above / total
-    return c, p
+    n = observed.sum().sum()
+    r, k = observed.shape
+    phi2 = chi2 / n
+    phi2 = max(0, phi2 - ((k - 1) * (r - 1)) / (n - 1))
+    k -= (k - 1)**2 / (n - 1)
+    r -= (r - 1)**2 / (n - 1)
+    v = sqrt(phi2 / min(k - 1, r - 1))
+    return v, p
 
 
 def _indtest(a, b, max_perm):
