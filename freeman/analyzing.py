@@ -8,7 +8,7 @@ from itertools import product, permutations, combinations
 from scipy.stats import shapiro, normaltest, kstest, norm, lognorm, powerlaw, expon, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
 from scipy.cluster.hierarchy import dendrogram
 from statsmodels.api import OLS, Logit
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from prince import CA
 
 from matplotlib import pyplot as plt
@@ -319,7 +319,23 @@ def logregress_edges(g, X, y, *args, **kwargs):
     return logregress(g.edgeframe, X, y, *args, **kwargs)
 
 
-def encode(df, X):
+def intencode(df, x):
+    col = x + '_0'
+    encoder = LabelEncoder()
+    x = encoder.fit_transform(df[x])
+    df[col] = x
+    return col
+
+
+def intencode_nodes(g, x):
+    return intencode(g.nodeframe, x)
+
+
+def intencode_edges(g, x):
+    return intencode(g.edgeframe, x)
+
+
+def binencode(df, X):
     dfX = list(zip(*(df[x] for x in X)))
     encoder = OneHotEncoder(categories='auto', sparse=False)
     X = zip(*encoder.fit_transform(dfX))
@@ -329,12 +345,12 @@ def encode(df, X):
     return cols
 
 
-def encode_nodes(g, X):
-    return encode(g.nodeframe, X)
+def binencode_nodes(g, X):
+    return binencode(g.nodeframe, X)
 
 
-def encode_edges(g, X):
-    return encode(g.edgeframe, X)
+def binencode_edges(g, X):
+    return binencode(g.edgeframe, X)
 
 
 def resize_next_plot(width, height):
