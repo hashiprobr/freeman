@@ -307,8 +307,8 @@ class Graph(ObjectProxy):
         boxplot_edges(self, x, y, control)
     def girvan_newman(self):
         girvan_newman(self)
-    def corplot_graph(self, nodes):
-        return corplot_graph(self, nodes)
+    def corplot_graph(self, nodes, weight='weight'):
+        return corplot_graph(self, nodes, weight)
 
     def dyads(self, ordered=False):
         return dyads(self, ordered)

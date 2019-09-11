@@ -515,18 +515,18 @@ def girvan_newman(g):
         clusters[j] = None
         clusters.append(c)
 
-    labels = [g.nodes[n]['label'] if 'label' in g.nodes[n] else str(n) for n in g.nodes]
+    labels = [g.nodes[n].get('label', str(n)) for n in g.nodes]
 
     dendrogram(linkage, orientation='right', labels=labels)
 
 
-def corplot_graph(g, nodes):
+def corplot_graph(g, nodes, weight='weight'):
     other = [m for m in g.nodes if m not in nodes and g.degree(m) > 0]
     nodes = [n for n in nodes if g.degree(n) > 0]
 
     data = {}
     for m in other:
-        data[m] = [1 if g.has_edge(n, m) else 0 for n in nodes]
+        data[m] = [g.edges[n, m].get(weight, 1) if g.has_edge(n, m) else 0 for n in nodes]
     df = pd.DataFrame(data)
 
     ca = CA()
