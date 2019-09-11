@@ -98,7 +98,7 @@ def _convert(color):
 
 
 def _build_graph_width(g):
-    width = g.graph['width'] if 'width' in g.graph else graph_width
+    width = g.graph.get('width', graph_width)
     if not isinstance(width, int):
         raise TypeError('graph width must be an integer')
     if width <= 0:
@@ -108,7 +108,7 @@ def _build_graph_width(g):
 
 
 def _build_graph_height(g):
-    height = g.graph['height'] if 'height' in g.graph else graph_height
+    height = g.graph.get('height', graph_height)
     if not isinstance(height, int):
         raise TypeError('graph height must be an integer')
     if height <= 0:
@@ -118,25 +118,25 @@ def _build_graph_height(g):
 
 
 def _build_graph_border(g):
-    bottom = g.graph['bottom'] if 'bottom' in g.graph else graph_bottom
+    bottom = g.graph.get('bottom', graph_bottom)
     if not isinstance(bottom, int):
         raise TypeError('graph bottom must be an integer')
     if bottom < 0:
         raise ValueError('graph bottom must be non-negative')
 
-    left = g.graph['left'] if 'left' in g.graph else graph_left
+    left = g.graph.get('left', graph_left)
     if not isinstance(left, int):
         raise TypeError('graph left must be an integer')
     if left < 0:
         raise ValueError('graph left must be non-negative')
 
-    right = g.graph['right'] if 'right' in g.graph else graph_right
+    right = g.graph.get('right', graph_right)
     if not isinstance(right, int):
         raise TypeError('graph right must be an integer')
     if right < 0:
         raise ValueError('graph right must be non-negative')
 
-    top = g.graph['top'] if 'top' in g.graph else graph_top
+    top = g.graph.get('top', graph_top)
     if not isinstance(top, int):
         raise TypeError('graph top must be an integer')
     if top < 0:
@@ -155,7 +155,7 @@ def _build_graph_key(g):
 
 
 def _build_node_size(g, n):
-    size = g.nodes[n]['size'] if 'size' in g.nodes[n] else node_size
+    size = g.nodes[n].get('size', node_size)
     if not isinstance(size, int):
         raise TypeError('node size must be an integer')
     if size <= 0:
@@ -167,15 +167,15 @@ def _build_node_size(g, n):
 def _build_node_key(g, n):
     size = _build_node_size(g, n)
 
-    style = g.nodes[n]['style'] if 'style' in g.nodes[n] else node_style
+    style = g.nodes[n].get('style', node_style)
     if style not in NODE_STYLES:
         raise ValueError('node style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in NODE_STYLES))
 
-    border = g.nodes[n]['border'] if 'border' in g.nodes[n] else node_border
+    border = g.nodes[n].get('border', node_border)
     if not isinstance(border, bool):
         raise TypeError('node border must be a boolean')
 
-    color = g.nodes[n]['color'] if 'color' in g.nodes[n] else node_color
+    color = g.nodes[n].get('color', node_color)
     if not isinstance(color, tuple):
         raise TypeError('node color must be a tuple')
     if len(color) != 3:
@@ -185,7 +185,7 @@ def _build_node_key(g, n):
     if color[0] < 0 or color[0] > 255 or color[1] < 0 or color[1] > 255 or color[2] < 0 or color[2] > 255:
         raise ValueError('all node color elements must be between 0 and 255')
 
-    labpos = g.nodes[n]['labpos'] if 'labpos' in g.nodes[n] else node_labpos
+    labpos = g.nodes[n].get('labpos', node_labpos)
     if not isinstance(labpos, str):
         raise TypeError('node labpos must be a string')
     if labpos != 'hover':
@@ -206,17 +206,17 @@ def _build_edge_key(g, n, m):
     n_size = _build_node_size(g, n)
     m_size = _build_node_size(g, m)
 
-    width = g.edges[n, m]['width'] if 'width' in g.edges[n, m] else edge_width
+    width = g.edges[n, m].get('width', edge_width)
     if not isinstance(width, int):
         raise TypeError('edge width must be an integer')
     if width <= 0:
         raise ValueError('edge width must be positive')
 
-    style = g.edges[n, m]['style'] if 'style' in g.edges[n, m] else edge_style
+    style = g.edges[n, m].get('style', edge_style)
     if style not in EDGE_STYLES:
         raise ValueError('edge style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in EDGE_STYLES))
 
-    color = g.edges[n, m]['color'] if 'color' in g.edges[n, m] else edge_color
+    color = g.edges[n, m].get('color', edge_color)
     if not isinstance(color, tuple):
         raise TypeError('edge color must be a tuple')
     if len(color) != 3 and len(color) != 4:
@@ -230,17 +230,17 @@ def _build_edge_key(g, n, m):
     if len(color) == 4 and (color[3] < 0 or color[3] > 1):
         raise ValueError('the fourth edge color element must be between 0 and 1')
 
-    labflip = g.edges[n, m]['labflip'] if 'labflip' in g.edges[n, m] else edge_labflip
+    labflip = g.edges[n, m].get('labflip', edge_labflip)
     if not isinstance(labflip, bool):
         raise TypeError('edge labflip must be a boolean')
 
-    labdist = g.edges[n, m]['labdist'] if 'labdist' in g.edges[n, m] else edge_labdist
+    labdist = g.edges[n, m].get('labdist', edge_labdist)
     if not isinstance(labdist, int):
         raise TypeError('edge labdist must be an integer')
     if labdist < 0:
         raise ValueError('edge labdist must be non-negative')
 
-    labfrac = g.edges[n, m]['labfrac'] if 'labfrac' in g.edges[n, m] else edge_labfrac
+    labfrac = g.edges[n, m].get('labfrac', edge_labfrac)
     if not isinstance(labfrac, float):
         raise TypeError('edge labfrac must be a float')
     if labfrac < 0 or labfrac > 1:
@@ -360,7 +360,7 @@ def _build_layout(width, height):
 
 def _add_node(g, n, node_trace):
     x, y = g.nodes[n]['pos']
-    text = g.nodes[n]['label'] if 'label' in g.nodes[n] else None
+    text = g.nodes[n].get('label', None)
 
     node_trace['x'].append(x)
     node_trace['y'].append(y)
@@ -396,7 +396,7 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
     sx, sy = _scale(dx, dy, width, height, labdist + nm_width / 2)
     edge_label_trace['x'].append(x0 + labfrac * (x1 - x0) + sx)
     edge_label_trace['y'].append(y0 + labfrac * (y1 - y0) + sy)
-    edge_label_trace['text'].append(g.edges[n, m]['label'] if 'label' in g.edges[n, m] else None)
+    edge_label_trace['text'].append(g.edges[n, m].get('label', None))
 
     if isinstance(g, nx.DiGraph):
         dx = x0 - x1
@@ -465,7 +465,7 @@ def interact(g, path=None, physics=False):
             'x': round((g.nodes[n]['pos'][0] - 0.5) * (0.9 * local_width - 24)) + dx,
             'y': round((0.5 - g.nodes[n]['pos'][1]) * (0.9 * local_height - 24)) + dy,
         }
-        label = g.nodes[n]['label'] if 'label' in g.nodes[n] else None
+        label = g.nodes[n].get('label', None)
         if label:
             options['title'] = label
         network.add_node(n, **options)
@@ -484,7 +484,7 @@ def interact(g, path=None, physics=False):
                 'selectionWidth': 0,
                 'width': width,
             }
-            label = g.edges[n, m]['label'] if 'label' in g.edges[n, m] else None
+            label = g.edges[n, m].get('label', None)
             if label:
                 options['title'] = label
             network.add_edge(n, m, **options)
