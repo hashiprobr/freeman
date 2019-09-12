@@ -30,17 +30,17 @@ def normalize(g):
     if g.number_of_nodes() == 0:
         return
 
-    xs = []
-    ys = []
+    X = []
+    Y = []
     for n in g.nodes:
         pos = g.nodes[n]['pos']
-        xs.append(pos[0])
-        ys.append(pos[1])
+        X.append(pos[0])
+        Y.append(pos[1])
 
-    xmin = min(xs)
-    xmax = max(xs) - xmin
-    ymin = min(ys)
-    ymax = max(ys) - ymin
+    xmin = min(X)
+    xmax = max(X) - xmin
+    ymin = min(Y)
+    ymax = max(Y) - ymin
 
     for n in g.nodes:
         pos = g.nodes[n]['pos']
