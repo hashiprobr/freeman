@@ -426,6 +426,18 @@ def matplot_edges(g, cols, control=None):
     matplot(g.edgeframe, cols, control)
 
 
+def hexplot(df, x, y):
+    sns.jointplot(_value(df, x), _value(df, y), data=df, kind='hex')
+
+
+def hexplot_nodes(g, x, y):
+    hexplot(g.nodeframe, x, y)
+
+
+def hexplot_edges(g, x, y):
+    hexplot(g.edgeframe, x, y)
+
+
 def valcount(df, x, order=None, transpose=False):
     data = pd.DataFrame(df[x].value_counts(normalize=True))
     data = data.round(2)
