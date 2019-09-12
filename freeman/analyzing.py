@@ -69,7 +69,7 @@ def _cortest(x, y, max_perm):
                 above += 1
             total += 1
         p = 2 * (above / total)
-    return r, round(p, DEC)
+    return r, p
 
 
 def _chitest(x, y, max_perm):
@@ -96,7 +96,7 @@ def _chitest(x, y, max_perm):
                 above += 1
             total += 1
         p = above / total
-    return v, round(p, DEC)
+    return v, p
 
 
 def _indtest(a, b, max_perm):
@@ -118,7 +118,7 @@ def _indtest(a, b, max_perm):
                 above += 1
             total += 1
         p = 2 * (above / total)
-    return t, round(p, DEC)
+    return t, p
 
 
 def _reltest(a, b, max_perm):
@@ -148,7 +148,7 @@ def _reltest(a, b, max_perm):
                 above += 1
             total += 1
         p = 2 * (above / total)
-    return t, round(p, DEC)
+    return t, p
 
 
 def set_nodeframe(g):
@@ -221,7 +221,8 @@ def distest_edges(g, a):
 
 
 def cortest(df, x, y, max_perm=None):
-    return _cortest(_value(df, x), _value(df, y), max_perm)
+    r, p = _cortest(_value(df, x), _value(df, y), max_perm)
+    return round(r, DEC), round(p, DEC)
 
 
 def cortest_nodes(g, x, y, max_perm=None):
@@ -233,7 +234,8 @@ def cortest_edges(g, x, y, max_perm=None):
 
 
 def chitest(df, x, y, max_perm=None):
-    return _chitest(df[x], df[y], max_perm)
+    v, p = _chitest(df[x], df[y], max_perm)
+    return round(v, DEC), round(p, DEC)
 
 
 def chitest_nodes(g, x, y, max_perm=None):
@@ -248,16 +250,18 @@ def sintest(a, mean):
     a = pd.Series(a)
     if a.size < 2 or isclose(a.var(), 0):
         return None
-    t, p = ttest_1samp(a, mean)
-    return t, round(p, DEC)
+    _, p = ttest_1samp(a, mean)
+    return round(p, DEC)
 
 
 def indtest(a, b, max_perm=None):
-    return _indtest(pd.Series(a), pd.Series(b), max_perm)
+    _, p = _indtest(pd.Series(a), pd.Series(b), max_perm)
+    return round(p, DEC)
 
 
 def reltest(df, a, b, max_perm=None):
-    return _reltest(df[a], df[b], max_perm)
+    _, p = _reltest(df[a], df[b], max_perm)
+    return round(p, DEC)
 
 
 def reltest_nodes(g, a, b, max_perm=None):
@@ -275,7 +279,8 @@ def mixtest(df, x, y, max_perm=None):
             data[value] = df[df[y] == value][x]
     result = {}
     for a, b in combinations(data, 2):
-        result[a, b] = _indtest(data[a], data[b], max_perm)
+        _, p = _indtest(data[a], data[b], max_perm)
+        result[a, b] = round(p, DEC)
     return result
 
 
