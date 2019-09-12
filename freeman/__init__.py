@@ -130,21 +130,27 @@ def colorize_communities(g, C):
     colorize_nodes(g, map)
 
 
-def movement(g1, g2):
-    nodes = set(g1.nodes) & set(g2.nodes)
+def stack_and_track(graphs, targets=None):
+    nodes = set.intersection(*(set(g.nodes) for g in graphs))
+
+    if targets is None:
+        targets = nodes
 
     h = Graph(nx.DiGraph())
 
-    for i, n in enumerate(nodes):
-        j = len(nodes) + i
+    for j, n in enumerate(nodes):
+        prev = None
 
-        h.add_node(i)
-        h.nodes[i].update(g1.nodes[n])
+        for i, g in enumerate(graphs):
+            curr = i * len(nodes) + j
 
-        h.add_node(j)
-        h.nodes[j].update(g2.nodes[n])
+            h.add_node(curr)
+            h.nodes[curr].update(g.nodes[n])
 
-        h.add_edge(i, j)
+            if prev is not None and n in targets:
+                h.add_edge(prev, curr)
+
+            prev = curr
 
     return h
 
