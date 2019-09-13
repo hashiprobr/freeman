@@ -324,40 +324,39 @@ def logregress_edges(g, X, y, *args, **kwargs):
     return logregress(g.edgeframe, X, y, *args, **kwargs)
 
 
-def intencode(df, X, categories='auto'):
-    dfX = list(zip(*(df[x] for x in X)))
-    encoder = OrdinalEncoder(categories)
-    cols = ['x_' + x for x in X]
-    X = zip(*encoder.fit_transform(dfX))
-    for col, x in zip(cols, X):
-        df[col] = x
-    return cols
+def intencode(df, x, order=None):
+    dfX = list(zip(df[x]))
+    encoder = OrdinalEncoder(categories='auto' if order is None else [order])
+    X = list(zip(*encoder.fit_transform(dfX)))
+    col = 'x0_' + x
+    df[col] = X[0]
+    return col
 
 
-def intencode_nodes(g, X, categories='auto'):
-    return intencode(g.nodeframe, X, categories)
+def intencode_nodes(g, x, order=None):
+    return intencode(g.nodeframe, x, order)
 
 
-def intencode_edges(g, X, categories='auto'):
-    return intencode(g.edgeframe, X, categories)
+def intencode_edges(g, x, order=None):
+    return intencode(g.edgeframe, x, order)
 
 
-def binencode(df, X):
-    dfX = list(zip(*(df[x] for x in X)))
+def binencode(df, x):
+    dfX = list(zip(df[x]))
     encoder = OneHotEncoder(categories='auto', sparse=False)
-    X = zip(*encoder.fit_transform(dfX))
+    X = list(zip(*encoder.fit_transform(dfX)))
     cols = list(encoder.get_feature_names())
-    for col, x in zip(cols, X):
+    for x, col in zip(X, cols):
         df[col] = x
     return cols
 
 
-def binencode_nodes(g, X):
-    return binencode(g.nodeframe, X)
+def binencode_nodes(g, x):
+    return binencode(g.nodeframe, x)
 
 
-def binencode_edges(g, X):
-    return binencode(g.edgeframe, X)
+def binencode_edges(g, x):
+    return binencode(g.edgeframe, x)
 
 
 def resize_next_plot(width, height):
