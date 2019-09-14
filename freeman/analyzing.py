@@ -6,7 +6,7 @@ from math import isclose, sqrt, log
 from statistics import variance
 from random import choices, sample
 from itertools import chain, product, permutations, combinations
-from scipy.stats import shapiro, normaltest, kstest, norm, lognorm, powerlaw, expon, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
+from scipy.stats import shapiro, normaltest, kstest, norm, powerlaw, expon, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
 from scipy.cluster.hierarchy import dendrogram
 from statsmodels.api import OLS, Logit
 from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
@@ -157,26 +157,22 @@ def _reltest(a, b, max_perm):
 
 
 def set_nodeframe(g):
-    data = {
-        'node': g.nodes,
-    }
-    g.nodeframe = pd.DataFrame(data)
+    g.nodeframe = pd.DataFrame()
+    g.nodeframe['id'] = [n for n in g.nodes]
 
 
 def set_edgeframe(g):
-    data = {
-        'source': (n for n, m in g.edges),
-        'target': (m for n, m in g.edges),
-    }
-    g.edgeframe = pd.DataFrame(data)
+    g.edgeframe = pd.DataFrame()
+    g.edgeframe['source'] = [n for n, m in g.edges]
+    g.edgeframe['target'] = [m for n, m in g.edges]
 
 
 def set_nodecol(g, col, map):
-    g.nodeframe[col] = extract_nodes(g, map)
+    g.nodeframe[col] = list(extract_nodes(g, map))
 
 
 def set_edgecol(g, col, map):
-    g.edgeframe[col] = extract_edges(g, map)
+    g.edgeframe[col] = list(extract_edges(g, map))
 
 
 def concat(dfs, col):
@@ -198,7 +194,6 @@ def distest(df, a):
         'Shapiro-Wilk (normal)': shapiro(df[a]),
         'D\'Agostino-Pearson (normal)': normaltest(df[a]),
         'Kolmogorov-Smirnov (normal)': kstest(df[a], 'norm', norm.fit(df[a])),
-        'Kolmogorov-Smirnov (lognormal)': kstest(df[a], 'lognorm', lognorm.fit(df[a])),
         'Kolmogorov-Smirnov (powerlaw)': kstest(df[a], 'powerlaw', powerlaw.fit(df[a])),
         'Kolmogorov-Smirnov (exponential)': kstest(df[a], 'expon', expon.fit(df[a])),
     }
@@ -537,28 +532,25 @@ def girvan_newman(g):
 
 
 def corplot_graph(g, nodes, weight='weight', plot=True):
-    other = (m for m in g.nodes if m not in nodes and g.degree(m) > 0)
-    nodes = (n for n in nodes if g.degree(n) > 0)
+    other = [m for m in g.nodes if m not in nodes and g.degree(m) > 0]
+    nodes = [n for n in nodes if g.degree(n) > 0]
 
-    data = {}
-    for m in other:
-        data[m] = (g.edges[n, m].get(weight, 1) if g.has_edge(n, m) else 0 for n in nodes)
-    df = pd.DataFrame(data)
+    observed = pd.DataFrame([g.edges[n, m].get(weight, 1) if g.has_edge(n, m) else 0 for n in nodes] for m in other)
 
     ca = CA()
-    ca.fit(df)
+    ca.fit(observed)
 
     if plot:
-        ca.plot_coordinates(df)
+        ca.plot_coordinates(observed)
 
     h = g.subgraph(nodes + other).copy()
 
-    pos = ca.row_coordinates(df)
+    pos = ca.row_coordinates(observed)
     for n, x, y in zip(nodes, pos[0], pos[1]):
         h.nodes[n]['pos'] = (x, y)
         h.nodes[n]['color'] = (76, 116, 172)
 
-    pos = ca.column_coordinates(df)
+    pos = ca.column_coordinates(observed)
     for m, x, y in zip(other, pos[0], pos[1]):
         h.nodes[m]['pos'] = (x, y)
         h.nodes[m]['color'] = (219, 130, 87)

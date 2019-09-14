@@ -13,10 +13,7 @@ def load(path, key='random', *args, **kwargs):
     if isinstance(g, nx.MultiGraph):
         raise NetworkXError('freeman does not support multigraphs')
 
-    free = []
-    for n in g.nodes:
-        if 'x' not in g.nodes[n] or 'y' not in g.nodes[n]:
-            free.append(n)
+    free = [n for n in g.nodes if 'x' not in g.nodes[n] or 'y' not in g.nodes[n]]
 
     if len(free) > 0 and len(free) < g.number_of_nodes():
         raise ValueError('some nodes have position, but others do not: ' + ', '.join(str(n) for n in free))
@@ -154,28 +151,8 @@ def stack_and_track(graphs, targets=None):
 class Graph(ObjectProxy):
     def __init__(self, g):
         super().__init__(g)
-        self._nodeframe = None
-        self._edgeframe = None
-
-    @property
-    def nodeframe(self):
-        if self._nodeframe is None:
-            set_nodeframe(self)
-        return self._nodeframe
-
-    @nodeframe.setter
-    def nodeframe(self, nodeframe):
-        self._nodeframe = nodeframe
-
-    @property
-    def edgeframe(self):
-        if self._edgeframe is None:
-            set_edgeframe(self)
-        return self._edgeframe
-
-    @edgeframe.setter
-    def edgeframe(self, edgeframe):
-        self._edgeframe = edgeframe
+        set_nodeframe(self)
+        set_edgeframe(self)
 
     def copy(self):
         return Graph(self.__wrapped__.copy())
