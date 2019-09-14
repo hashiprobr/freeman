@@ -325,7 +325,7 @@ def logregress_edges(g, X, y, *args, **kwargs):
 
 def intencode(df, x, order=None):
     dfX = list(zip(df[x]))
-    encoder = OrdinalEncoder(categories='auto' if order is None else [order])
+    encoder = OrdinalEncoder('auto' if order is None else [order])
     X = zip(*encoder.fit_transform(dfX))
     col = x + '_order'
     df[col] = next(X)
@@ -344,7 +344,7 @@ def binencode(df, x):
     dfX = list(zip(df[x]))
     encoder = OneHotEncoder(categories='auto', sparse=False)
     X = zip(*encoder.fit_transform(dfX))
-    cols = encoder.get_feature_names(input_features=[x])
+    cols = encoder.get_feature_names([x])
     for x, col in zip(X, cols):
         df[col] = x
     return list(cols)
@@ -442,7 +442,7 @@ def hexplot_edges(g, x, y):
 
 
 def valcount(df, x, order=None, transpose=False):
-    data = pd.DataFrame(df[x].value_counts(normalize=True))
+    data = pd.DataFrame(df[x].value_counts(True))
     data = data.round(2)
     if order is not None:
         data = data.reindex(order)
