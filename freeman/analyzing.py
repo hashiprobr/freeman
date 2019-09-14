@@ -344,10 +344,10 @@ def binencode(df, x):
     dfX = list(zip(df[x]))
     encoder = OneHotEncoder(categories='auto', sparse=False)
     X = zip(*encoder.fit_transform(dfX))
-    cols = ('{}_{}'.format(x, value) for value in encoder.categories_[0])
+    cols = encoder.get_feature_names(input_features=[x])
     for x, col in zip(X, cols):
         df[col] = x
-    return cols
+    return list(cols)
 
 
 def binencode_nodes(g, x):
