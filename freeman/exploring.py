@@ -23,8 +23,8 @@ def _transform(h, s, v):
     return r, g, b
 
 
-def _assert_bounds(values, lower, upper):
-    values = assert_numerics(values)
+def _assert_bounds(iterable, lower, upper):
+    values = list(assert_numerics(iterable))
 
     if lower is None:
         lower = min(values)
