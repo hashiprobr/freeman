@@ -36,20 +36,16 @@ def load(path, key='random', *args, **kwargs):
     for n in g.nodes:
         if 'border' in g.nodes[n]:
             value = g.nodes[n]['border']
-
-            if value == 0 or value == 1:
-                g.nodes[n]['border'] = bool(value)
-            else:
+            if value != 0 and value != 1:
                 raise ValueError('node border must be binary')
+            g.nodes[n]['border'] = bool(value)
 
     for n, m in g.edges:
         if 'labflip' in g.edges[n, m]:
             value = g.edges[n, m]['labflip']
-
-            if value == 0 or value == 1:
-                g.edges[n, m]['labflip'] = bool(value)
-            else:
+            if value != 0 and value != 1:
                 raise ValueError('edge labflip must be binary')
+            g.edges[n, m]['labflip'] = bool(value)
 
     return Graph(g)
 
@@ -226,8 +222,6 @@ class Graph(ObjectProxy):
         move(self, key, *args, **kwargs)
     def move_inverse(self, key, weight, *args, **kwargs):
         move_inverse(self, key, weight, *args, **kwargs)
-    def move_negative(self, key, weight, *args, **kwargs):
-        move_negative(self, key, weight, *args, **kwargs)
     def move_complement(self, key, *args, **kwargs):
         move_complement(self, key, *args, **kwargs)
 

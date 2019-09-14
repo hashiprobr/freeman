@@ -1,6 +1,6 @@
 from math import isclose, isinf, log
 from statistics import mean
-from colorsys import hsv_to_rgb
+from colorsys import rgb_to_hsv, hsv_to_rgb
 
 
 def _stringify(value, ndigits):
@@ -24,19 +24,19 @@ def _transform(h, s, v):
 
 
 def _assert_bounds(values, lower, upper):
-    values = list(assert_numerics(values))
+    values = assert_numerics(values)
 
     if lower is None:
         lower = min(values)
     else:
-        assert_numeric(lower)
+        lower = assert_numeric(lower)
         if any(value < lower for value in values):
             raise ValueError('lower must be below all values')
 
     if upper is None:
         upper = max(values)
     else:
-        assert_numeric(upper)
+        upper = assert_numeric(upper)
         if any(value > upper for value in values):
             raise ValueError('upper must be above all values')
 
@@ -47,17 +47,30 @@ def _assert_reference(values, lower, upper, middle):
     if middle is None:
         middle = mean(values)
     else:
-        assert_numeric(middle)
+        middle = assert_numeric(middle)
         if middle < lower or middle > upper:
             raise ValueError('middle must be between lower and upper')
 
     return middle
 
 
-def _assert_color(hue):
-    assert_numeric(hue)
-    if hue < 0 or hue > 1:
-        raise ValueError('hue must be between 0 and 1')
+def _assert_hue(color):
+    if not isinstance(color, tuple):
+        raise TypeError('color must be a tuple')
+    if len(color) != 3:
+        raise ValueError('color must have exactly three elements')
+    if not isinstance(color[0], int) or not isinstance(color[1], int) or not isinstance(color[2], int):
+        raise TypeError('all color elements must be integers')
+    if color[0] < 0 or color[0] > 255 or color[1] < 0 or color[1] > 255 or color[2] < 0 or color[2] > 255:
+        raise ValueError('all color elements must be between 0 and 255')
+
+    sr = color[0] / 255
+    sg = color[1] / 255
+    sb = color[2] / 255
+
+    h, _, _ = rgb_to_hsv(sr, sg, sb)
+
+    return h
 
 
 def assert_numeric(value):
@@ -113,7 +126,6 @@ def label_nodes(g, map=None, ndigits=2):
             g.nodes[n]['label'] = str(n)
         else:
             value = extract_node(g, n, map)
-
             g.nodes[n]['label'] = _stringify(value, ndigits)
 
 
@@ -123,21 +135,19 @@ def label_edges(g, map=None, ndigits=2):
             g.edges[n, m]['label'] = str((n, m))
         else:
             value = extract_edge(g, n, m, map)
-
             g.edges[n, m]['label'] = _stringify(value, ndigits)
 
 
 def colorize_nodes(g, map=None):
     if map is None:
-        groups = [[n] for n in g.nodes]
+        groups = list(zip(g.nodes))
     else:
         groups = {}
         for n in g.nodes:
             value = extract_node(g, n, map)
-            if value in groups:
-                groups[value].append(n)
-            else:
-                groups[value] = [n]
+            if value not in groups:
+                groups[value] = []
+            groups[value].append(n)
         groups = groups.values()
 
     h = 0
@@ -151,15 +161,14 @@ def colorize_nodes(g, map=None):
 
 def colorize_edges(g, map=None):
     if map is None:
-        groups = [[(n, m)] for n, m in g.edges]
+        groups = list(zip(g.edges))
     else:
         groups = {}
         for n, m in g.edges:
             value = extract_edge(g, n, m, map)
-            if value in groups:
-                groups[value].append((n, m))
-            else:
-                groups[value] = [(n, m)]
+            if value not in groups:
+                groups[value] = []
+            groups[value].append((n, m))
         groups = groups.values()
 
     h = 0
@@ -195,7 +204,7 @@ def scale_edges_width(g, map, lower=None, upper=None):
         g.edges[n, m]['width'] = 1 + round(sc * 9)
 
 
-def scale_nodes_dark(g, map, lower=None, upper=None, hue=None):
+def scale_nodes_dark(g, map, lower=None, upper=None, color=None):
     values, lower, upper = _assert_bounds(extract_nodes(g, map), lower, upper)
 
     for n, value in zip(g.nodes, values):
@@ -204,15 +213,15 @@ def scale_nodes_dark(g, map, lower=None, upper=None, hue=None):
         else:
             sc = (value - lower) / (upper - lower)
 
-        if hue is None:
+        if color is None:
             c = 255 - round(sc * 255)
             g.nodes[n]['color'] = (c, c, c)
         else:
-            _assert_color(hue)
-            g.nodes[n]['color'] = _transform(hue, sc, 1)
+            h = _assert_hue(color)
+            g.nodes[n]['color'] = _transform(h, sc, 1)
 
 
-def scale_edges_alpha(g, map, lower=None, upper=None, hue=None):
+def scale_edges_alpha(g, map, lower=None, upper=None, color=None):
     values, lower, upper = _assert_bounds(extract_edges(g, map), lower, upper)
 
     for (n, m), value in zip(g.edges, values):
@@ -221,12 +230,11 @@ def scale_edges_alpha(g, map, lower=None, upper=None, hue=None):
         else:
             sc = (value - lower) / (upper - lower)
 
-        if hue is None:
+        if color is None:
             g.edges[n, m]['color'] = (0, 0, 0, sc)
         else:
-            _assert_color(hue)
-            color = _transform(hue, 1, 1)
-            g.edges[n, m]['color'] = (*color, sc)
+            h = _assert_hue(color)
+            g.edges[n, m]['color'] = (*_transform(h, 1, 1), sc)
 
 
 def heat_nodes(g, map, lower=None, upper=None, middle=None):
@@ -255,7 +263,7 @@ def heat_edges(g, map, lower=None, upper=None, middle=None):
 
     for (n, m), value in zip(g.edges, values):
         if isclose(lower, upper):
-            g.edges[n, m]['color'] = (255, 255, 255)
+            g.edges[n, m]['color'] = (255, 255, 255, 0.0)
         else:
             if value < middle:
                 sc = (value - lower) / (middle - lower)

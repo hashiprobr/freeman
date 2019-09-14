@@ -3,8 +3,9 @@ import seaborn as sns
 import networkx as nx
 
 from math import isclose, sqrt, log
+from statistics import variance
 from random import choices, sample
-from itertools import product, permutations, combinations
+from itertools import chain, product, permutations, combinations
 from scipy.stats import shapiro, normaltest, kstest, norm, lognorm, powerlaw, expon, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
 from scipy.cluster.hierarchy import dendrogram
 from statsmodels.api import OLS, Logit
@@ -43,28 +44,35 @@ def _items(df, cols):
     return data
 
 
+def _varzero(a):
+    return isclose(variance(a), 0)
+
+
 def _product(iterable, size, max_perm):
     for _ in range(max_perm):
         yield choices(iterable, k=size)
 
 
 def _permutations(iterable, max_perm):
+    if hasattr(iterable, '__len__'):
+        population = iterable
+    else:
+        population = list(iterable)
     for _ in range(max_perm):
-        yield sample(iterable, len(iterable))
+        yield sample(population, len(population))
 
 
 def _cortest(x, y, max_perm):
     r, p = pearsonr(x, y)
     if max_perm is not None:
-        original = list(y)
         if max_perm == 0:
-            resamples = permutations(original)
+            resamples = permutations(y)
         else:
-            resamples = _permutations(original, max_perm)
+            resamples = _permutations(y, max_perm)
         above = 0
         total = 0
         for resample in resamples:
-            result, _ = _cortest(x, pd.Series(resample), None)
+            result, _ = _cortest(x, resample, None)
             if (r < 0 and result <= r) or r == 0 or (r > 0 and result >= r):
                 above += 1
             total += 1
@@ -73,25 +81,23 @@ def _cortest(x, y, max_perm):
 
 
 def _chitest(x, y, max_perm):
-    observed = pd.crosstab(y, x)
+    observed = pd.crosstab(pd.Series(x), pd.Series(y))
     chi2, p, _, _ = chi2_contingency(observed)
     n = observed.sum().sum()
     r, k = observed.shape
-    phi2 = chi2 / n
-    phi2 = max(0, phi2 - ((k - 1) * (r - 1)) / (n - 1))
+    phi2 = max(0, chi2 / n - ((k - 1) * (r - 1)) / (n - 1))
     k -= (k - 1)**2 / (n - 1)
     r -= (r - 1)**2 / (n - 1)
     v = sqrt(phi2 / min(k - 1, r - 1))
     if max_perm is not None:
-        original = list(y)
         if max_perm == 0:
-            resamples = permutations(original)
+            resamples = permutations(y)
         else:
-            resamples = _permutations(original, max_perm)
+            resamples = _permutations(y, max_perm)
         above = 0
         total = 0
         for resample in resamples:
-            result, _ = _chitest(x, pd.Series(resample), None)
+            result, _ = _chitest(x, resample, None)
             if result >= v:
                 above += 1
             total += 1
@@ -100,20 +106,19 @@ def _chitest(x, y, max_perm):
 
 
 def _indtest(a, b, max_perm):
-    if a.size < 2 or b.size < 2 or (isclose(a.var(), 0) and isclose(b.var(), 0)):
+    length = len(a)
+    if length < 2 or len(b) < 2 or (_varzero(a) and _varzero(b)):
         return None
     t, p = ttest_ind(a, b, equal_var=False)
     if max_perm is not None:
-        size = a.size
-        original = list(pd.concat([a, b]))
         if max_perm == 0:
-            resamples = permutations(original)
+            resamples = permutations(chain(a, b))
         else:
-            resamples = _permutations(original, max_perm)
+            resamples = _permutations(chain(a, b), max_perm)
         above = 0
         total = 0
         for resample in resamples:
-            result, _ = _indtest(pd.Series(resample[:size]), pd.Series(resample[size:]), None)
+            result, _ = _indtest(resample[:length], resample[length:], None)
             if (t < 0 and result <= t) or t == 0 or (t > 0 and result >= t):
                 above += 1
             total += 1
@@ -122,28 +127,28 @@ def _indtest(a, b, max_perm):
 
 
 def _reltest(a, b, max_perm):
-    size = a.size
-    if size < 2 or size != b.size or a.equals(b) or (isclose(a.var(), 0) and isclose(b.var(), 0)):
+    length = len(a)
+    if length < 2 or length != len(b) or a == b or (_varzero(a) and _varzero(b)):
         return None
     t, p = ttest_rel(a, b)
     if max_perm is not None:
         if max_perm == 0:
-            resamples = product([False, True], repeat=size)
+            resamples = product([False, True], repeat=length)
         else:
-            resamples = _product([False, True], size, max_perm)
+            resamples = _product([False, True], length, max_perm)
         above = 0
         total = 0
         for resample in resamples:
-            la = []
-            lb = []
+            resample_a = []
+            resample_b = []
             for i, keep in enumerate(resample):
                 if keep:
-                    la.append(a[i])
-                    lb.append(b[i])
+                    resample_a.append(a[i])
+                    resample_b.append(b[i])
                 else:
-                    la.append(b[i])
-                    lb.append(a[i])
-            result, _ = _reltest(pd.Series(la), pd.Series(lb), None)
+                    resample_a.append(b[i])
+                    resample_b.append(a[i])
+            result, _ = _reltest(resample_a, resample_b, None)
             if (t < 0 and result <= t) or t == 0 or (t > 0 and result >= t):
                 above += 1
             total += 1
@@ -153,25 +158,25 @@ def _reltest(a, b, max_perm):
 
 def set_nodeframe(g):
     data = {
-        'node': list(g.nodes),
+        'node': g.nodes,
     }
     g.nodeframe = pd.DataFrame(data)
 
 
 def set_edgeframe(g):
     data = {
-        'source': [n for n, m in g.edges],
-        'target': [m for n, m in g.edges],
+        'source': (n for n, m in g.edges),
+        'target': (m for n, m in g.edges),
     }
     g.edgeframe = pd.DataFrame(data)
 
 
 def set_nodecol(g, col, map):
-    g.nodeframe[col] = list(extract_nodes(g, map))
+    g.nodeframe[col] = extract_nodes(g, map)
 
 
 def set_edgecol(g, col, map):
-    g.edgeframe[col] = list(extract_edges(g, map))
+    g.edgeframe[col] = extract_edges(g, map)
 
 
 def set_nodecols(g, maps):
@@ -185,17 +190,17 @@ def set_edgecols(g, maps):
 
 
 def concat(dfs, col):
-    for value, df in dfs.items():
-        df[col] = value
+    for key, df in dfs.items():
+        df[col] = key
     return pd.concat(dfs.values())
 
 
 def concat_nodeframes(graphs, col):
-    return concat({value: g.nodeframe for value, g in graphs.items()}, col)
+    return concat({key: g.nodeframe for key, g in graphs.items()}, col)
 
 
 def concat_edgeframes(graphs, col):
-    return concat({value: g.edgeframe for value, g in graphs.items()}, col)
+    return concat({key: g.edgeframe for key, g in graphs.items()}, col)
 
 
 def distest(df, a):
@@ -208,7 +213,7 @@ def distest(df, a):
         'Kolmogorov-Smirnov (exponential)': kstest(df[a], 'expon', expon.fit(df[a])),
     }
     keys = data.keys()
-    values = [p for _, p in data.values()]
+    values = (p for _, p in data.values())
     return pd.DataFrame(values, index=keys, columns=['p-value']).round(DEC)
 
 
@@ -247,21 +252,24 @@ def chitest_edges(g, x, y, max_perm=None):
 
 
 def sintest(a, mean):
-    a = pd.Series(a)
-    if a.size < 2 or isclose(a.var(), 0):
+    if len(a) < 2 or _varzero(a):
         return None
-    _, p = ttest_1samp(a, mean)
-    return round(p, DEC)
+    result = ttest_1samp(a, mean)
+    return round(result[1], DEC)
 
 
 def indtest(a, b, max_perm=None):
-    _, p = _indtest(pd.Series(a), pd.Series(b), max_perm)
-    return round(p, DEC)
+    result = _indtest(a, b, max_perm)
+    if result is not None:
+        result = round(result[1], DEC)
+    return result
 
 
 def reltest(df, a, b, max_perm=None):
-    _, p = _reltest(df[a], df[b], max_perm)
-    return round(p, DEC)
+    result = _reltest(df[a], df[b], max_perm)
+    if result is not None:
+        result = round(result[1], DEC)
+    return result
 
 
 def reltest_nodes(g, a, b, max_perm=None):
@@ -277,11 +285,13 @@ def mixtest(df, x, y, max_perm=None):
     for value in df[y]:
         if value not in data:
             data[value] = df[df[y] == value][x]
-    result = {}
+    results = {}
     for a, b in combinations(data, 2):
-        _, p = _indtest(data[a], data[b], max_perm)
-        result[a, b] = round(p, DEC)
-    return result
+        result = _indtest(data[a], data[b], max_perm)
+        if result is not None:
+            result = round(result[1], DEC)
+        results[a, b] = result
+    return results
 
 
 def mixtest_nodes(g, x, y, max_perm=None):
@@ -327,9 +337,9 @@ def logregress_edges(g, X, y, *args, **kwargs):
 def intencode(df, x, order=None):
     dfX = list(zip(df[x]))
     encoder = OrdinalEncoder(categories='auto' if order is None else [order])
-    X = list(zip(*encoder.fit_transform(dfX)))
-    col = 'x0_' + x
-    df[col] = X[0]
+    X = zip(*encoder.fit_transform(dfX))
+    col = x + '_order'
+    df[col] = next(X)
     return col
 
 
@@ -344,8 +354,8 @@ def intencode_edges(g, x, order=None):
 def binencode(df, x):
     dfX = list(zip(df[x]))
     encoder = OneHotEncoder(categories='auto', sparse=False)
-    X = list(zip(*encoder.fit_transform(dfX)))
-    cols = list(encoder.get_feature_names())
+    X = zip(*encoder.fit_transform(dfX))
+    cols = ('{}_{}'.format(x, value) for value in encoder.categories_[0])
     for x, col in zip(X, cols):
         df[col] = x
     return cols
@@ -531,23 +541,25 @@ def girvan_newman(g):
         clusters[j] = None
         clusters.append(c)
 
-    labels = [g.nodes[n].get('label', str(n)) for n in g.nodes]
+    labels = (g.nodes[n].get('label', str(n)) for n in g.nodes)
 
     dendrogram(linkage, orientation='right', labels=labels)
 
 
-def corplot_graph(g, nodes, weight='weight'):
-    other = [m for m in g.nodes if m not in nodes and g.degree(m) > 0]
-    nodes = [n for n in nodes if g.degree(n) > 0]
+def corplot_graph(g, nodes, weight='weight', plot=True):
+    other = (m for m in g.nodes if m not in nodes and g.degree(m) > 0)
+    nodes = (n for n in nodes if g.degree(n) > 0)
 
     data = {}
     for m in other:
-        data[m] = [g.edges[n, m].get(weight, 1) if g.has_edge(n, m) else 0 for n in nodes]
+        data[m] = (g.edges[n, m].get(weight, 1) if g.has_edge(n, m) else 0 for n in nodes)
     df = pd.DataFrame(data)
 
     ca = CA()
     ca.fit(df)
-    ca.plot_coordinates(df)
+
+    if plot:
+        ca.plot_coordinates(df)
 
     h = g.subgraph(nodes + other).copy()
 

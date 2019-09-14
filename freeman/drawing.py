@@ -27,8 +27,8 @@ EDGE_ANGLE = 0.3
 
 EDGE_STYLES = {
     'solid': False,
-    'dot': [3, 3],
     'dash': [10, 8],
+    'dot': [3, 3],
     'dashdot': [10, 3, 2, 3],
 }
 
@@ -55,12 +55,12 @@ edge_labfrac = 0.5
 
 
 def _scale(dx, dy, width, height, size):
-    d = (dx * width)**2 + (dy * height)**2
+    d2 = (dx * width)**2 + (dy * height)**2
 
-    if isclose(d, 0):
+    if isclose(d2, 0):
         return dx, dy
 
-    s = sqrt(size**2 / d)
+    s = sqrt(size**2 / d2)
 
     return s * dx, s * dy
 
@@ -191,7 +191,7 @@ def _build_node_key(g, n):
     if labpos != 'hover':
         words = labpos.split(' ')
         if len(words) != 2:
-            raise TypeError('node labpos must be "hover" or a vertical position and an horizontal position separated by a space')
+            raise ValueError('node labpos must be "hover" or a vertical position and an horizontal position separated by a space')
         vpos = ['bottom', 'middle', 'top']
         if words[0] not in vpos:
             raise ValueError('node vertical position must be one of the following: ' + ', '.join('"{}"'.format(v) for v in vpos))
@@ -223,10 +223,10 @@ def _build_edge_key(g, n, m):
         raise ValueError('edge color must have three or four elements')
     if not isinstance(color[0], int) or not isinstance(color[1], int) or not isinstance(color[2], int):
         raise TypeError('the first three edge color elements must be integers')
-    if len(color) == 4 and not isinstance(color[3], float):
-        raise TypeError('the fourth edge color element must be a float')
     if color[0] < 0 or color[0] > 255 or color[1] < 0 or color[1] > 255 or color[2] < 0 or color[2] > 255:
         raise ValueError('the first three edge color elements must be between 0 and 255')
+    if len(color) == 4 and not isinstance(color[3], float):
+        raise TypeError('the fourth edge color element must be a float')
     if len(color) == 4 and (color[3] < 0 or color[3] > 1):
         raise ValueError('the fourth edge color element must be between 0 and 1')
 
@@ -257,7 +257,7 @@ def _build_node_trace(size, style, border, color, labpos):
         hoverinfo = 'none'
         mode = 'markers+text'
 
-    fontcolor = (0, 0, 0)
+    textcolor = (0, 0, 0)
 
     if labpos == 'middle center':
         r = _correct(color[0])
@@ -265,13 +265,12 @@ def _build_node_trace(size, style, border, color, labpos):
         b = _correct(color[2])
 
         if (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05)**2 < 0.0525:
-            fontcolor = (255, 255, 255)
+            textcolor = (255, 255, 255)
 
     return {
         'x': [],
         'y': [],
         'text': [],
-        'textposition': 'middle center' if labpos == 'hover' else labpos,
         'hoverinfo': hoverinfo,
         'mode': mode,
         'marker': {
@@ -283,8 +282,9 @@ def _build_node_trace(size, style, border, color, labpos):
                 'color': 'rgb(0, 0, 0)',
             },
         },
+        'textposition': 'middle center' if labpos == 'hover' else labpos,
         'textfont': {
-            'color': _convert(fontcolor),
+            'color': _convert(textcolor),
         },
     }
 
@@ -297,6 +297,7 @@ def _build_node_label_trace(width, height, bottom, left, right, top):
         'mode': 'markers',
         'marker': {
             'size': 0,
+            'symbol': 'circle',
             'color': 'rgba(255, 255, 255, 0.0)',
             'line': {
                 'width': 0,
@@ -325,9 +326,9 @@ def _build_edge_label_trace():
         'x': [],
         'y': [],
         'text': [],
-        'textposition': 'middle center',
         'hoverinfo': 'none',
         'mode': 'text',
+        'textposition': 'middle center',
         'textfont': {
             'color': 'rgb(0, 0, 0)',
         },
@@ -367,7 +368,7 @@ def _add_node(g, n, node_trace):
     node_trace['text'].append(text)
 
 
-def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_size, nm_width, labflip, labdist, labfrac):
+def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_size, labflip, labdist, labfrac):
     x0, y0 = g.nodes[n]['pos']
     x1, y1 = g.nodes[m]['pos']
 
@@ -393,7 +394,7 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
     if labflip:
         dx = -dx
         dy = -dy
-    sx, sy = _scale(dx, dy, width, height, labdist + nm_width / 2)
+    sx, sy = _scale(dx, dy, width, height, labdist)
     edge_label_trace['x'].append(x0 + labfrac * (x1 - x0) + sx)
     edge_label_trace['y'].append(y0 + labfrac * (y1 - y0) + sy)
     edge_label_trace['text'].append(g.edges[n, m].get('label', None))
@@ -406,7 +407,7 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
         sx, sy = _scale(dx, dy, width, height, radius)
         x0 = x1 + sx
         y0 = y1 + sy
-        edge_size = max(1, min(EDGE_SIZE, m_size))
+        edge_size = max(1, min(EDGE_SIZE, radius))
         sx, sy = _scale(dx, dy, width, height, edge_size)
 
         rx, ry = _rotate(sx, sy, width, height, -EDGE_ANGLE)
@@ -440,8 +441,8 @@ def interact(g, path=None, physics=False):
     dx = local_left - dx // 2
     dy = local_top - dy // 2
     for n in g.nodes:
-        border_color = 'rgb(0, 0, 0)'
         size, style, border, color, _ = _build_node_key(g, n)
+        border_color = 'rgb(0, 0, 0)'
         options = {
             'borderWidth': int(border),
             'borderWidthSelected': 1,
@@ -527,7 +528,7 @@ def draw(g, toolbar=False):
             key = (width, style, color)
             if key not in edge_traces:
                 edge_traces[key] = _build_edge_trace(width, style, color)
-            _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
+            _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
 
     data = list(edge_traces.values())
     data.extend(node_traces.values())
@@ -599,11 +600,11 @@ class Animation:
                 if g.has_edge(n, m):
                     n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
                     edge_trace = _build_edge_trace(width, style, color)
-                    _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
+                    _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
                 else:
                     n_size, m_size, width, style, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
                     edge_trace = _build_edge_trace(width, style, (255, 255, 255, 0.0))
-                    _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, width, labflip, labdist, labfrac)
+                    _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
                 edge_traces.append(edge_trace)
 
         data = edge_traces
@@ -656,6 +657,10 @@ class Animation:
                         h.edges[n, m].update(next.edges[n, m])
                 frames.append(self.render(g, h, width, height))
 
+        # parameters estimated from screenshots
+        width = 1.05 * width + 72
+        height = 1.00 * height + 76
+
         steps = []
         for index, frame in enumerate(frames):
             frame['name'] = index
@@ -665,10 +670,6 @@ class Animation:
                 'method': 'animate',
             }
             steps.append(step)
-
-        # parameters estimated from screenshots
-        width = 1.05 * width + 72
-        height = 1.00 * height + 76
 
         layout = _build_layout(width, height)
         layout.update({

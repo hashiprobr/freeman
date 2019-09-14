@@ -2,7 +2,7 @@ import networkx as nx
 
 from math import isclose
 
-from .exploring import assert_numeric, extract_node
+from .exploring import assert_numerics, extract_nodes
 
 
 def step_layout(g, ego=None, iterations=1, weight='weight'):
@@ -50,9 +50,10 @@ def normalize(g):
 
 
 def scatter(g, xmap, ymap):
-    for n in g.nodes:
-        x = assert_numeric(extract_node(g, n, xmap))
-        y = assert_numeric(extract_node(g, n, ymap))
+    X = list(assert_numerics(extract_nodes(g, xmap)))
+    Y = list(assert_numerics(extract_nodes(g, ymap)))
+
+    for n, x, y in zip(g.nodes, X, Y):
         g.nodes[n]['pos'] = (x, y)
 
     normalize(g)
@@ -84,15 +85,6 @@ def move_inverse(g, key, weight, *args, **kwargs):
     for n, m in h.edges:
         if weight in g.edges[n, m]:
             h.edges[n, m][weight] = 1 / g.edges[n, m][weight]
-
-    move_copy(g, h, key, *args, weight=weight, **kwargs)
-
-
-def move_negative(g, key, weight, *args, **kwargs):
-    h = g.copy()
-    for n, m in h.edges:
-        if weight in g.edges[n, m]:
-            h.edges[n, m][weight] = -g.edges[n, m][weight]
 
     move_copy(g, h, key, *args, weight=weight, **kwargs)
 
