@@ -179,16 +179,6 @@ def set_edgecol(g, col, map):
     g.edgeframe[col] = extract_edges(g, map)
 
 
-def set_nodecols(g, maps):
-    for col, map in maps.items():
-        set_nodecol(g, col, map)
-
-
-def set_edgecols(g, maps):
-    for col, map in maps.items():
-        set_edgecol(g, col, map)
-
-
 def concat(dfs, col):
     for key, df in dfs.items():
         df[col] = key

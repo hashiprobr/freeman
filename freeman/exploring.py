@@ -108,16 +108,14 @@ def extract_edge(g, n, m, map):
     raise TypeError('map must be a string, a dictionary, or a callable')
 
 
-def extract_nodes(g, map, filter=None):
+def extract_nodes(g, map):
     for n in g.nodes:
-        if filter is None or filter(n):
-            yield extract_node(g, n, map)
+        yield extract_node(g, n, map)
 
 
-def extract_edges(g, map, filter=None):
+def extract_edges(g, map):
     for n, m in g.edges:
-        if filter is None or filter(n, m):
-            yield extract_edge(g, n, m, map)
+        yield extract_edge(g, n, m, map)
 
 
 def label_nodes(g, map=None, ndigits=2):

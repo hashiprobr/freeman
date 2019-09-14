@@ -229,10 +229,6 @@ class Graph(ObjectProxy):
         set_nodecol(self, col, map)
     def set_edgecol(self, col, map):
         set_edgecol(self, col, map)
-    def set_nodecols(self, maps):
-        set_nodecols(self, maps)
-    def set_edgecols(self, maps):
-        set_edgecols(self, maps)
     def distest_nodes(self, a):
         return distest_nodes(self, a)
     def distest_edges(self, a):
