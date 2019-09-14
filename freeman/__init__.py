@@ -59,40 +59,47 @@ def triads(g, ordered=False):
     return combinations(g.nodes, 3)
 
 
-def set_each_node(g, key, map, filter=None):
+def set_each_node(g, key, map):
+    values = list(extract_nodes(g, map))
+    for n, value in zip(g.nodes, values):
+        g.nodes[n][key] = value
+
+
+def set_each_edge(g, key, map):
+    values = list(extract_edges(g, map))
+    for (n, m), value in zip(g.edges, values):
+        g.edges[n, m][key] = value
+
+
+def set_all_nodes(g, key, value):
     for n in g.nodes:
-        if filter is None or filter(n):
-            g.nodes[n][key] = extract_node(g, n, map)
+        g.nodes[n][key] = value
 
 
-def set_each_edge(g, key, map, filter=None):
+def set_all_edges(g, key, value):
     for n, m in g.edges:
-        if filter is None or filter(n, m):
-            g.edges[n, m][key] = extract_edge(g, n, m, map)
+        g.edges[n, m][key] = value
 
 
-def set_all_nodes(g, key, value, filter=None):
+def unset_nodes(g, key):
     for n in g.nodes:
-        if filter is None or filter(n):
-            g.nodes[n][key] = value
-
-
-def set_all_edges(g, key, value, filter=None):
-    for n, m in g.edges:
-        if filter is None or filter(n, m):
-            g.edges[n, m][key] = value
-
-
-def unset_nodes(g, key, filter=None):
-    for n in g.nodes:
-        if (filter is None or filter(n)) and key in g.nodes[n]:
+        if key in g.nodes[n]:
             del g.nodes[n][key]
 
 
-def unset_edges(g, key, filter=None):
+def unset_edges(g, key):
     for n, m in g.edges:
-        if (filter is None or filter(n, m)) and key in g.edges[n, m]:
+        if key in g.edges[n, m]:
             del g.edges[n, m][key]
+
+
+def colorize_communities(g, C):
+    map = {}
+    for i, c in enumerate(C):
+        for n in c:
+            map[n] = i
+
+    colorize_nodes(g, map)
 
 
 def skin_seaborn(g):
@@ -112,15 +119,6 @@ def skin_seaborn(g):
     set_all_edges(g, 'style', 'solid')
     set_all_edges(g, 'color', (135, 135, 138))
     unset_edges(g, 'label')
-
-
-def colorize_communities(g, C):
-    map = {}
-    for i, c in enumerate(C):
-        for n in c:
-            map[n] = i
-
-    colorize_nodes(g, map)
 
 
 def stack_and_track(graphs, targets=None):
@@ -291,19 +289,19 @@ class Graph(ObjectProxy):
         return dyads(self, ordered)
     def triads(self, ordered=False):
         return triads(self, ordered)
-    def set_each_node(self, key, map, filter=None):
-        set_each_node(self, key, map, filter)
-    def set_each_edge(self, key, map, filter=None):
-        set_each_edge(self, key, map, filter)
-    def set_all_nodes(self, key, value, filter=None):
-        set_all_nodes(self, key, value, filter)
-    def set_all_edges(self, key, value, filter=None):
-        set_all_edges(self, key, value, filter)
-    def unset_nodes(self, key, filter=None):
-        unset_nodes(self, key, filter)
-    def unset_edges(self, key, filter=None):
-        unset_edges(self, key, filter)
-    def skin_seaborn(self):
-        skin_seaborn(self)
+    def set_each_node(self, key, map):
+        set_each_node(self, key, map)
+    def set_each_edge(self, key, map):
+        set_each_edge(self, key, map)
+    def set_all_nodes(self, key, value):
+        set_all_nodes(self, key, value)
+    def set_all_edges(self, key, value):
+        set_all_edges(self, key, value)
+    def unset_nodes(self, key):
+        unset_nodes(self, key)
+    def unset_edges(self, key):
+        unset_edges(self, key)
     def colorize_communities(self, C):
         colorize_communities(self, C)
+    def skin_seaborn(self):
+        skin_seaborn(self)

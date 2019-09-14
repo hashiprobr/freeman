@@ -34,14 +34,14 @@ def _value(df, col):
 
 
 def _items(df, cols):
-    data = pd.DataFrame()
+    data = {}
     for col in cols:
         if col is not None:
             if isinstance(col, Log):
                 data[col.wrapped] = _log(df, col)
             else:
                 data[col] = df[col]
-    return data
+    return pd.DataFrame(data)
 
 
 def _varzero(a):
@@ -157,14 +157,18 @@ def _reltest(a, b, max_perm):
 
 
 def set_nodeframe(g):
-    g.nodeframe = pd.DataFrame()
-    g.nodeframe['id'] = [n for n in g.nodes]
+    data = {
+        'id': g.nodes,
+    }
+    g.nodeframe = pd.DataFrame(data)
 
 
 def set_edgeframe(g):
-    g.edgeframe = pd.DataFrame()
-    g.edgeframe['source'] = [n for n, m in g.edges]
-    g.edgeframe['target'] = [m for n, m in g.edges]
+    data = {
+        'source': (n for n, m in g.edges),
+        'target': (m for n, m in g.edges),
+    }
+    g.edgeframe = pd.DataFrame(data)
 
 
 def set_nodecol(g, col, map):
