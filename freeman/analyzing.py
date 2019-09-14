@@ -203,7 +203,7 @@ def distest(df, a):
     }
     keys = data.keys()
     values = (p for _, p in data.values())
-    return pd.DataFrame(values, index=keys, columns=['p-value']).round(DEC)
+    return pd.DataFrame(values, keys, ['p-value']).round(DEC)
 
 
 def distest_nodes(g, a):
@@ -368,7 +368,7 @@ def resize_all_plots(width, height):
 
 
 def displot(df, x):
-    sns.distplot(a=df[x])
+    sns.distplot(df[x])
 
 
 def displot_nodes(g, x):
@@ -380,7 +380,7 @@ def displot_edges(g, x):
 
 
 def barplot(df, x, control=None):
-    sns.catplot(data=df, x=x, kind='count', hue=control)
+    sns.catplot(x=x, hue=control, data=df, kind='count')
 
 
 def barplot_nodes(g, x, control=None):
@@ -393,7 +393,7 @@ def barplot_edges(g, x, control=None):
 
 def linplot(df, x, y, control=None):
     data = _items(df, [x, y, control])
-    sns.lineplot(data=data, x=data.columns[0], y=data.columns[1], hue=control)
+    sns.lineplot(x=data.columns[0], y=data.columns[1], hue=control, data=data)
 
 
 def linplot_nodes(g, x, y, control=None):
@@ -406,7 +406,7 @@ def linplot_edges(g, x, y, control=None):
 
 def scaplot(df, x, y, control=None):
     data = _items(df, [x, y, control])
-    sns.scatterplot(data=data, x=data.columns[0], y=data.columns[1], hue=control)
+    sns.scatterplot(x=data.columns[0], y=data.columns[1], hue=control, data=data)
 
 
 def scaplot_nodes(g, x, y, control=None):
@@ -418,7 +418,7 @@ def scaplot_edges(g, x, y, control=None):
 
 
 def matplot(df, cols, control=None):
-    sns.pairplot(data=_items(df, [*cols, control]), vars=cols, hue=control)
+    sns.pairplot(_items(df, [*cols, control]), hue=control, vars=cols)
 
 
 def matplot_nodes(g, cols, control=None):
@@ -488,7 +488,7 @@ def corplot_edges(g, x, y):
 
 
 def boxplot(df, x, y, control=None):
-    sns.boxplot(data=df, x=x, y=y, orient='h', hue=control)
+    sns.boxplot(x=x, y=y, hue=control, data=df, orient='h')
 
 
 def boxplot_nodes(g, x, y, control=None):
