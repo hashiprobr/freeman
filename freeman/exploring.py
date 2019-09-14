@@ -119,21 +119,23 @@ def extract_edges(g, map):
 
 
 def label_nodes(g, map=None, ndigits=2):
-    for n in g.nodes:
-        if map is None:
-            g.nodes[n]['label'] = str(n)
-        else:
-            value = extract_node(g, n, map)
-            g.nodes[n]['label'] = _stringify(value, ndigits)
+    if map is None:
+        labels = (str(n) for n in g.nodes)
+    else:
+        labels = [ _stringify(extract_node(g, n, map), ndigits) for n in g.nodes]
+
+    for n, label in zip(g.nodes, labels):
+        g.nodes[n]['label'] = label
 
 
 def label_edges(g, map=None, ndigits=2):
-    for n, m in g.edges:
-        if map is None:
-            g.edges[n, m]['label'] = str((n, m))
-        else:
-            value = extract_edge(g, n, m, map)
-            g.edges[n, m]['label'] = _stringify(value, ndigits)
+    if map is None:
+        labels = (str((n, m)) for n, m in g.edges)
+    else:
+        labels = [_stringify(extract_edge(g, n, m, map), ndigits) for n, m in g.edges]
+
+    for (n, m), label in zip(g.edges, labels):
+        g.edges[n, m]['label'] = label
 
 
 def colorize_nodes(g, map=None):
