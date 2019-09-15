@@ -7,9 +7,7 @@ from .analyzing import *
 from .simulating import *
 
 
-def load(path, key='random', *args, **kwargs):
-    g = nx.read_gml(path, 'id')
-
+def init(g):
     if isinstance(g, nx.MultiGraph):
         raise NetworkXError('freeman does not support multigraphs')
 
@@ -19,7 +17,7 @@ def load(path, key='random', *args, **kwargs):
         raise ValueError('some nodes have position, but others do not: ' + ', '.join(str(n) for n in free))
 
     if free:
-        move(g, key, *args, **kwargs)
+        move(g, 'random')
     else:
         for n in g.nodes:
             x = assert_numeric(g.nodes[n]['x'])
@@ -29,6 +27,10 @@ def load(path, key='random', *args, **kwargs):
             del g.nodes[n]['y']
 
         normalize(g)
+
+
+def load(path):
+    g = nx.read_gml(path, 'id')
 
     for n in g.nodes:
         if 'border' in g.nodes[n]:
@@ -147,29 +149,15 @@ def stack_and_track(graphs, targets=None):
 
 
 class Graph(ObjectProxy):
-    def __init__(self, g):
-        super().__init__(g)
-        set_nodeframe(self)
-        set_edgeframe(self)
-
-    def copy(self):
-        return Graph(self.__wrapped__.copy())
-    def to_undirected(self):
-        return Graph(self.__wrapped__.to_undirected())
-    def to_directed(self):
-        return Graph(self.__wrapped__.to_directed())
-    def subgraph(self, nodes):
-        return Graph(self.__wrapped__.subgraph(nodes))
-    def edge_subgraph(self, edges):
-        return Graph(self.__wrapped__.edge_subgraph(edges))
-    def reverse(self):
-        return Graph(self.__wrapped__.reverse())
-
     def interact(self, path=None, physics=False):
         interact(self, path, physics)
     def draw(self, toolbar=False):
         draw(self, toolbar)
 
+    def extract_nodes(self, map):
+        extract_nodes(self, map)
+    def extract_edges(self, map):
+        extract_edges(self, map)
     def label_nodes(self, map=None, ndigits=2):
         label_nodes(self, map, ndigits)
     def label_edges(self, map=None, ndigits=2):
@@ -285,6 +273,11 @@ class Graph(ObjectProxy):
     def corplot_graph(self, nodes, weight='weight'):
         return corplot_graph(self, nodes, weight)
 
+    def __init__(self, g):
+        super().__init__(g)
+        init(self)
+        set_nodeframe(self)
+        set_edgeframe(self)
     def dyads(self, ordered=False):
         return dyads(self, ordered)
     def triads(self, ordered=False):
@@ -305,3 +298,16 @@ class Graph(ObjectProxy):
         colorize_communities(self, C)
     def skin_seaborn(self):
         skin_seaborn(self)
+
+    def copy(self):
+        return Graph(self.__wrapped__.copy())
+    def to_undirected(self):
+        return Graph(self.__wrapped__.to_undirected())
+    def to_directed(self):
+        return Graph(self.__wrapped__.to_directed())
+    def subgraph(self, nodes):
+        return Graph(self.__wrapped__.subgraph(nodes))
+    def edge_subgraph(self, edges):
+        return Graph(self.__wrapped__.edge_subgraph(edges))
+    def reverse(self):
+        return Graph(self.__wrapped__.reverse())
