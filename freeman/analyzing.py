@@ -539,8 +539,8 @@ def corplot_graph(g, nodes, weight='weight', plot=True):
     other = [m for m in g.nodes if m not in nodes and g.degree(m) > 0]
     nodes = [n for n in nodes if g.degree(n) > 0]
 
-    observed = pd.DataFrame([g.edges[n, m].get(weight, 1) if g.has_edge(n, m) else 0 for n in nodes] for m in other)
-
+    data = ([g.edges[n, m].get(weight, 1) if g.has_edge(n, m) else 0 for m in other] for n in nodes)
+    observed = pd.DataFrame(data, nodes, other)
     ca = CA()
     ca.fit(observed)
 

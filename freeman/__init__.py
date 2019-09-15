@@ -28,6 +28,9 @@ def init(g):
 
         normalize(g)
 
+    set_nodeframe(g)
+    set_edgeframe(g)
+
 
 def load(path):
     g = nx.read_gml(path, 'id')
@@ -276,8 +279,6 @@ class Graph(ObjectProxy):
     def __init__(self, g):
         super().__init__(g)
         init(self)
-        set_nodeframe(self)
-        set_edgeframe(self)
     def dyads(self, ordered=False):
         return dyads(self, ordered)
     def triads(self, ordered=False):
