@@ -80,8 +80,7 @@ def assert_numeric(value):
 
 
 def assert_numerics(values):
-    for value in values:
-        yield assert_numeric(value)
+    return (assert_numeric(value) for value in values)
 
 
 def extract_node(g, n, map):
@@ -109,20 +108,18 @@ def extract_edge(g, n, m, map):
 
 
 def extract_nodes(g, map):
-    for n in g.nodes:
-        yield extract_node(g, n, map)
+    return (extract_node(g, n, map) for n in g.nodes)
 
 
 def extract_edges(g, map):
-    for n, m in g.edges:
-        yield extract_edge(g, n, m, map)
+    return (extract_edge(g, n, m, map) for n, m in g.edges)
 
 
 def label_nodes(g, map=None, ndigits=2):
     if map is None:
         labels = (str(n) for n in g.nodes)
     else:
-        labels = [_stringify(extract_node(g, n, map), ndigits) for n in g.nodes]
+        labels = tuple(_stringify(extract_node(g, n, map), ndigits) for n in g.nodes)
 
     for n, label in zip(g.nodes, labels):
         g.nodes[n]['label'] = label
@@ -132,7 +129,7 @@ def label_edges(g, map=None, ndigits=2):
     if map is None:
         labels = (str((n, m)) for n, m in g.edges)
     else:
-        labels = [_stringify(extract_edge(g, n, m, map), ndigits) for n, m in g.edges]
+        labels = tuple(_stringify(extract_edge(g, n, m, map), ndigits) for n, m in g.edges)
 
     for (n, m), label in zip(g.edges, labels):
         g.edges[n, m]['label'] = label

@@ -11,7 +11,7 @@ def init(g):
     if isinstance(g, nx.MultiGraph):
         raise NetworkXError('freeman does not support multigraphs')
 
-    free = [n for n in g.nodes if 'x' not in g.nodes[n] or 'y' not in g.nodes[n]]
+    free = tuple(n for n in g.nodes if 'x' not in g.nodes[n] or 'y' not in g.nodes[n])
 
     if len(free) > 0 and len(free) < g.number_of_nodes():
         raise ValueError('some nodes have position, but others do not: ' + ', '.join(str(n) for n in free))
@@ -223,22 +223,22 @@ class Graph(ObjectProxy):
         return logregress_nodes(self, X, y, *args, **kwargs)
     def logregress_edges(self, X, y, *args, **kwargs):
         return logregress_edges(self, X, y, *args, **kwargs)
-    def intencode_nodes(self, x, order=None):
-        return intencode_nodes(self, x, order)
-    def intencode_edges(self, x, order=None):
-        return intencode_edges(self, x, order)
-    def binencode_nodes(self, x):
-        return binencode_nodes(self, x)
-    def binencode_edges(self, x):
-        return binencode_edges(self, x)
-    def displot_nodes(self, x):
-        displot_nodes(self, x)
-    def displot_edges(self, x):
-        displot_edges(self, x)
-    def barplot_nodes(self, x, control=None):
-        barplot_nodes(self, x, control)
-    def barplot_edges(self, x, control=None):
-        barplot_edges(self, x, control)
+    def intencode_nodes(self, col, order=None):
+        return intencode_nodes(self, col, order)
+    def intencode_edges(self, col, order=None):
+        return intencode_edges(self, col, order)
+    def binencode_nodes(self, col):
+        return binencode_nodes(self, col)
+    def binencode_edges(self, col):
+        return binencode_edges(self, col)
+    def displot_nodes(self, a):
+        displot_nodes(self, a)
+    def displot_edges(self, a):
+        displot_edges(self, a)
+    def barplot_nodes(self, a, control=None):
+        barplot_nodes(self, a, control)
+    def barplot_edges(self, a, control=None):
+        barplot_edges(self, a, control)
     def linplot_nodes(self, x, y, control=None):
         linplot_nodes(self, x, y, control)
     def linplot_edges(self, x, y, control=None):
@@ -251,14 +251,10 @@ class Graph(ObjectProxy):
         matplot_nodes(self, cols, control)
     def matplot_edges(self, cols, control=None):
         matplot_edges(self, cols, control)
-    def hexplot_nodes(self, x, y):
-        hexplot_nodes(self, x, y)
-    def hexplot_edges(self, x, y):
-        hexplot_edges(self, x, y)
-    def valcount_nodes(self, x, order=None, transpose=False):
-        return valcount_nodes(self, x, order, transpose)
-    def valcount_edges(self, x, order=None, transpose=False):
-        return valcount_edges(self, x, order, transpose)
+    def valcount_nodes(self, a, order=None, transpose=False):
+        return valcount_nodes(self, a, order, transpose)
+    def valcount_edges(self, a, order=None, transpose=False):
+        return valcount_edges(self, a, order, transpose)
     def contable_nodes(self, x, y):
         return contable_nodes(self, x, y)
     def contable_edges(self, x, y):

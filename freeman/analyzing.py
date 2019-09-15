@@ -23,62 +23,54 @@ DPI = 100
 DEC = 6
 
 
-def _log(df, col):
-    return df[col.wrapped].apply(lambda x: log(x) + col.shift)
-
-
-def _value(df, col):
-    if isinstance(col, Log):
-        return _log(df, col)
-    return df[col]
-
-
-def _items(df, cols):
-    data = {}
-    for col in cols:
-        if col is not None:
-            if isinstance(col, Log):
-                data[col.wrapped] = _log(df, col)
-            else:
-                data[col] = df[col]
-    return pd.DataFrame(data)
-
-
 def _varzero(a):
     return isclose(variance(a), 0)
 
 
-def _population(iterable):
-    if isinstance(iterable, (tuple, list, set)):
-        return iterable
-    return tuple(iterable)
-
-
 def _product(population, k, max_perm):
-    for _ in range(max_perm):
-        yield choices(population, k=k)
+    return (choices(population, k=k) for _ in range(max_perm))
 
 
 def _permutations(population, max_perm):
-    for _ in range(max_perm):
-        yield sample(population, len(population))
+    return (sample(population, len(population)) for _ in range(max_perm))
 
 
-def _crosstab(x, y, margins, normalize):
-    if not isinstance(x, pd.Series):
-        x = pd.Series(x)
-    if not isinstance(y, pd.Series):
-        y = pd.Series(y)
-    return pd.crosstab(x, y, margins=margins, normalize=normalize)
+def _series(iterable):
+    if iterable is None:
+        return None
+    if isinstance(iterable, pd.Series):
+        return iterable
+    if isinstance(iterable, Log):
+        return _series(iterable.wrapped).apply(lambda v: log(v) + iterable.shift)
+    return pd.Series(iterable)
+
+
+def _iterable(df, col):
+    if col is None:
+        return None
+    if isinstance(col, Log):
+        return Log(df[col.wrapped], col.shift)
+    return df[col]
+
+
+def _nf(g, col):
+    return _iterable(g.nodeframe, col)
+
+
+def _ef(g, col):
+    return _iterable(g.edgeframe, col)
 
 
 def _cortest(x, y, max_perm):
+    x = _series(x)
+    y = _series(y)
     r, p = pearsonr(x, y)
     if max_perm is not None:
+        population = tuple(y)
         if max_perm == 0:
-            resamples = permutations(y)
+            resamples = permutations(population)
         else:
-            resamples = _permutations(_population(y), max_perm)
+            resamples = _permutations(population, max_perm)
         above = 0
         total = 0
         for resample in resamples:
@@ -91,7 +83,9 @@ def _cortest(x, y, max_perm):
 
 
 def _chitest(x, y, max_perm):
-    observed = _crosstab(x, y, False, False)
+    x = _series(x)
+    y = _series(y)
+    observed = pd.crosstab(x, y)
     chi2, p, _, _ = chi2_contingency(observed)
     n = observed.sum().sum()
     r, k = observed.shape
@@ -100,10 +94,11 @@ def _chitest(x, y, max_perm):
     r -= (r - 1)**2 / (n - 1)
     v = sqrt(phi2 / min(k - 1, r - 1))
     if max_perm is not None:
+        population = tuple(y)
         if max_perm == 0:
-            resamples = permutations(y)
+            resamples = permutations(population)
         else:
-            resamples = _permutations(_population(y), max_perm)
+            resamples = _permutations(population, max_perm)
         above = 0
         total = 0
         for resample in resamples:
@@ -116,23 +111,25 @@ def _chitest(x, y, max_perm):
 
 
 def _indtest(a, b, max_perm):
+    a = _series(a)
+    b = _series(b)
     length = len(a)
     if length < 2 or len(b) < 2 or (_varzero(a) and _varzero(b)):
         return None
     t, p = ttest_ind(a, b, equal_var=False)
     if max_perm is not None:
-        iterable = chain(a, b)
+        population = tuple(a) + tuple(b)
         if max_perm == 0:
-            resamples = permutations(iterable)
+            resamples = permutations(population)
         else:
-            resamples = _permutations(_population(iterable), max_perm)
+            resamples = _permutations(population, max_perm)
         above = 0
         total = 0
         for resample in resamples:
             result = _indtest(resample[:length], resample[length:], None)
             if result is None:
                 return None
-            result, _ = result
+            result = result[0]
             if (t < 0 and result <= t) or t == 0 or (t > 0 and result >= t):
                 above += 1
             total += 1
@@ -141,16 +138,18 @@ def _indtest(a, b, max_perm):
 
 
 def _reltest(a, b, max_perm):
+    a = _series(a)
+    b = _series(b)
     length = len(a)
     if length < 2 or length != len(b) or _varzero(A - B for A, B in zip(a, b)):
         return None
     t, p = ttest_rel(a, b)
     if max_perm is not None:
-        iterable = (False, True)
+        population = (False, True)
         if max_perm == 0:
-            resamples = product(iterable, repeat=length)
+            resamples = product(population, repeat=length)
         else:
-            resamples = _product(_population(iterable), length, max_perm)
+            resamples = _product(population, length, max_perm)
         above = 0
         total = 0
         for resample in resamples:
@@ -166,7 +165,7 @@ def _reltest(a, b, max_perm):
             result = _reltest(resample_a, resample_b, None)
             if result is None:
                 return None
-            result, _ = result
+            result = result[0]
             if (t < 0 and result <= t) or t == 0 or (t > 0 and result >= t):
                 above += 1
             total += 1
@@ -203,21 +202,22 @@ def concat(dfs, col):
     return pd.concat(dfs.values())
 
 
-def concat_nodeframes(graphs, col):
+def concat_nodes(graphs, col):
     return concat({key: g.nodeframe for key, g in graphs.items()}, col)
 
 
-def concat_edgeframes(graphs, col):
+def concat_edges(graphs, col):
     return concat({key: g.edgeframe for key, g in graphs.items()}, col)
 
 
-def distest(df, a):
+def distest(a):
+    a = _series(a)
     data = {
-        'Shapiro-Wilk (normal)': shapiro(df[a]),
-        'D\'Agostino-Pearson (normal)': normaltest(df[a]),
-        'Kolmogorov-Smirnov (normal)': kstest(df[a], 'norm', norm.fit(df[a])),
-        'Kolmogorov-Smirnov (powerlaw)': kstest(df[a], 'powerlaw', powerlaw.fit(df[a])),
-        'Kolmogorov-Smirnov (exponential)': kstest(df[a], 'expon', expon.fit(df[a])),
+        'Shapiro-Wilk (normal)': shapiro(a),
+        'D\'Agostino-Pearson (normal)': normaltest(a),
+        'Kolmogorov-Smirnov (normal)': kstest(a, 'norm', norm.fit(a)),
+        'Kolmogorov-Smirnov (powerlaw)': kstest(a, 'powerlaw', powerlaw.fit(a)),
+        'Kolmogorov-Smirnov (exponential)': kstest(a, 'expon', expon.fit(a)),
     }
     keys = data.keys()
     values = (p for _, p in data.values())
@@ -225,44 +225,45 @@ def distest(df, a):
 
 
 def distest_nodes(g, a):
-    return distest(g.nodeframe, a)
+    return distest(_nf(g, a))
 
 
 def distest_edges(g, a):
-    return distest(g.edgeframe, a)
+    return distest(_ef(g, a))
 
 
-def cortest(df, x, y, max_perm=None):
-    r, p = _cortest(_value(df, x), _value(df, y), max_perm)
+def cortest(x, y, max_perm=None):
+    r, p = _cortest(x, y, max_perm)
     return round(r, DEC), round(p, DEC)
 
 
 def cortest_nodes(g, x, y, max_perm=None):
-    return cortest(g.nodeframe, x, y, max_perm)
+    return cortest(_nf(g, x), _nf(g, y), max_perm)
 
 
 def cortest_edges(g, x, y, max_perm=None):
-    return cortest(g.edgeframe, x, y, max_perm)
+    return cortest(_ef(g, x), _ef(g, y), max_perm)
 
 
-def chitest(df, x, y, max_perm=None):
-    v, p = _chitest(df[x], df[y], max_perm)
+def chitest(x, y, max_perm=None):
+    v, p = _chitest(x, y, max_perm)
     return round(v, DEC), round(p, DEC)
 
 
 def chitest_nodes(g, x, y, max_perm=None):
-    return chitest(g.nodeframe, x, y, max_perm)
+    return chitest(_nf(g, x), _nf(g, y), max_perm)
 
 
 def chitest_edges(g, x, y, max_perm=None):
-    return chitest(g.edgeframe, x, y, max_perm)
+    return chitest(_ef(g, x), _ef(g, y), max_perm)
 
 
 def sintest(a, mean):
+    a = _series(a)
     if len(a) < 2 or _varzero(a):
         return None
-    result = ttest_1samp(a, mean)
-    return round(result[1], DEC)
+    _, p = ttest_1samp(a, mean)
+    return round(p, DEC)
 
 
 def indtest(a, b, max_perm=None):
@@ -272,108 +273,106 @@ def indtest(a, b, max_perm=None):
     return result
 
 
-def reltest(df, a, b, max_perm=None):
-    result = _reltest(df[a], df[b], max_perm)
+def reltest(a, b, max_perm=None):
+    result = _reltest(a, b, max_perm)
     if result is not None:
         result = round(result[1], DEC)
     return result
 
 
 def reltest_nodes(g, a, b, max_perm=None):
-    return reltest(g.nodeframe, a, b, max_perm)
+    return reltest(_nf(g, a), _nf(g, b), max_perm)
 
 
 def reltest_edges(g, a, b, max_perm=None):
-    return reltest(g.edgeframe, a, b, max_perm)
+    return reltest(_ef(g, a), _ef(g, b), max_perm)
 
 
-def mixtest(df, x, y, max_perm=None):
+def mixtest(x, y, max_perm=None):
     data = {}
-    for value in df[y]:
-        if value not in data:
-            data[value] = df[df[y] == value][x]
-    results = {}
-    for a, b in combinations(data, 2):
-        result = _indtest(data[a], data[b], max_perm)
-        if result is not None:
-            result = round(result[1], DEC)
-        results[a, b] = result
-    return results
+    for X, Y in zip(x, y):
+        if Y not in data:
+            data[Y] = []
+        data[Y].append(X)
+    result = {}
+    for y1, y2 in combinations(data, 2):
+        result[y1, y2] = indtest(data[y1], data[y2], max_perm)
+    return result
 
 
 def mixtest_nodes(g, x, y, max_perm=None):
-    return mixtest(g.nodeframe, x, y, max_perm)
+    return mixtest(_nf(g, x), _nf(g, y), max_perm)
 
 
 def mixtest_edges(g, x, y, max_perm=None):
-    return mixtest(g.edgeframe, x, y, max_perm)
+    return mixtest(_ef(g, x), _ef(g, y), max_perm)
 
 
-def linregress(df, X, y, *args, **kwargs):
-    dfX = _items(df, X)
-    dfy = _value(df, y)
-    model = OLS(dfy, dfX)
+def linregress(X, y, *args, **kwargs):
+    X = (_series(x) for x in X)
+    y = _series(y)
+    model = OLS(y, X)
     result = model.fit(*args, **kwargs)
     return result.summary()
 
 
 def linregress_nodes(g, X, y, *args, **kwargs):
-    return linregress(g.nodeframe, X, y, *args, **kwargs)
+    return linregress((_nf(g, x) for x in X), _nf(g, y), *args, **kwargs)
 
 
 def linregress_edges(g, X, y, *args, **kwargs):
-    return linregress(g.edgeframe, X, y, *args, **kwargs)
+    return linregress((_ef(g, x) for x in X), _ef(g, y), *args, **kwargs)
 
 
-def logregress(df, X, y, *args, **kwargs):
-    dfX = _items(df, X)
-    dfy = df[y]
-    model = Logit(dfy, dfX)
+def logregress(X, y, *args, **kwargs):
+    X = (_series(x) for x in X)
+    y = _series(y)
+    model = Logit(y, X)
     result = model.fit(*args, **kwargs)
     return result.summary()
 
 
 def logregress_nodes(g, X, y, *args, **kwargs):
-    return logregress(g.nodeframe, X, y, *args, **kwargs)
+    return logregress((_nf(g, x) for x in X), _nf(g, y), *args, **kwargs)
 
 
 def logregress_edges(g, X, y, *args, **kwargs):
-    return logregress(g.edgeframe, X, y, *args, **kwargs)
+    return logregress((_ef(g, x) for x in X), _ef(g, y), *args, **kwargs)
 
 
-def intencode(df, x, order=None):
-    dfX = tuple(zip(df[x]))
+def intencode(df, col, order=None):
+    A = tuple(zip(df[col]))
     encoder = OrdinalEncoder('auto' if order is None else [order])
-    X = zip(*encoder.fit_transform(dfX))
-    col = x + '_order'
-    df[col] = next(X)
+    A = zip(*encoder.fit_transform(A))
+    col += '_order'
+    df[col] = next(A)
     return col
 
 
-def intencode_nodes(g, x, order=None):
-    return intencode(g.nodeframe, x, order)
+def intencode_nodes(g, col, order=None):
+    return intencode(g.nodeframe, col, order)
 
 
 def intencode_edges(g, x, order=None):
-    return intencode(g.edgeframe, x, order)
+    return intencode(g.edgeframe, col, order)
 
 
-def binencode(df, x):
-    dfX = tuple(zip(df[x]))
+def binencode(df, col):
+    A = tuple(zip(df[col]))
     encoder = OneHotEncoder(categories='auto', sparse=False)
-    X = zip(*encoder.fit_transform(dfX))
-    cols = encoder.get_feature_names([x])
-    for x, col in zip(X, cols):
-        df[col] = x
+    A = zip(*encoder.fit_transform(A))
+    cols = encoder.get_feature_names([col])
+    for a, col in zip(A, cols):
+        df[col] = a
     return tuple(cols)
 
 
-def binencode_nodes(g, x):
-    return binencode(g.nodeframe, x)
+def binencode_nodes(g, col):
+    return binencode(g.nodeframe, col)
 
 
-def binencode_edges(g, x):
-    return binencode(g.edgeframe, x)
+def binencode_edges(g, col):
+    return binencode(g.edgeframe, col)
 
 
 def resize_next_plot(width, height):
@@ -385,82 +384,76 @@ def resize_all_plots(width, height):
     plt.rcParams['figure.dpi'] = DPI
 
 
-def displot(df, x):
-    sns.distplot(df[x])
+def displot(a):
+    sns.distplot(_series(a))
 
 
-def displot_nodes(g, x):
-    displot(g.nodeframe, x)
+def displot_nodes(g, a):
+    displot(_nf(g, a))
 
 
-def displot_edges(g, x):
-    displot(g.edgeframe, x)
+def displot_edges(g, a):
+    displot(_ef(g, a))
 
 
-def barplot(df, x, control=None):
-    sns.catplot(x=x, hue=control, data=df, kind='count')
+def barplot(a, control=None):
+    sns.countplot(x=_series(a), hue=_series(control))
 
 
-def barplot_nodes(g, x, control=None):
-    barplot(g.nodeframe, x, control)
+def barplot_nodes(g, a, control=None):
+    barplot(_nf(g, a), _nf(g, control))
 
 
-def barplot_edges(g, x, control=None):
-    barplot(g.edgeframe, x, control)
+def barplot_edges(g, a, control=None):
+    barplot(_ef(g, a), _ef(g, control))
 
 
-def linplot(df, x, y, control=None):
-    data = _items(df, [x, y, control])
-    sns.lineplot(x=data.columns[0], y=data.columns[1], hue=control, data=data)
+def linplot(x, y, control=None):
+    sns.lineplot(x=_series(x), y=_series(y), hue=_series(control))
 
 
 def linplot_nodes(g, x, y, control=None):
-    linplot(g.nodeframe, x, y, control)
+    linplot(_nf(g, x), _nf(g, y), _nf(g, control))
 
 
 def linplot_edges(g, x, y, control=None):
-    linplot(g.edgeframe, x, y, control)
+    linplot(_ef(g, x), _ef(g, y), _ef(g, control))
 
 
-def scaplot(df, x, y, control=None):
-    data = _items(df, [x, y, control])
-    sns.scatterplot(x=data.columns[0], y=data.columns[1], hue=control, data=data)
+def scaplot(x, y, control=None):
+    sns.scatterplot(x=_series(x), y=_series(y), hue=_series(control))
 
 
 def scaplot_nodes(g, x, y, control=None):
-    scaplot(g.nodeframe, x, y, control)
+    scaplot(_nf(g, x), _nf(g, y), _nf(g, control))
 
 
 def scaplot_edges(g, x, y, control=None):
-    scaplot(g.edgeframe, x, y, control)
+    scaplot(_ef(g, x), _ef(g, y), _ef(g, control))
 
 
-def matplot(df, cols, control=None):
-    sns.pairplot(_items(df, [*cols, control]), hue=control, vars=cols)
+def matplot(cols, control=None):
+    cols = tuple(_series(col) for col in (*cols, control))
+    for i, col in enumerate(cols):
+        if col is not None:
+            if col.name is None:
+                col.name = i
+    df = pd.concat(cols, axis=1)
+    cols = tuple(None if col is None else col.name for col in cols)
+    sns.pairplot(df, cols[-1], vars=cols[:-1])
 
 
 def matplot_nodes(g, cols, control=None):
-    matplot(g.nodeframe, cols, control)
+    matplot((_nf(g, col) for col in cols), _nf(g, control))
 
 
 def matplot_edges(g, cols, control=None):
-    matplot(g.edgeframe, cols, control)
+    matplot((_ef(g, col) for col in cols), _ef(g, control))
 
 
-def hexplot(df, x, y):
-    sns.jointplot(_value(df, x), _value(df, y), data=df, kind='hex')
-
-
-def hexplot_nodes(g, x, y):
-    hexplot(g.nodeframe, x, y)
-
-
-def hexplot_edges(g, x, y):
-    hexplot(g.edgeframe, x, y)
-
-
-def valcount(df, x, order=None, transpose=False):
-    data = pd.DataFrame(df[x].value_counts(True))
+def valcount(a, order=None, transpose=False):
+    a = _series(a)
+    data = pd.DataFrame(a.value_counts(True))
     data = data.round(2)
     if order is not None:
         data = data.reindex(order)
@@ -470,51 +463,58 @@ def valcount(df, x, order=None, transpose=False):
     return data
 
 
-def valcount_nodes(g, x, order=None, transpose=False):
-    return valcount(g.nodeframe, x, order, transpose)
+def valcount_nodes(g, a, order=None, transpose=False):
+    return valcount(_nf(g, a), order, transpose)
 
 
-def valcount_edges(g, x, order=None, transpose=False):
-    return valcount(g.edgeframe, x, order, transpose)
+def valcount_edges(g, a, order=None, transpose=False):
+    return valcount(_ef(g, a), order, transpose)
 
 
-def contable(df, x, y):
-    return _crosstab(df[x], df[y], True, True)
+def contable(x, y):
+    return pd.crosstab(_series(x), _series(y), margins=True, normalize=True)
 
 
 def contable_nodes(g, x, y):
-    return contable(g.nodeframe, x, y)
+    return contable(_nf(g, x), _nf(g, y))
 
 
 def contable_edges(g, x, y):
-    return contable(g.edgeframe, x, y)
+    return contable(_ef(g, x), _ef(g, y))
 
 
-def corplot(df, x, y):
-    observed = _crosstab(df[y], df[x], False, False)
+def corplot(x, y):
+    observed = pd.crosstab(_series(x), _series(y))
     ca = CA()
     ca.fit(observed)
     ca.plot_coordinates(observed)
 
 
 def corplot_nodes(g, x, y):
-    corplot(g.nodeframe, x, y)
+    corplot(_nf(g, x), _nf(g, y))
 
 
 def corplot_edges(g, x, y):
-    corplot(g.edgeframe, x, y)
+    corplot(_ef(g, x), _ef(g, y))
 
 
-def boxplot(df, x, y, control=None):
-    sns.boxplot(x=x, y=y, hue=control, data=df, orient='h')
+def boxplot(x, y, control=None):
+    cols = tuple(_series(col) for col in (x, y, control))
+    for name, col in zip(('x', 'y', 'control'), cols):
+        if col is not None:
+            if col.name is None:
+                col.name = name
+    df = pd.concat(cols, axis=1)
+    cols = tuple(None if col is None else col.name for col in cols)
+    sns.boxplot(x=cols[0], y=cols[1], hue=cols[2], data=df, orient='h')
 
 
 def boxplot_nodes(g, x, y, control=None):
-    boxplot(g.nodeframe, x, y, control)
+    boxplot(_nf(g, x), _nf(g, y), _nf(g, control))
 
 
 def boxplot_edges(g, x, y, control=None):
-    boxplot(g.edgeframe, x, y, control)
+    boxplot(_ef(g, x), _ef(g, y), _ef(g, control))
 
 
 def girvan_newman(g):
@@ -548,16 +548,16 @@ def girvan_newman(g):
         clusters[j] = None
         clusters.append(c)
 
-    labels = (g.nodes[n].get('label', str(n)) for n in g.nodes)
+    labels = tuple(g.nodes[n].get('label', str(n)) for n in g.nodes)
 
     dendrogram(linkage, orientation='right', labels=labels)
 
 
 def corplot_graph(g, nodes, weight='weight', plot=True):
-    other = [m for m in g.nodes if m not in nodes and g.degree(m) > 0]
-    nodes = [n for n in nodes if g.degree(n) > 0]
+    other = tuple(m for m in g.nodes if m not in nodes and g.degree(m) > 0)
+    nodes = tuple(n for n in nodes if g.degree(n) > 0)
 
-    data = ([g.edges[n, m].get(weight, 1) if g.has_edge(n, m) else 0 for m in other] for n in nodes)
+    data = (tuple(g.edges[n, m].get(weight, 1) if g.has_edge(n, m) else 0 for m in other) for n in nodes)
     observed = pd.DataFrame(data, nodes, other)
     ca = CA()
     ca.fit(observed)

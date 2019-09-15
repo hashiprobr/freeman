@@ -664,10 +664,10 @@ class Animation:
         height = 1.00 * height + 76
 
         steps = []
-        for index, frame in enumerate(frames):
-            frame['name'] = index
+        for i, frame in enumerate(frames):
+            frame['name'] = i
             step = {
-                'args': [[index], {'frame': {'redraw': False}, 'mode': 'immediate'}],
+                'args': [[i], {'frame': {'redraw': False}, 'mode': 'immediate'}],
                 'label': '',
                 'method': 'animate',
             }
