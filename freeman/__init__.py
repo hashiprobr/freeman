@@ -65,13 +65,13 @@ def triads(g, ordered=False):
 
 
 def set_each_node(g, key, map):
-    values = list(extract_nodes(g, map))
+    values = tuple(extract_nodes(g, map))
     for n, value in zip(g.nodes, values):
         g.nodes[n][key] = value
 
 
 def set_each_edge(g, key, map):
-    values = list(extract_edges(g, map))
+    values = tuple(extract_edges(g, map))
     for (n, m), value in zip(g.edges, values):
         g.edges[n, m][key] = value
 

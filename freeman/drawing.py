@@ -253,9 +253,11 @@ def _build_node_trace(size, style, border, color, labpos):
     if labpos == 'hover':
         hoverinfo = 'text'
         mode = 'markers'
+        textposition = 'middle center'
     else:
         hoverinfo = 'none'
         mode = 'markers+text'
+        textposition = labpos
 
     textcolor = (0, 0, 0)
 
@@ -282,7 +284,7 @@ def _build_node_trace(size, style, border, color, labpos):
                 'color': 'rgb(0, 0, 0)',
             },
         },
-        'textposition': 'middle center' if labpos == 'hover' else labpos,
+        'textposition': textposition,
         'textfont': {
             'color': _convert(textcolor),
         },

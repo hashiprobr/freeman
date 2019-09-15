@@ -48,18 +48,28 @@ def _varzero(a):
     return isclose(variance(a), 0)
 
 
-def _product(iterable, size, max_perm):
+def _population(iterable):
+    if isinstance(iterable, (tuple, list, set)):
+        return iterable
+    return tuple(iterable)
+
+
+def _product(population, k, max_perm):
     for _ in range(max_perm):
-        yield choices(iterable, k=size)
+        yield choices(population, k=k)
 
 
-def _permutations(iterable, max_perm):
-    if hasattr(iterable, '__len__'):
-        population = iterable
-    else:
-        population = list(iterable)
+def _permutations(population, max_perm):
     for _ in range(max_perm):
         yield sample(population, len(population))
+
+
+def _crosstab(x, y, margins, normalize):
+    if not isinstance(x, pd.Series):
+        x = pd.Series(x)
+    if not isinstance(y, pd.Series):
+        y = pd.Series(y)
+    return pd.crosstab(x, y, margins=margins, normalize=normalize)
 
 
 def _cortest(x, y, max_perm):
@@ -68,7 +78,7 @@ def _cortest(x, y, max_perm):
         if max_perm == 0:
             resamples = permutations(y)
         else:
-            resamples = _permutations(y, max_perm)
+            resamples = _permutations(_population(y), max_perm)
         above = 0
         total = 0
         for resample in resamples:
@@ -81,7 +91,7 @@ def _cortest(x, y, max_perm):
 
 
 def _chitest(x, y, max_perm):
-    observed = pd.crosstab(pd.Series(x), pd.Series(y))
+    observed = _crosstab(x, y, False, False)
     chi2, p, _, _ = chi2_contingency(observed)
     n = observed.sum().sum()
     r, k = observed.shape
@@ -93,7 +103,7 @@ def _chitest(x, y, max_perm):
         if max_perm == 0:
             resamples = permutations(y)
         else:
-            resamples = _permutations(y, max_perm)
+            resamples = _permutations(_population(y), max_perm)
         above = 0
         total = 0
         for resample in resamples:
@@ -111,14 +121,18 @@ def _indtest(a, b, max_perm):
         return None
     t, p = ttest_ind(a, b, equal_var=False)
     if max_perm is not None:
+        iterable = chain(a, b)
         if max_perm == 0:
-            resamples = permutations(chain(a, b))
+            resamples = permutations(iterable)
         else:
-            resamples = _permutations(chain(a, b), max_perm)
+            resamples = _permutations(_population(iterable), max_perm)
         above = 0
         total = 0
         for resample in resamples:
-            result, _ = _indtest(resample[:length], resample[length:], None)
+            result = _indtest(resample[:length], resample[length:], None)
+            if result is None:
+                return None
+            result, _ = result
             if (t < 0 and result <= t) or t == 0 or (t > 0 and result >= t):
                 above += 1
             total += 1
@@ -128,14 +142,15 @@ def _indtest(a, b, max_perm):
 
 def _reltest(a, b, max_perm):
     length = len(a)
-    if length < 2 or length != len(b) or a == b or (_varzero(a) and _varzero(b)):
+    if length < 2 or length != len(b) or _varzero(A - B for A, B in zip(a, b)):
         return None
     t, p = ttest_rel(a, b)
     if max_perm is not None:
+        iterable = (False, True)
         if max_perm == 0:
-            resamples = product([False, True], repeat=length)
+            resamples = product(iterable, repeat=length)
         else:
-            resamples = _product([False, True], length, max_perm)
+            resamples = _product(_population(iterable), length, max_perm)
         above = 0
         total = 0
         for resample in resamples:
@@ -148,7 +163,10 @@ def _reltest(a, b, max_perm):
                 else:
                     resample_a.append(b[i])
                     resample_b.append(a[i])
-            result, _ = _reltest(resample_a, resample_b, None)
+            result = _reltest(resample_a, resample_b, None)
+            if result is None:
+                return None
+            result, _ = result
             if (t < 0 and result <= t) or t == 0 or (t > 0 and result >= t):
                 above += 1
             total += 1
@@ -172,11 +190,11 @@ def set_edgeframe(g):
 
 
 def set_nodecol(g, col, map):
-    g.nodeframe[col] = list(extract_nodes(g, map))
+    g.nodeframe[col] = tuple(extract_nodes(g, map))
 
 
 def set_edgecol(g, col, map):
-    g.edgeframe[col] = list(extract_edges(g, map))
+    g.edgeframe[col] = tuple(extract_edges(g, map))
 
 
 def concat(dfs, col):
@@ -324,7 +342,7 @@ def logregress_edges(g, X, y, *args, **kwargs):
 
 
 def intencode(df, x, order=None):
-    dfX = list(zip(df[x]))
+    dfX = tuple(zip(df[x]))
     encoder = OrdinalEncoder('auto' if order is None else [order])
     X = zip(*encoder.fit_transform(dfX))
     col = x + '_order'
@@ -341,13 +359,13 @@ def intencode_edges(g, x, order=None):
 
 
 def binencode(df, x):
-    dfX = list(zip(df[x]))
+    dfX = tuple(zip(df[x]))
     encoder = OneHotEncoder(categories='auto', sparse=False)
     X = zip(*encoder.fit_transform(dfX))
     cols = encoder.get_feature_names([x])
     for x, col in zip(X, cols):
         df[col] = x
-    return list(cols)
+    return tuple(cols)
 
 
 def binencode_nodes(g, x):
@@ -461,7 +479,7 @@ def valcount_edges(g, x, order=None, transpose=False):
 
 
 def contable(df, x, y):
-    return pd.crosstab(df[x], df[y], margins=True, normalize=True)
+    return _crosstab(df[x], df[y], True, True)
 
 
 def contable_nodes(g, x, y):
@@ -473,7 +491,7 @@ def contable_edges(g, x, y):
 
 
 def corplot(df, x, y):
-    observed = pd.crosstab(df[y], df[x])
+    observed = _crosstab(df[y], df[x], False, False)
     ca = CA()
     ca.fit(observed)
     ca.plot_coordinates(observed)
@@ -504,7 +522,7 @@ def girvan_newman(g):
     linkage = []
     clusters = []
 
-    for C in reversed(list(nx.community.girvan_newman(g))):
+    for C in reversed(tuple(nx.community.girvan_newman(g))):
         for c in C:
             if c not in clusters:
                 if len(c) > 1:
