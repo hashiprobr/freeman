@@ -50,8 +50,8 @@ def normalize(g):
 
 
 def scatter(g, xmap, ymap):
-    X = tuple(assert_numerics(extract_nodes(g, xmap)))
-    Y = tuple(assert_numerics(extract_nodes(g, ymap)))
+    X = list(assert_numerics(extract_nodes(g, xmap)))
+    Y = list(assert_numerics(extract_nodes(g, ymap)))
 
     for n, x, y in zip(g.nodes, X, Y):
         g.nodes[n]['pos'] = (x, y)

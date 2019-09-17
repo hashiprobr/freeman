@@ -24,7 +24,7 @@ def _transform(h, s, v):
 
 
 def _assert_bounds(iterable, lower, upper):
-    values = tuple(assert_numerics(iterable))
+    values = list(assert_numerics(iterable))
 
     if lower is None:
         lower = min(values)
@@ -119,7 +119,7 @@ def label_nodes(g, map=None, ndigits=2):
     if map is None:
         labels = (str(n) for n in g.nodes)
     else:
-        labels = tuple(_stringify(extract_node(g, n, map), ndigits) for n in g.nodes)
+        labels = [_stringify(extract_node(g, n, map), ndigits) for n in g.nodes]
 
     for n, label in zip(g.nodes, labels):
         g.nodes[n]['label'] = label
@@ -129,7 +129,7 @@ def label_edges(g, map=None, ndigits=2):
     if map is None:
         labels = (str((n, m)) for n, m in g.edges)
     else:
-        labels = tuple(_stringify(extract_edge(g, n, m, map), ndigits) for n, m in g.edges)
+        labels = [_stringify(extract_edge(g, n, m, map), ndigits) for n, m in g.edges]
 
     for (n, m), label in zip(g.edges, labels):
         g.edges[n, m]['label'] = label
@@ -137,7 +137,7 @@ def label_edges(g, map=None, ndigits=2):
 
 def colorize_nodes(g, map=None):
     if map is None:
-        groups = tuple(zip(g.nodes))
+        groups = list(zip(g.nodes))
     else:
         groups = {}
         for n in g.nodes:
@@ -158,7 +158,7 @@ def colorize_nodes(g, map=None):
 
 def colorize_edges(g, map=None):
     if map is None:
-        groups = tuple(zip(g.edges))
+        groups = list(zip(g.edges))
     else:
         groups = {}
         for n, m in g.edges:

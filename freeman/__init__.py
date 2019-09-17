@@ -11,7 +11,22 @@ def init(g):
     if isinstance(g, nx.MultiGraph):
         raise NetworkXError('freeman does not support multigraphs')
 
-    free = tuple(n for n in g.nodes if 'x' not in g.nodes[n] or 'y' not in g.nodes[n])
+    free = [n for n in g.nodes if 'pos' not in g.nodes[n]]
+
+    if len(free) > 0 and len(free) < g.number_of_nodes():
+        raise ValueError('some nodes have position, but others do not: ' + ', '.join(str(n) for n in free))
+
+    if free:
+        move(g, 'random')
+
+    set_nodeframe(g)
+    set_edgeframe(g)
+
+
+def load(path):
+    g = nx.read_gml(path, 'id')
+
+    free = [n for n in g.nodes if 'x' not in g.nodes[n] or 'y' not in g.nodes[n]]
 
     if len(free) > 0 and len(free) < g.number_of_nodes():
         raise ValueError('some nodes have position, but others do not: ' + ', '.join(str(n) for n in free))
@@ -27,13 +42,6 @@ def init(g):
             del g.nodes[n]['y']
 
         normalize(g)
-
-    set_nodeframe(g)
-    set_edgeframe(g)
-
-
-def load(path):
-    g = nx.read_gml(path, 'id')
 
     for n in g.nodes:
         if 'border' in g.nodes[n]:
@@ -65,24 +73,32 @@ def triads(g, ordered=False):
 
 
 def set_each_node(g, key, map):
-    values = tuple(extract_nodes(g, map))
+    values = list(extract_nodes(g, map))
     for n, value in zip(g.nodes, values):
         g.nodes[n][key] = value
 
 
 def set_each_edge(g, key, map):
-    values = tuple(extract_edges(g, map))
+    values = list(extract_edges(g, map))
     for (n, m), value in zip(g.edges, values):
         g.edges[n, m][key] = value
 
 
-def set_all_nodes(g, key, value):
-    for n in g.nodes:
+def set_all_nodes(g, key, value, filter=None):
+    if filter is None:
+        nodes = g.nodes
+    else:
+        nodes = [n for n in g.nodes if filter(n)]
+    for n in nodes:
         g.nodes[n][key] = value
 
 
-def set_all_edges(g, key, value):
-    for n, m in g.edges:
+def set_all_edges(g, key, value, filter=None):
+    if filter is None:
+        edges = g.edges
+    else:
+        edges = [(n, m) for n, m in g.edges if filter(n, m)]
+    for n, m in edges:
         g.edges[n, m][key] = value
 
 
@@ -195,10 +211,10 @@ class Graph(ObjectProxy):
         set_nodecol(self, col, map)
     def set_edgecol(self, col, map):
         set_edgecol(self, col, map)
-    def distest_nodes(self, a):
-        return distest_nodes(self, a)
-    def distest_edges(self, a):
-        return distest_edges(self, a)
+    def distest_nodes(self, x):
+        return distest_nodes(self, x)
+    def distest_edges(self, x):
+        return distest_edges(self, x)
     def cortest_nodes(self, x, y, max_perm=None):
         return cortest_nodes(self, x, y, max_perm)
     def cortest_edges(self, x, y, max_perm=None):
@@ -231,14 +247,14 @@ class Graph(ObjectProxy):
         return binencode_nodes(self, col)
     def binencode_edges(self, col):
         return binencode_edges(self, col)
-    def displot_nodes(self, a):
-        displot_nodes(self, a)
-    def displot_edges(self, a):
-        displot_edges(self, a)
-    def barplot_nodes(self, a, control=None):
-        barplot_nodes(self, a, control)
-    def barplot_edges(self, a, control=None):
-        barplot_edges(self, a, control)
+    def displot_nodes(self, x):
+        displot_nodes(self, x)
+    def displot_edges(self, x):
+        displot_edges(self, x)
+    def barplot_nodes(self, x, control=None):
+        barplot_nodes(self, x, control)
+    def barplot_edges(self, x, control=None):
+        barplot_edges(self, x, control)
     def linplot_nodes(self, x, y, control=None):
         linplot_nodes(self, x, y, control)
     def linplot_edges(self, x, y, control=None):
@@ -247,10 +263,10 @@ class Graph(ObjectProxy):
         scaplot_nodes(self, x, y, control)
     def scaplot_edges(self, x, y, control=None):
         scaplot_edges(self, x, y, control)
-    def matplot_nodes(self, cols, control=None):
-        matplot_nodes(self, cols, control)
-    def matplot_edges(self, cols, control=None):
-        matplot_edges(self, cols, control)
+    def matplot_nodes(self, X, control=None):
+        matplot_nodes(self, X, control)
+    def matplot_edges(self, X, control=None):
+        matplot_edges(self, X, control)
     def valcount_nodes(self, a, order=None, transpose=False):
         return valcount_nodes(self, a, order, transpose)
     def valcount_edges(self, a, order=None, transpose=False):
@@ -283,10 +299,10 @@ class Graph(ObjectProxy):
         set_each_node(self, key, map)
     def set_each_edge(self, key, map):
         set_each_edge(self, key, map)
-    def set_all_nodes(self, key, value):
-        set_all_nodes(self, key, value)
-    def set_all_edges(self, key, value):
-        set_all_edges(self, key, value)
+    def set_all_nodes(self, key, value, filter=None):
+        set_all_nodes(self, key, value, filter)
+    def set_all_edges(self, key, value, filter=None):
+        set_all_edges(self, key, value, filter)
     def unset_nodes(self, key):
         unset_nodes(self, key)
     def unset_edges(self, key):
