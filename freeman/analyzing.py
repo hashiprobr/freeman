@@ -1,6 +1,10 @@
 import pandas as pd
-import seaborn as sns
 import networkx as nx
+
+try:
+    import seaborn as sns
+except NotImplementedError:
+    sns = None
 
 from math import isclose, sqrt, log
 from statistics import variance
@@ -9,9 +13,13 @@ from itertools import product, permutations, combinations
 from scipy.stats import shapiro, normaltest, kstest, norm, powerlaw, expon, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
 from scipy.cluster.hierarchy import dendrogram
 from statsmodels.api import OLS, Logit
-from prince import CA
 
-from matplotlib import pyplot as plt
+try:
+    from prince import CA
+
+    from matplotlib import pyplot as plt
+except NotImplementedError:
+    pass
 
 from .exploring import extract_nodes, extract_edges, Log
 from .moving import normalize
@@ -654,4 +662,5 @@ def corplot_graph(g, nodes, weight='weight', plot=True):
     return h
 
 
-sns.set()
+if sns is not None:
+    sns.set()
