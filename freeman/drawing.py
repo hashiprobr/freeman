@@ -41,8 +41,9 @@ graph_top = 0
 
 node_size = 20
 node_style = 'circle'
-node_border = True
 node_color = (255, 255, 255)
+node_bwidth = 1
+node_bcolor = (0, 0, 0)
 node_labpos = 'middle center'
 
 edge_width = 1
@@ -186,10 +187,6 @@ def _build_node_key(g, n):
     if style not in NODE_STYLES:
         raise ValueError('node style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in NODE_STYLES))
 
-    border = g.nodes[n].get('border', node_border)
-    if not isinstance(border, bool):
-        raise TypeError('node border must be a boolean')
-
     color = g.nodes[n].get('color', node_color)
     if not isinstance(color, tuple):
         raise TypeError('node color must be a tuple')
@@ -199,6 +196,22 @@ def _build_node_key(g, n):
         raise TypeError('all node color elements must be integers')
     if color[0] < 0 or color[0] > 255 or color[1] < 0 or color[1] > 255 or color[2] < 0 or color[2] > 255:
         raise ValueError('all node color elements must be between 0 and 255')
+
+    bwidth = g.nodes[n].get('bwidth', node_bwidth)
+    if not isinstance(bwidth, int):
+        raise TypeError('node bwidth must be an integer')
+    if bwidth < 0:
+        raise ValueError('node bwidth must be non-negative')
+
+    bcolor = g.nodes[n].get('bcolor', node_bcolor)
+    if not isinstance(bcolor, tuple):
+        raise TypeError('node bcolor must be a tuple')
+    if len(bcolor) != 3:
+        raise ValueError('node bcolor must have exactly three elements')
+    if not isinstance(bcolor[0], int) or not isinstance(bcolor[1], int) or not isinstance(bcolor[2], int):
+        raise TypeError('all node ncolor elements must be integers')
+    if bcolor[0] < 0 or bcolor[0] > 255 or bcolor[1] < 0 or bcolor[1] > 255 or bcolor[2] < 0 or bcolor[2] > 255:
+        raise ValueError('all node ncolor elements must be between 0 and 255')
 
     labpos = g.nodes[n].get('labpos', node_labpos)
     if not isinstance(labpos, str):
@@ -214,7 +227,7 @@ def _build_node_key(g, n):
         if words[1] not in hpos:
             raise ValueError('node horizontal position must be one of the following: ' + ', '.join('"{}"'.format(h) for h in hpos))
 
-    return size, style, border, color, labpos
+    return size, style, color, bwidth, bcolor, labpos
 
 
 def _build_edge_key(g, n, m):
@@ -264,7 +277,7 @@ def _build_edge_key(g, n, m):
     return n_size, m_size, width, style, color, labflip, labdist, labfrac
 
 
-def _build_node_trace(size, style, border, color, labpos):
+def _build_node_trace(size, style, color, bwidth, bcolor, labpos):
     if labpos == 'hover':
         hoverinfo = 'text'
         mode = 'markers'
@@ -295,8 +308,8 @@ def _build_node_trace(size, style, border, color, labpos):
             'symbol': style,
             'color': _convert(color),
             'line': {
-                'width': int(border),
-                'color': 'rgb(0, 0, 0)',
+                'width': bwidth,
+                'color': _convert(bcolor),
             },
         },
         'textposition': textposition,
@@ -459,21 +472,22 @@ def interact(g, path=None, physics=False):
     dy = local_top - dy // 2
     for n in g.nodes:
         x, y = _get_node_pos(g, n)
-        size, style, border, color, _ = _build_node_key(g, n)
-        border_color = 'rgb(0, 0, 0)'
+        size, style, color, bwidth, bcolor, _ = _build_node_key(g, n)
+        color = _convert(color)
+        bcolor = _convert(bcolor)
         options = {
-            'borderWidth': int(border),
+            'borderWidth': bwidth,
             'borderWidthSelected': 1,
             'color': {
-                'border': border_color,
-                'background': _convert(color),
+                'border': bcolor,
+                'background': color,
                 'highlight': {
-                    'border': border_color,
-                    'background': _convert(color),
+                    'border': bcolor,
+                    'background': color,
                 },
                 'hover': {
-                    'border': border_color,
-                    'background': _convert(color),
+                    'border': bcolor,
+                    'background': color,
                 },
             },
             'label': ' ',
@@ -491,11 +505,12 @@ def interact(g, path=None, physics=False):
 
     for n, m in g.edges:
         _, _, width, style, color, _, _, _ = _build_edge_key(g, n, m)
+        color = _convert(color)
         options = {
             'color': {
-                'color': _convert(color),
-                'highlight': _convert(color),
-                'hover': _convert(color),
+                'color': color,
+                'highlight': color,
+                'hover': color,
             },
             'dashes': EDGE_STYLES[style],
             'labelHighlightBold': False,
@@ -533,10 +548,10 @@ def draw(g, toolbar=False):
     node_traces = {}
     node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
     for n in g.nodes:
-        size, style, border, color, labpos = _build_node_key(g, n)
-        key = (size, style, border, color, labpos)
+        size, style, color, bwidth, bcolor, labpos = _build_node_key(g, n)
+        key = (size, style, color, bwidth, bcolor, labpos)
         if key not in node_traces:
-            node_traces[key] = _build_node_trace(size, style, border, color, labpos)
+            node_traces[key] = _build_node_trace(size, style, color, bwidth, bcolor, labpos)
         _add_node(g, n, node_traces[key])
 
     edge_traces = {}
@@ -602,12 +617,12 @@ class Animation:
         node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
         for n in h.nodes:
             if g.has_node(n):
-                size, style, border, color, labpos = _build_node_key(g, n)
-                node_trace = _build_node_trace(size, style, border, color, labpos)
+                size, style, color, bwidth, bcolor, labpos = _build_node_key(g, n)
+                node_trace = _build_node_trace(size, style, color, bwidth, bcolor, labpos)
                 _add_node(g, n, node_trace)
             else:
-                size, style, _, _, labpos = _build_node_key(h, n)
-                node_trace = _build_node_trace(size, style, False, (255, 255, 255, 0.0), labpos)
+                size, style, _, bwidth, _, labpos = _build_node_key(h, n)
+                node_trace = _build_node_trace(size, style, (255, 255, 255, 0.0), bwidth, (255, 255, 255, 0.0), labpos)
                 _add_node(h, n, node_trace)
             node_traces.append(node_trace)
 

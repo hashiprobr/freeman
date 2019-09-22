@@ -157,8 +157,8 @@ def skin_seaborn(g):
 
     set_all_nodes(g, 'size', 10)
     set_all_nodes(g, 'style', 'circle')
-    set_all_nodes(g, 'border', False)
     set_all_nodes(g, 'labpos', 'hover')
+    set_all_nodes(g, 'bwidth', 0)
 
     set_all_edges(g, 'width', 1)
     set_all_edges(g, 'style', 'solid')
