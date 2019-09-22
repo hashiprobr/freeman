@@ -157,13 +157,25 @@ def skin_seaborn(g):
 
     set_all_nodes(g, 'size', 10)
     set_all_nodes(g, 'style', 'circle')
-    set_all_nodes(g, 'labpos', 'hover')
     set_all_nodes(g, 'bwidth', 0)
+    set_all_nodes(g, 'labpos', 'hover')
 
     set_all_edges(g, 'width', 1)
     set_all_edges(g, 'style', 'solid')
     set_all_edges(g, 'color', (135, 135, 138))
     unset_edges(g, 'label')
+
+
+def skin_pyvis(g):
+    set_all_nodes(g, 'size', 50)
+    set_all_nodes(g, 'style', 'circle')
+    set_all_nodes(g, 'color', (151, 194, 252))
+    set_all_nodes(g, 'bwidth', 1)
+    set_all_nodes(g, 'bcolor', (43, 124, 233))
+
+    set_all_edges(g, 'width', 1)
+    set_all_edges(g, 'style', 'solid')
+    set_all_edges(g, 'color', (43, 124, 233))
 
 
 class Graph(ObjectProxy):
@@ -310,6 +322,8 @@ class Graph(ObjectProxy):
         colorize_communities(self, C)
     def skin_seaborn(self):
         skin_seaborn(self)
+    def skin_pyvis(self):
+        skin_pyvis(self)
 
     def copy(self):
         return Graph(self.__wrapped__.copy())
