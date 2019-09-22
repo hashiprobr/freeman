@@ -247,11 +247,6 @@ graph [
     weight 18
   ]
   edge [
-    source 3
-    target 3
-    weight 1
-  ]
-  edge [
     source 9
     target 3
     weight 6
@@ -867,11 +862,6 @@ graph [
     weight 2
   ]
   edge [
-    source 20
-    target 20
-    weight 3
-  ]
-  edge [
     source 23
     target 20
     weight 1
@@ -1042,11 +1032,6 @@ graph [
     weight 11
   ]
   edge [
-    source 24
-    target 24
-    weight 1
-  ]
-  edge [
     source 26
     target 24
     weight 5
@@ -1140,11 +1125,6 @@ graph [
     source 24
     target 26
     weight 9
-  ]
-  edge [
-    source 26
-    target 26
-    weight 6
   ]
   edge [
     source 40
@@ -1885,10 +1865,5 @@ graph [
     source 31
     target 43
     weight 1
-  ]
-  edge [
-    source 43
-    target 43
-    weight 3
   ]
 ]

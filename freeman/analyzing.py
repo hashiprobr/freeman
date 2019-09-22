@@ -5,11 +5,10 @@ import networkx as nx
 from math import isclose, sqrt, log
 from statistics import variance
 from random import choices, sample
-from itertools import chain, product, permutations, combinations
+from itertools import product, permutations, combinations
 from scipy.stats import shapiro, normaltest, kstest, norm, powerlaw, expon, pearsonr, chi2_contingency, ttest_1samp, ttest_ind, ttest_rel
 from scipy.cluster.hierarchy import dendrogram
 from statsmodels.api import OLS, Logit
-from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder
 from prince import CA
 
 from matplotlib import pyplot as plt
@@ -79,7 +78,7 @@ def _chitest(x, y, max_perm):
     y = _series(y)
     observed = pd.crosstab(x, y)
     chi2, p, _, _ = chi2_contingency(observed)
-    n = observed.sum().sum()
+    n = len(x)
     r, k = observed.shape
     phi2 = max(0, chi2 / n - ((k - 1) * (r - 1)) / (n - 1))
     k -= (k - 1)**2 / (n - 1)
@@ -106,7 +105,7 @@ def _indtest(a, b, max_perm):
     a = _series(a)
     b = _series(b)
     length = len(a)
-    if length < 2 or len(b) < 2 or (_varzero(a) and _varzero(b)):
+    if length == 0 or len(b) == 0 or (_varzero(a) and _varzero(b)):
         return None
     t, p = ttest_ind(a, b, equal_var=False)
     if max_perm is not None:
@@ -133,7 +132,7 @@ def _reltest(a, b, max_perm):
     a = _series(a)
     b = _series(b)
     length = len(a)
-    if length < 2 or length != len(b) or _varzero(A - B for A, B in zip(a, b)):
+    if length == 0 or length != len(b) or _varzero(A - B for A, B in zip(a, b)):
         return None
     t, p = ttest_rel(a, b)
     if max_perm is not None:
@@ -262,23 +261,23 @@ def chitest_edges(g, x, y, max_perm=None):
     return chitest(g.edgeframe, x, y, max_perm)
 
 
-def sintest_loose(a, mean):
+def onetest_loose(a, mean):
     a = _series(a)
-    if len(a) < 2 or _varzero(a):
+    if len(a) == 0 or _varzero(a):
         return None
     _, p = ttest_1samp(a, mean)
     return round(p, DEC)
 
 
-def sintest(df, a, mean):
-    return sintest_loose(_iterable(df, a), mean)
+def onetest(df, a, mean):
+    return onetest_loose(_iterable(df, a), mean)
 
 
 def indtest_loose(a, b, max_perm=None):
     result = _indtest(a, b, max_perm)
-    if result is not None:
-        result = round(result[1], DEC)
-    return result
+    if result is None:
+        return None
+    return round(result[1], DEC)
 
 
 def indtest(df, a, b, max_perm=None):
@@ -287,9 +286,9 @@ def indtest(df, a, b, max_perm=None):
 
 def reltest_loose(a, b, max_perm=None):
     result = _reltest(a, b, max_perm)
-    if result is not None:
-        result = round(result[1], DEC)
-    return result
+    if result is None:
+        return None
+    return round(result[1], DEC)
 
 
 def reltest(df, a, b, max_perm=None):
@@ -306,14 +305,16 @@ def reltest_edges(g, a, b, max_perm=None):
 
 def mixtest_loose(x, y, max_perm=None):
     data = {}
-    for X, Y in zip(x, y):
+    for X, Y in zip(_series(x), _series(y)):
         if Y not in data:
             data[Y] = []
         data[Y].append(X)
-    result = {}
+    result = []
+    index = []
     for y1, y2 in combinations(data, 2):
-        result[y1, y2] = indtest_loose(data[y1], data[y2], max_perm)
-    return result
+        result.append(indtest_loose(data[y1], data[y2], max_perm))
+        index.append('{}, {}'.format(y1, y2))
+    return pd.DataFrame(result, index, ['p-value'])
 
 
 def mixtest(df, x, y, max_perm=None):
@@ -369,13 +370,19 @@ def logregress_edges(g, X, y, *args, **kwargs):
 
 
 def intencode(df, col, order=None):
-    X = list(zip(df[col]))
-    encoder = OrdinalEncoder('auto' if order is None else [order])
-    X = zip(*encoder.fit_transform(X))
-    col += '_order'
-    x = next(X)
-    df[col] = x
-    return col
+    values = df[col].unique()
+    if order is None:
+        order = tuple(sorted(values))
+    else:
+        if not isinstance(order, (tuple, list)):
+            raise TypeError('order must be a tuple or list')
+        if len(order) > len(set(order)):
+            raise ValueError('order has repeated values')
+        if any(value not in order for value in values):
+            raise ValueError('column has values not in order')
+    new = col + '_order'
+    df[new] = df[col].apply(lambda v: order.index(v))
+    return new
 
 
 def intencode_nodes(g, col, order=None):
@@ -387,13 +394,11 @@ def intencode_edges(g, col, order=None):
 
 
 def binencode(df, col):
-    X = list(zip(df[col]))
-    encoder = OneHotEncoder(categories='auto', sparse=False)
-    X = zip(*encoder.fit_transform(X))
-    cols = encoder.get_feature_names([col])
-    for col, x in zip(cols, X):
-        df[col] = x
-    return tuple(cols)
+    values = df[col].unique()
+    news = tuple('{}_{}'.format(col, value) for value in values)
+    for new, value in zip(news, values):
+        df[new] = df[col].apply(lambda v: int(v == value))
+    return news
 
 
 def binencode_nodes(g, col):
@@ -430,7 +435,7 @@ def displot_edges(g, x):
 
 
 def barplot_loose(x, control=None):
-    sns.countplot(x=_series(x), hue=_series(control))
+    sns.countplot(_series(x), hue=_series(control))
 
 
 def barplot(df, x, control=None):
@@ -446,7 +451,7 @@ def barplot_edges(g, x, control=None):
 
 
 def linplot_loose(x, y, control=None):
-    sns.lineplot(x=_series(x), y=_series(y), hue=_series(control))
+    sns.lineplot(_series(x), _series(y), _series(control))
 
 
 def linplot(df, x, y, control=None):
@@ -462,7 +467,7 @@ def linplot_edges(g, x, y, control=None):
 
 
 def scaplot_loose(x, y, control=None):
-    sns.scatterplot(x=_series(x), y=_series(y), hue=_series(control))
+    sns.scatterplot(_series(x), _series(y), _series(control))
 
 
 def scaplot(df, x, y, control=None):
@@ -500,16 +505,15 @@ def matplot_edges(g, X, control=None):
     matplot(g.edgeframe, X, control)
 
 
-def valcount_loose(a, order=None, transpose=False):
-    a = _series(a)
-    data = pd.DataFrame(a.value_counts(True))
-    data = data.round(2)
+def valcount_loose(x, order=None, transpose=False):
+    x = _series(x)
+    df = pd.DataFrame(x.value_counts(True)).round(2)
+    df.columns = ['All']
     if order is not None:
-        data = data.reindex(order)
-    data.columns = ['All']
+        df = df.reindex(order)
     if transpose:
-        return data.transpose()
-    return data
+        return df.transpose()
+    return df
 
 
 def valcount(df, x, order=None, transpose=False):
@@ -560,14 +564,7 @@ def corplot_edges(g, x, y):
 
 
 def boxplot_loose(x, y, control=None):
-    X = [_series(x) for x in (x, y, control)]
-    for name, x in zip(('x', 'y', 'control'), X):
-        if x is not None:
-            if x.name is None:
-                x.name = name
-    df = pd.concat(X, 1)
-    X = [None if x is None else x.name for x in X]
-    sns.boxplot(x=X[0], y=X[1], hue=X[2], data=df, orient='h')
+    sns.boxplot(_series(x), _series(y), _series(control), orient='h')
 
 
 def boxplot(df, x, y, control=None):
@@ -613,14 +610,22 @@ def girvan_newman(g):
         clusters[j] = None
         clusters.append(c)
 
-    labels = (g.nodes[n].get('label', str(n)) for n in g.nodes)
+    labels = [g.nodes[n].get('label', str(n)) for n in g.nodes]
 
     dendrogram(linkage, orientation='right', labels=labels)
 
 
 def corplot_graph(g, nodes, weight='weight', plot=True):
-    other = [m for m in g.nodes if m not in nodes and g.degree(m) > 0]
+    other = [m for m in g.nodes if m not in nodes]
+
+    for n, m in g.edges:
+        if (n in nodes and m in nodes) or (n in other and m in other):
+            raise ValueError('nodes do not define a bipartition')
+        if isinstance(g, nx.DiGraph) and (n in other and m in nodes):
+            raise ValueError('nodes do not define a directed bipartition')
+
     nodes = [n for n in nodes if g.degree(n) > 0]
+    other = [m for m in other if g.degree(m) > 0]
 
     sparse = nx.bipartite.biadjacency_matrix(g, nodes, other, weight=weight)
     matrix = sparse.toarray()

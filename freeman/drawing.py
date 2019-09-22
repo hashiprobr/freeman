@@ -5,7 +5,6 @@ import networkx as nx
 
 from math import isclose, sqrt, cos, sin
 from IPython.display import display
-from networkx import NetworkXError
 from pyvis.network import Network
 
 
@@ -152,6 +151,22 @@ def _build_graph_key(g):
     bottom, left, right, top = _build_graph_border(g)
 
     return width, height, bottom, left, right, top
+
+
+def _get_node_pos(g, n):
+    if 'pos' not in g.nodes[n]:
+        raise KeyError('node must have a pos')
+    pos = g.nodes[n]['pos']
+    if not isinstance(pos, tuple):
+        raise TypeError('node pos must be a tuple')
+    if len(pos) != 2:
+        raise ValueError('node pos must have exactly two elements')
+    if not isinstance(pos[0], float) or not isinstance(pos[1], float):
+        raise TypeError('both node pos elements must be floats')
+    if pos[0] < 0 or pos[0] > 1 or pos[1] < 0 or pos[1] > 1:
+        raise ValueError('both node pos elements must be between 0 and 1')
+
+    return pos
 
 
 def _build_node_size(g, n):
@@ -362,7 +377,7 @@ def _build_layout(width, height):
 
 
 def _add_node(g, n, node_trace):
-    x, y = g.nodes[n]['pos']
+    x, y = _get_node_pos(g, n)
     text = g.nodes[n].get('label', None)
 
     node_trace['x'].append(x)
@@ -371,8 +386,8 @@ def _add_node(g, n, node_trace):
 
 
 def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_size, labflip, labdist, labfrac):
-    x0, y0 = g.nodes[n]['pos']
-    x1, y1 = g.nodes[m]['pos']
+    x0, y0 = _get_node_pos(g, n)
+    x1, y1 = _get_node_pos(g, m)
 
     # parameters estimated from screenshots
     width = 0.9 * width - 24
@@ -443,6 +458,7 @@ def interact(g, path=None, physics=False):
     dx = local_left - dx // 2
     dy = local_top - dy // 2
     for n in g.nodes:
+        x, y = _get_node_pos(g, n)
         size, style, border, color, _ = _build_node_key(g, n)
         border_color = 'rgb(0, 0, 0)'
         options = {
@@ -465,8 +481,8 @@ def interact(g, path=None, physics=False):
             'physics': physics,
             'shape': NODE_STYLES[style],
             'size': size // 2,
-            'x': round((g.nodes[n]['pos'][0] - 0.5) * (0.9 * local_width - 24)) + dx,
-            'y': round((0.5 - g.nodes[n]['pos'][1]) * (0.9 * local_height - 24)) + dy,
+            'x': round((x - 0.5) * (0.9 * local_width - 24)) + dx,
+            'y': round((0.5 - y) * (0.9 * local_height - 24)) + dy,
         }
         label = g.nodes[n].get('label', None)
         if label:
@@ -474,29 +490,28 @@ def interact(g, path=None, physics=False):
         network.add_node(n, **options)
 
     for n, m in g.edges:
-        if n != m:
-            _, _, width, style, color, _, _, _ = _build_edge_key(g, n, m)
-            options = {
-                'color': {
-                    'color': _convert(color),
-                    'highlight': _convert(color),
-                    'hover': _convert(color),
+        _, _, width, style, color, _, _, _ = _build_edge_key(g, n, m)
+        options = {
+            'color': {
+                'color': _convert(color),
+                'highlight': _convert(color),
+                'hover': _convert(color),
+            },
+            'dashes': EDGE_STYLES[style],
+            'labelHighlightBold': False,
+            'selectionWidth': 0,
+            'width': width,
+        }
+        label = g.edges[n, m].get('label', None)
+        if label:
+            options['title'] = label
+        network.add_edge(n, m, **options)
+        if network.directed:
+            network.edges[-1]['arrows'] = {
+                'to': {
+                    'scaleFactor': EDGE_SCALE,
                 },
-                'dashes': EDGE_STYLES[style],
-                'labelHighlightBold': False,
-                'selectionWidth': 0,
-                'width': width,
             }
-            label = g.edges[n, m].get('label', None)
-            if label:
-                options['title'] = label
-            network.add_edge(n, m, **options)
-            if network.directed:
-                network.edges[-1]['arrows'] = {
-                    'to': {
-                        'scaleFactor': EDGE_SCALE,
-                    },
-                }
 
     if path is None:
         if not os.path.exists(CACHE_DIR):
@@ -525,12 +540,11 @@ def draw(g, toolbar=False):
     edge_traces = {}
     edge_label_trace = _build_edge_label_trace()
     for n, m in g.edges:
-        if n != m:
-            n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
-            key = (width, style, color)
-            if key not in edge_traces:
-                edge_traces[key] = _build_edge_trace(width, style, color)
-            _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
+        n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+        key = (width, style, color)
+        if key not in edge_traces:
+            edge_traces[key] = _build_edge_trace(width, style, color)
+        _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
 
     data = list(edge_traces.values())
     data.extend(node_traces.values())
@@ -598,16 +612,15 @@ class Animation:
         edge_traces = []
         edge_label_trace = _build_edge_label_trace()
         for n, m in h.edges:
-            if n != m:
-                if g.has_edge(n, m):
-                    n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
-                    edge_trace = _build_edge_trace(width, style, color)
-                    _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
-                else:
-                    n_size, m_size, width, style, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
-                    edge_trace = _build_edge_trace(width, style, (255, 255, 255, 0.0))
-                    _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
-                edge_traces.append(edge_trace)
+            if g.has_edge(n, m):
+                n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+                edge_trace = _build_edge_trace(width, style, color)
+                _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
+            else:
+                n_size, m_size, width, style, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
+                edge_trace = _build_edge_trace(width, style, (255, 255, 255, 0.0))
+                _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
+            edge_traces.append(edge_trace)
 
         data = edge_traces
         data.extend(node_traces)
@@ -622,7 +635,7 @@ class Animation:
 
     def play(self):
         if len(self.graphs) < 2:
-            raise NetworkXError('animation must have at least two recs')
+            raise ValueError('animation must have at least two recs')
 
         h = None
         width = self.width

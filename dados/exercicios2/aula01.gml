@@ -382,11 +382,6 @@ graph [
     weight 2
   ]
   edge [
-    source 20
-    target 20
-    weight 3
-  ]
-  edge [
     source 7
     target 21
     weight 1

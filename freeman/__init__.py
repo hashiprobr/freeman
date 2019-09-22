@@ -1,3 +1,5 @@
+from random import random
+from networkx import NetworkXError
 from wrapt import ObjectProxy
 
 from .drawing import *
@@ -7,43 +9,25 @@ from .analyzing import *
 from .simulating import *
 
 
-def init(g):
-    if isinstance(g, nx.MultiGraph):
-        raise NetworkXError('freeman does not support multigraphs')
-
-    free = [n for n in g.nodes if 'pos' not in g.nodes[n]]
-
-    if len(free) > 0 and len(free) < g.number_of_nodes():
-        raise ValueError('some nodes have position, but others do not: ' + ', '.join(str(n) for n in free))
-
-    if free:
-        move(g, 'random')
-
-    set_nodeframe(g)
-    set_edgeframe(g)
-
-
 def load(path):
     g = nx.read_gml(path, 'id')
 
-    free = [n for n in g.nodes if 'x' not in g.nodes[n] or 'y' not in g.nodes[n]]
-
-    if len(free) > 0 and len(free) < g.number_of_nodes():
-        raise ValueError('some nodes have position, but others do not: ' + ', '.join(str(n) for n in free))
-
-    if free:
-        move(g, 'random')
-    else:
-        for n in g.nodes:
-            x = assert_numeric(g.nodes[n]['x'])
-            y = assert_numeric(g.nodes[n]['y'])
-            g.nodes[n]['pos'] = (x, y)
-            del g.nodes[n]['x']
-            del g.nodes[n]['y']
-
-        normalize(g)
-
     for n in g.nodes:
+        if 'pos' in g.nodes[n]:
+            raise ValueError('node pos is not allowed in file')
+        if 'x' in g.nodes[n]:
+            if 'y' in g.nodes[n]:
+                x = g.nodes[n]['x']
+                y = g.nodes[n]['y']
+                g.nodes[n]['pos'] = (x, y)
+                del g.nodes[n]['x']
+                del g.nodes[n]['y']
+            else:
+                raise ValueError('node x is not allowed without y')
+        else:
+            if 'y' in g.nodes[n]:
+                raise ValueError('node y is not allowed without x')
+
         if 'border' in g.nodes[n]:
             value = g.nodes[n]['border']
             if value != 0 and value != 1:
@@ -58,6 +42,21 @@ def load(path):
             g.edges[n, m]['labflip'] = bool(value)
 
     return Graph(g)
+
+
+def init(g):
+    if isinstance(g, nx.MultiGraph):
+        raise NetworkXError('freeman does not support multigraphs')
+    for n, m in g.edges:
+        if n == m:
+            raise NetworkXError('freeman does not support self loops')
+    for n in g.nodes:
+        if 'pos' not in g.nodes[n]:
+            x = random()
+            y = random()
+            g.nodes[n]['pos'] = (x, y)
+    set_nodeframe(g)
+    set_edgeframe(g)
 
 
 def dyads(g, ordered=False):
@@ -123,25 +122,6 @@ def colorize_communities(g, C):
     colorize_nodes(g, map)
 
 
-def skin_seaborn(g):
-    g.graph['width'] = 450
-    g.graph['height'] = 450
-    g.graph['bottom'] = 0
-    g.graph['left'] = 0
-    g.graph['right'] = 0
-    g.graph['top'] = 0
-
-    set_all_nodes(g, 'size', 10)
-    set_all_nodes(g, 'style', 'circle')
-    set_all_nodes(g, 'border', False)
-    set_all_nodes(g, 'labpos', 'hover')
-
-    set_all_edges(g, 'width', 1)
-    set_all_edges(g, 'style', 'solid')
-    set_all_edges(g, 'color', (135, 135, 138))
-    unset_edges(g, 'label')
-
-
 def stack_and_track(graphs, targets=None):
     nodes = set.intersection(*(set(g.nodes) for g in graphs))
 
@@ -165,6 +145,25 @@ def stack_and_track(graphs, targets=None):
             prev = curr
 
     return h
+
+
+def skin_seaborn(g):
+    g.graph['width'] = 450
+    g.graph['height'] = 450
+    g.graph['bottom'] = 0
+    g.graph['left'] = 0
+    g.graph['right'] = 0
+    g.graph['top'] = 0
+
+    set_all_nodes(g, 'size', 10)
+    set_all_nodes(g, 'style', 'circle')
+    set_all_nodes(g, 'border', False)
+    set_all_nodes(g, 'labpos', 'hover')
+
+    set_all_edges(g, 'width', 1)
+    set_all_edges(g, 'style', 'solid')
+    set_all_edges(g, 'color', (135, 135, 138))
+    unset_edges(g, 'label')
 
 
 class Graph(ObjectProxy):
@@ -267,10 +266,10 @@ class Graph(ObjectProxy):
         matplot_nodes(self, X, control)
     def matplot_edges(self, X, control=None):
         matplot_edges(self, X, control)
-    def valcount_nodes(self, a, order=None, transpose=False):
-        return valcount_nodes(self, a, order, transpose)
-    def valcount_edges(self, a, order=None, transpose=False):
-        return valcount_edges(self, a, order, transpose)
+    def valcount_nodes(self, x, order=None, transpose=False):
+        return valcount_nodes(self, x, order, transpose)
+    def valcount_edges(self, x, order=None, transpose=False):
+        return valcount_edges(self, x, order, transpose)
     def contable_nodes(self, x, y):
         return contable_nodes(self, x, y)
     def contable_edges(self, x, y):
@@ -285,8 +284,8 @@ class Graph(ObjectProxy):
         boxplot_edges(self, x, y, control)
     def girvan_newman(self):
         girvan_newman(self)
-    def corplot_graph(self, nodes, weight='weight'):
-        return corplot_graph(self, nodes, weight)
+    def corplot_graph(self, nodes, weight='weight', plot=True):
+        return corplot_graph(self, nodes, weight, plot)
 
     def __init__(self, g):
         super().__init__(g)

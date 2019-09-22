@@ -391,9 +391,4 @@ graph [
     target 42
     weight 2
   ]
-  edge [
-    source 43
-    target 43
-    weight 3
-  ]
 ]

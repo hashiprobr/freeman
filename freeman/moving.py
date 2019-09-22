@@ -33,9 +33,9 @@ def normalize(g):
     X = []
     Y = []
     for n in g.nodes:
-        pos = g.nodes[n]['pos']
-        X.append(pos[0])
-        Y.append(pos[1])
+        x, y = g.nodes[n]['pos']
+        X.append(x)
+        Y.append(y)
 
     xmin = min(X)
     xmax = max(X) - xmin
@@ -43,9 +43,9 @@ def normalize(g):
     ymax = max(Y) - ymin
 
     for n in g.nodes:
-        pos = g.nodes[n]['pos']
-        x = 0.5 if isclose(xmax, 0) else (pos[0] - xmin) / xmax
-        y = 0.5 if isclose(ymax, 0) else (pos[1] - ymin) / ymax
+        x, y = g.nodes[n]['pos']
+        x = 0.5 if isclose(xmax, 0) else (x - xmin) / xmax
+        y = 0.5 if isclose(ymax, 0) else (y - ymin) / ymax
         g.nodes[n]['pos'] = (x, y)
 
 
@@ -60,15 +60,17 @@ def scatter(g, xmap, ymap):
 
 
 def move(g, key, *args, **kwargs):
-    try:
-        layout = LAYOUTS[key]
-    except KeyError:
+    if key not in LAYOUTS:
         raise KeyError('layout key must be one of the following: ' + ', '.join('"{}"'.format(k) for k in LAYOUTS))
+
+    layout = LAYOUTS[key]
 
     after = layout(g, *args, **kwargs)
 
-    for n, pos in after.items():
-        g.nodes[n]['pos'] = (pos[0], pos[1])
+    for n, (x, y) in after.items():
+        x = float(x)
+        y = float(y)
+        g.nodes[n]['pos'] = (x, y)
 
     normalize(g)
 

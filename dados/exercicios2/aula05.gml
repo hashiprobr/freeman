@@ -182,11 +182,6 @@ graph [
     weight 1
   ]
   edge [
-    source 3
-    target 3
-    weight 1
-  ]
-  edge [
     source 29
     target 3
     weight 1
