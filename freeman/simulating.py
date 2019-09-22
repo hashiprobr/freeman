@@ -1,16 +1,22 @@
+import pandas as pd
+
 from math import inf
 from timeit import default_timer
 
 
 class Simulation:
-    def print(self, datum):
-        print(', '.join('{}: {}'.format(key, value) for key, value in datum.items()))
+    def print(self, data, condition=True):
+        if condition:
+            print(', '.join('{}: {}'.format(key, value) for key, value in data.items()))
 
-    def append(self, data, datum):
-        for key, value in datum.items():
-            if key not in data:
-                data[key] = []
-            data[key].append(value)
+    def print_every(self, data, counter, interval):
+        self.print(data, counter % interval == 0)
+
+    def append(self, data):
+        for key, value in data.items():
+            if key not in self.data:
+                self.data[key] = []
+            self.data[key].append(value)
 
     def before_all(self):
         pass
@@ -27,16 +33,15 @@ class Simulation:
     def after_iter(self, iteration, elapsed):
         pass
 
-    def after_each(self, repetition, iteration, elapsed):
+    def after_each(self, repetition, iterations, elapsed):
         pass
 
-    def after_all(self, repetition, elapsed):
+    def after_all(self, repetitions, elapsed):
         pass
-
-    def summarize(self):
-        return None
 
     def run(self, times=1, max_iter=inf):
+        self.data = {}
+
         self.before_all()
         start_all = default_timer()
 
@@ -55,7 +60,7 @@ class Simulation:
                 end_iter = default_timer()
                 self.after_iter(iteration, end_iter - start_iter)
 
-                if repeat and (max_iter is None or iteration < max_iter):
+                if repeat and iteration < max_iter:
                     iteration += 1
                 else:
                     break
@@ -71,4 +76,4 @@ class Simulation:
         end_all = default_timer()
         self.after_all(repetition, end_all - start_all)
 
-        return self.summarize()
+        return pd.DataFrame(self.data)
