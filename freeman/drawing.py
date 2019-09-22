@@ -446,8 +446,8 @@ def interact(g, path=None, physics=False):
     dx = local_left + local_right
     dy = local_bottom + local_top
     network = Network(
-        height='{}px'.format(local_height + dy),
-        width='{}px'.format(local_width + dx),
+        height=local_height + dy,
+        width=local_width + dx,
         directed=isinstance(g, nx.DiGraph),
         notebook=True,
         bgcolor='#ffffff',
@@ -519,6 +519,8 @@ def interact(g, path=None, physics=False):
         path = os.path.join(CACHE_DIR, '{}.html'.format(id(g)))
 
     iframe = network.show(path)
+    iframe.width += 10
+    iframe.height += 10
 
     display(iframe)
 
