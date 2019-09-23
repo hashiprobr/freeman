@@ -3,6 +3,7 @@ import plotly
 
 import networkx as nx
 
+from warnings import warn
 from math import isclose, sqrt, cos, sin
 from IPython.display import display
 from networkx import NetworkXError
@@ -505,29 +506,32 @@ def interact(g, path=None, physics=False):
         network.add_node(n, **options)
 
     for n, m in g.edges:
-        _, _, width, style, color, _, _, _ = _build_edge_key(g, n, m)
-        color = _convert(color)
-        options = {
-            'color': {
-                'color': color,
-                'highlight': color,
-                'hover': color,
-            },
-            'dashes': EDGE_STYLES[style],
-            'labelHighlightBold': False,
-            'selectionWidth': 0,
-            'width': width,
-        }
-        label = g.edges[n, m].get('label', None)
-        if label:
-            options['title'] = label
-        network.add_edge(n, m, **options)
-        if network.directed:
-            network.edges[-1]['arrows'] = {
-                'to': {
-                    'scaleFactor': EDGE_SCALE,
+        if n == m:
+            warn('self loops will not be drawn')
+        else:
+            _, _, width, style, color, _, _, _ = _build_edge_key(g, n, m)
+            color = _convert(color)
+            options = {
+                'color': {
+                    'color': color,
+                    'highlight': color,
+                    'hover': color,
                 },
+                'dashes': EDGE_STYLES[style],
+                'labelHighlightBold': False,
+                'selectionWidth': 0,
+                'width': width,
             }
+            label = g.edges[n, m].get('label', None)
+            if label:
+                options['title'] = label
+            network.add_edge(n, m, **options)
+            if network.directed:
+                network.edges[-1]['arrows'] = {
+                    'to': {
+                        'scaleFactor': EDGE_SCALE,
+                    },
+                }
 
     if path is None:
         if not os.path.exists(CACHE_DIR):
@@ -559,11 +563,14 @@ def draw(g, toolbar=False):
     edge_traces = {}
     edge_label_trace = _build_edge_label_trace()
     for n, m in g.edges:
-        n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
-        key = (width, style, color)
-        if key not in edge_traces:
-            edge_traces[key] = _build_edge_trace(width, style, color)
-        _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
+        if n == m:
+            warn('self loops will not be drawn')
+        else:
+            n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+            key = (width, style, color)
+            if key not in edge_traces:
+                edge_traces[key] = _build_edge_trace(width, style, color)
+            _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
 
     data = list(edge_traces.values())
     data.extend(node_traces.values())
@@ -631,15 +638,18 @@ class Animation:
         edge_traces = []
         edge_label_trace = _build_edge_label_trace()
         for n, m in h.edges:
-            if g.has_edge(n, m):
-                n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
-                edge_trace = _build_edge_trace(width, style, color)
-                _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
+            if n == m:
+                warn('self loops will not be drawn')
             else:
-                n_size, m_size, width, style, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
-                edge_trace = _build_edge_trace(width, style, (255, 255, 255, 0.0))
-                _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
-            edge_traces.append(edge_trace)
+                if g.has_edge(n, m):
+                    n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
+                    edge_trace = _build_edge_trace(width, style, color)
+                    _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
+                else:
+                    n_size, m_size, width, style, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
+                    edge_trace = _build_edge_trace(width, style, (255, 255, 255, 0.0))
+                    _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
+                edge_traces.append(edge_trace)
 
         data = edge_traces
         data.extend(node_traces)
