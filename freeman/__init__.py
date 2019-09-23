@@ -1,4 +1,4 @@
-from random import random
+from random import random, uniform
 from wrapt import ObjectProxy
 
 from .drawing import *
@@ -13,19 +13,21 @@ def load(path):
 
     for n in g.nodes:
         if 'pos' in g.nodes[n]:
-            raise ValueError('node pos is not allowed in file')
+            warn('node pos is not allowed in file, ignoring')
+
         if 'x' in g.nodes[n]:
-            if 'y' in g.nodes[n]:
-                x = g.nodes[n]['x']
-                y = g.nodes[n]['y']
-                g.nodes[n]['pos'] = (x, y)
-                del g.nodes[n]['x']
-                del g.nodes[n]['y']
-            else:
-                raise ValueError('node x is not allowed without y')
+            x = g.nodes[n]['x']
+            del g.nodes[n]['x']
         else:
-            if 'y' in g.nodes[n]:
-                raise ValueError('node y is not allowed without x')
+            x = None
+
+        if 'y' in g.nodes[n]:
+            y = g.nodes[n]['y']
+            del g.nodes[n]['y']
+        else:
+            y = None
+
+        g.nodes[n]['pos'] = (x, y)
 
     for n, m in g.edges:
         if 'labflip' in g.edges[n, m]:
@@ -38,11 +40,70 @@ def load(path):
 
 
 def init(g):
+    X = []
+    Y = []
     for n in g.nodes:
-        if 'pos' not in g.nodes[n]:
-            x = random()
-            y = random()
-            g.nodes[n]['pos'] = (x, y)
+        x = None
+        y = None
+        if 'pos' in g.nodes[n]:
+            pos = g.nodes[n]['pos']
+            if isinstance(pos, (tuple, list)):
+                if len(pos) == 2:
+                    if pos[0] is not None:
+                        if isinstance(pos[0], (int, float)):
+                            x = pos[0]
+                        else:
+                            warn('node x must be numeric, ignoring')
+                    if pos[1] is not None:
+                        if isinstance(pos[1], (int, float)):
+                            y = pos[1]
+                        else:
+                            warn('node y must be numeric, ignoring')
+                else:
+                    warn('node pos must have exactly two elements, ignoring')
+            else:
+                warn('node pos must be a tuple or list, ignoring')
+        X.append(x)
+        Y.append(y)
+
+    Xnum = [x for x in X if x is not None]
+    if Xnum:
+        xmin = min(Xnum)
+        xmax = max(Xnum)
+        if isclose(xmin, xmax):
+            xmin -= abs(xmin)
+            xmax += abs(xmax)
+        else:
+            xmin -= xmax - xmin
+            xmax += xmax - xmin
+        print(xmin, xmax)
+        for i, x in enumerate(X):
+            if X[i] is None:
+                X[i] = uniform(xmin, xmax)
+    else:
+        X = [random() for x in X]
+
+    Ynum = [y for y in Y if y is not None]
+    if Ynum:
+        ymin = min(Ynum)
+        ymax = max(Ynum)
+        if isclose(ymin, ymax):
+            ymin -= abs(ymin)
+            ymax += abs(ymax)
+        else:
+            ymin -= ymax - ymin
+            ymax += ymax - ymin
+        for i, y in enumerate(Y):
+            if Y[i] is None:
+                Y[i] = uniform(ymin, ymax)
+    else:
+        Y = [random() for y in Y]
+
+    for n, x, y in zip(g.nodes, X, Y):
+        g.nodes[n]['pos'] = (x, y)
+
+    normalize(g)
+
     set_nodeframe(g)
     set_edgeframe(g)
 
