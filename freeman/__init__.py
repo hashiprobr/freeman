@@ -294,7 +294,7 @@ class Graph(ObjectProxy):
         return corplot_graph(self, nodes, weight, plot)
 
     def __init__(self, g):
-        super().__init__(g)
+        super().__init__(g.copy())
         init(self)
     def dyads(self, ordered=False):
         return dyads(self, ordered)
