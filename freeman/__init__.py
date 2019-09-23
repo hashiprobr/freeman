@@ -28,12 +28,6 @@ def load(path):
             if 'y' in g.nodes[n]:
                 raise ValueError('node y is not allowed without x')
 
-        if 'border' in g.nodes[n]:
-            value = g.nodes[n]['border']
-            if value != 0 and value != 1:
-                raise ValueError('node border must be binary')
-            g.nodes[n]['border'] = bool(value)
-
     for n, m in g.edges:
         if 'labflip' in g.edges[n, m]:
             value = g.edges[n, m]['labflip']
@@ -128,7 +122,7 @@ def stack_and_track(graphs, targets=None):
     if targets is None:
         targets = nodes
 
-    h = Graph(nx.DiGraph())
+    h = nx.DiGraph()
 
     for j, n in enumerate(nodes):
         prev = None
@@ -144,7 +138,7 @@ def stack_and_track(graphs, targets=None):
 
             prev = curr
 
-    return h
+    return Graph(h)
 
 
 def skin_seaborn(g):

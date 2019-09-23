@@ -55,8 +55,8 @@ def _assert_reference(values, lower, upper, middle):
 
 
 def _assert_hue(color):
-    if not isinstance(color, tuple):
-        raise TypeError('color must be a tuple')
+    if not isinstance(color, (tuple, list)):
+        raise TypeError('color must be a tuple or list')
     if len(color) != 3:
         raise ValueError('color must have exactly three elements')
     if not isinstance(color[0], int) or not isinstance(color[1], int) or not isinstance(color[2], int):

@@ -158,12 +158,12 @@ def _get_node_pos(g, n):
     if 'pos' not in g.nodes[n]:
         raise KeyError('node must have a pos')
     pos = g.nodes[n]['pos']
-    if not isinstance(pos, tuple):
-        raise TypeError('node pos must be a tuple')
+    if not isinstance(pos, (tuple, list)):
+        raise TypeError('node pos must be a tuple or list')
     if len(pos) != 2:
         raise ValueError('node pos must have exactly two elements')
-    if not isinstance(pos[0], float) or not isinstance(pos[1], float):
-        raise TypeError('both node pos elements must be floats')
+    if not isinstance(pos[0], (int, float)) or not isinstance(pos[1], (int, float)):
+        raise TypeError('both node pos elements must be numeric')
     if pos[0] < 0 or pos[0] > 1 or pos[1] < 0 or pos[1] > 1:
         raise ValueError('both node pos elements must be between 0 and 1')
 
@@ -185,11 +185,11 @@ def _build_node_key(g, n):
 
     style = g.nodes[n].get('style', node_style)
     if style not in NODE_STYLES:
-        raise ValueError('node style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in NODE_STYLES))
+        raise KeyError('node style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in NODE_STYLES))
 
     color = g.nodes[n].get('color', node_color)
-    if not isinstance(color, tuple):
-        raise TypeError('node color must be a tuple')
+    if not isinstance(color, (tuple, list)):
+        raise TypeError('node color must be a tuple or list')
     if len(color) != 3:
         raise ValueError('node color must have exactly three elements')
     if not isinstance(color[0], int) or not isinstance(color[1], int) or not isinstance(color[2], int):
@@ -204,8 +204,8 @@ def _build_node_key(g, n):
         raise ValueError('node bwidth must be non-negative')
 
     bcolor = g.nodes[n].get('bcolor', node_bcolor)
-    if not isinstance(bcolor, tuple):
-        raise TypeError('node bcolor must be a tuple')
+    if not isinstance(bcolor, (tuple, list)):
+        raise TypeError('node bcolor must be a tuple or list')
     if len(bcolor) != 3:
         raise ValueError('node bcolor must have exactly three elements')
     if not isinstance(bcolor[0], int) or not isinstance(bcolor[1], int) or not isinstance(bcolor[2], int):
@@ -222,10 +222,10 @@ def _build_node_key(g, n):
             raise ValueError('node labpos must be "hover" or a vertical position and an horizontal position separated by a space')
         vpos = ['bottom', 'middle', 'top']
         if words[0] not in vpos:
-            raise ValueError('node vertical position must be one of the following: ' + ', '.join('"{}"'.format(v) for v in vpos))
+            raise KeyError('node vertical position must be one of the following: ' + ', '.join('"{}"'.format(v) for v in vpos))
         hpos = ['left', 'center', 'right']
         if words[1] not in hpos:
-            raise ValueError('node horizontal position must be one of the following: ' + ', '.join('"{}"'.format(h) for h in hpos))
+            raise KeyError('node horizontal position must be one of the following: ' + ', '.join('"{}"'.format(h) for h in hpos))
 
     return size, style, color, bwidth, bcolor, labpos
 
@@ -242,19 +242,19 @@ def _build_edge_key(g, n, m):
 
     style = g.edges[n, m].get('style', edge_style)
     if style not in EDGE_STYLES:
-        raise ValueError('edge style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in EDGE_STYLES))
+        raise KeyError('edge style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in EDGE_STYLES))
 
     color = g.edges[n, m].get('color', edge_color)
-    if not isinstance(color, tuple):
-        raise TypeError('edge color must be a tuple')
+    if not isinstance(color, (tuple, list)):
+        raise TypeError('edge color must be a tuple or list')
     if len(color) != 3 and len(color) != 4:
         raise ValueError('edge color must have three or four elements')
     if not isinstance(color[0], int) or not isinstance(color[1], int) or not isinstance(color[2], int):
         raise TypeError('the first three edge color elements must be integers')
     if color[0] < 0 or color[0] > 255 or color[1] < 0 or color[1] > 255 or color[2] < 0 or color[2] > 255:
         raise ValueError('the first three edge color elements must be between 0 and 255')
-    if len(color) == 4 and not isinstance(color[3], float):
-        raise TypeError('the fourth edge color element must be a float')
+    if len(color) == 4 and not isinstance(color[3], (int, float)):
+        raise TypeError('the fourth edge color element must be numeric')
     if len(color) == 4 and (color[3] < 0 or color[3] > 1):
         raise ValueError('the fourth edge color element must be between 0 and 1')
 
@@ -269,8 +269,8 @@ def _build_edge_key(g, n, m):
         raise ValueError('edge labdist must be non-negative')
 
     labfrac = g.edges[n, m].get('labfrac', edge_labfrac)
-    if not isinstance(labfrac, float):
-        raise TypeError('edge labfrac must be a float')
+    if not isinstance(labfrac, (int, float)):
+        raise TypeError('edge labfrac must be numeric')
     if labfrac < 0 or labfrac > 1:
         raise ValueError('edge labfrac must be between 0 and 1')
 
