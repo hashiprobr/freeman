@@ -1,5 +1,4 @@
 from random import random
-from networkx import NetworkXError
 from wrapt import ObjectProxy
 
 from .drawing import *
@@ -39,11 +38,6 @@ def load(path):
 
 
 def init(g):
-    if isinstance(g, nx.MultiGraph):
-        raise NetworkXError('freeman does not support multigraphs')
-    for n, m in g.edges:
-        if n == m:
-            raise NetworkXError('freeman does not support self loops')
     for n in g.nodes:
         if 'pos' not in g.nodes[n]:
             x = random()

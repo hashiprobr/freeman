@@ -5,6 +5,7 @@ import networkx as nx
 
 from math import isclose, sqrt, cos, sin
 from IPython.display import display
+from networkx import NetworkXError
 from pyvis.network import Network
 
 
@@ -653,7 +654,7 @@ class Animation:
 
     def play(self):
         if len(self.graphs) < 2:
-            raise ValueError('animation must have at least two recs')
+            raise NetworkXError('animation must have at least two recs')
 
         h = None
         width = self.width
