@@ -507,7 +507,7 @@ def interact(g, path=None, physics=False):
 
     for n, m in g.edges:
         if n == m:
-            warn('self loops will not be drawn')
+            warn('self loops are not supported, ignoring')
         else:
             _, _, width, style, color, _, _, _ = _build_edge_key(g, n, m)
             color = _convert(color)
@@ -564,7 +564,7 @@ def draw(g, toolbar=False):
     edge_label_trace = _build_edge_label_trace()
     for n, m in g.edges:
         if n == m:
-            warn('self loops will not be drawn')
+            warn('self loops are not supported, ignoring')
         else:
             n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
             key = (width, style, color)
@@ -639,7 +639,7 @@ class Animation:
         edge_label_trace = _build_edge_label_trace()
         for n, m in h.edges:
             if n == m:
-                warn('self loops will not be drawn')
+                warn('self loops are not supported, ignoring')
             else:
                 if g.has_edge(n, m):
                     n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
