@@ -1,3 +1,6 @@
+"""Documentation for the drawing module.
+"""
+
 import os
 import plotly
 
@@ -456,6 +459,9 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
 
 
 def interact(g, path=None, physics=False):
+    """Render an interactive visualization of a graph.
+    """
+
     local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
     dx = local_left + local_right
     dy = local_bottom + local_top
@@ -546,6 +552,9 @@ def interact(g, path=None, physics=False):
 
 
 def draw(g, toolbar=False):
+    """Render a static visualization of a graph.
+    """
+
     local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
     local_width += local_left + local_right
     local_height += local_bottom + local_top
@@ -590,6 +599,9 @@ def draw(g, toolbar=False):
 
 
 class Animation:
+    """An Animation renders a dynamic visualization of a sequence of graphs.
+    """
+
     def __init__(self, width=None, height=None):
         if width is not None:
             if not isinstance(width, int):
@@ -614,6 +626,8 @@ class Animation:
         self.play()
 
     def rec(self, g):
+        """Record a graph.
+        """
         self.graphs.append(g.copy())
 
     def render(self, g, h, local_width, local_height):
@@ -662,6 +676,9 @@ class Animation:
         return frame
 
     def play(self):
+        """Play recorded graphs.
+        """
+
         if len(self.graphs) < 2:
             raise ValueError('animation must have at least two recs')
 
