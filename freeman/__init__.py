@@ -76,7 +76,6 @@ def init(g):
         else:
             xmin -= xmax - xmin
             xmax += xmax - xmin
-        print(xmin, xmax)
         for i, x in enumerate(X):
             if X[i] is None:
                 X[i] = uniform(xmin, xmax)
