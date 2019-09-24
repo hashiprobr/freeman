@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath(os.path.join('..', '..')))
 # -- Project information -----------------------------------------------------
 
 project = 'Freeman'
-copyright = '© 2019 Marcelo Hashimoto'
+copyright = '2019 Marcelo Hashimoto'
 author = 'Marcelo Hashimoto'
 
 
@@ -37,7 +37,6 @@ extensions = [
     'sphinx.ext.autosummary',
 ]
 add_module_names = False
-autodoc_member_order = 'bysource'
 autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
@@ -46,9 +45,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = [
-    'freeman.drawing.Animation.render'
-]
+exclude_patterns = []
 
 
 # -- Options for HTML output -------------------------------------------------

@@ -9,7 +9,7 @@ Welcome to Freeman's documentation!
    moving/index
    analyzing/index
    simulating/index
-   main/index
+   root/index
 
 
 Indices and tables
