@@ -192,7 +192,7 @@ def stack_and_track(graphs, targets=None):
 
             prev = curr
 
-    return Graph(h)
+    return h
 
 
 def skin_seaborn(g):
