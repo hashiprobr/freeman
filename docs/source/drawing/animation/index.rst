@@ -5,10 +5,6 @@ The Animation Class
 
 .. autoclass:: Animation
 
-
-Methods
--------
-
 .. autosummary::
    :toctree: generated/
 

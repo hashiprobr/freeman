@@ -36,6 +36,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
 ]
+master_doc = 'index'
 add_module_names = False
 autosummary_generate = True
 
