@@ -24,6 +24,8 @@ class DrawingTest(unittest.TestCase):
         return self.with_position(nx.empty_graph(15))
     def partial_graph(self):
         return self.with_position(nx.florentine_families_graph())
+    def wrapped_graph(self):
+        return fm.Graph(nx.florentine_families_graph())
     def complete_graph(self):
         return self.with_position(nx.complete_graph(15))
 
@@ -33,6 +35,8 @@ class DrawingTest(unittest.TestCase):
         return self.empty_graph().to_directed()
     def partial_digraph(self):
         return self.partial_graph().to_directed()
+    def wrapped_digraph(self):
+        return self.wrapped_graph().to_directed()
     def complete_digraph(self):
         return self.complete_graph().to_directed()
 
@@ -42,6 +46,8 @@ class DrawingTest(unittest.TestCase):
         fm.interact(self.empty_graph())
     def test_interact_partial_graph(self):
         fm.interact(self.partial_graph())
+    def test_interact_wrapped_graph(self):
+        fm.interact(self.wrapped_graph())
     def test_interact_complete_graph(self):
         fm.interact(self.complete_graph())
 
@@ -51,6 +57,8 @@ class DrawingTest(unittest.TestCase):
         fm.interact(self.empty_digraph())
     def test_interact_partial_digraph(self):
         fm.interact(self.partial_digraph())
+    def test_interact_wrapped_digraph(self):
+        fm.interact(self.wrapped_digraph())
     def test_interact_complete_digraph(self):
         fm.interact(self.complete_digraph())
 
@@ -60,6 +68,8 @@ class DrawingTest(unittest.TestCase):
         fm.draw(self.empty_graph())
     def test_draw_partial_graph(self):
         fm.draw(self.partial_graph())
+    def test_draw_wrapped_graph(self):
+        fm.draw(self.wrapped_graph())
     def test_draw_complete_graph(self):
         fm.draw(self.complete_graph())
 
@@ -69,6 +79,8 @@ class DrawingTest(unittest.TestCase):
         fm.draw(self.empty_digraph())
     def test_draw_partial_digraph(self):
         fm.draw(self.partial_digraph())
+    def test_draw_wrapped_digraph(self):
+        fm.draw(self.wrapped_digraph())
     def test_draw_complete_digraph(self):
         fm.draw(self.complete_digraph())
 
