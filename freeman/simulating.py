@@ -2,9 +2,10 @@ import pandas as pd
 
 from math import inf
 from timeit import default_timer
+from abc import ABC, abstractmethod
 
 
-class Simulation:
+class Simulation(ABC):
     def print(self, data, condition=True):
         if condition:
             print(', '.join('{}: {}'.format(key, value) for key, value in data.items()))
@@ -18,15 +19,13 @@ class Simulation:
                 self.data[key] = []
             self.data[key].append(value)
 
-    def before_all(self):
-        pass
-
     def before_each(self):
         pass
 
     def before_iter(self):
         pass
 
+    @abstractmethod
     def iterate(self):
         return False
 
@@ -36,14 +35,8 @@ class Simulation:
     def after_each(self, repetition, iterations, elapsed):
         pass
 
-    def after_all(self, repetitions, elapsed):
-        pass
-
     def run(self, times=1, max_iter=inf):
         self.data = {}
-
-        self.before_all()
-        start_all = default_timer()
 
         repetition = 1
         while True:
@@ -72,8 +65,5 @@ class Simulation:
                 repetition += 1
             else:
                 break
-
-        end_all = default_timer()
-        self.after_all(repetition, end_all - start_all)
 
         return pd.DataFrame(self.data)
