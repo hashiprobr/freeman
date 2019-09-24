@@ -73,9 +73,6 @@ def init(g):
         if isclose(xmin, xmax):
             xmin -= abs(xmin)
             xmax += abs(xmax)
-        else:
-            xmin -= xmax - xmin
-            xmax += xmax - xmin
         for i, x in enumerate(X):
             if X[i] is None:
                 X[i] = uniform(xmin, xmax)
@@ -89,9 +86,6 @@ def init(g):
         if isclose(ymin, ymax):
             ymin -= abs(ymin)
             ymax += abs(ymax)
-        else:
-            ymin -= ymax - ymin
-            ymax += ymax - ymin
         for i, y in enumerate(Y):
             if Y[i] is None:
                 Y[i] = uniform(ymin, ymax)
