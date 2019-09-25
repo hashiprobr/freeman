@@ -567,10 +567,9 @@ def interact(g, path=None, physics=False):
     :param g: The graph to visualize.
 
     :type path: str
-    :param path: Path of the HTML file. If ``None``, the visualization is saved
-                 to ``'__fmcache__/<id>.html'``, where ``<id>`` is the
-                 `identity <https://docs.python.org/3/library/functions.html#id>`_
-                 of the graph.
+    :param path: Path of the HTML file. If ``None``, the visualization is saved to
+                 ``'__fmcache__/<id>.html'``, where ``<id>`` is the `identity
+                 <https://docs.python.org/3/library/functions.html#id>`_ of the graph.
 
     :type physics: bool
     :param physics: Whether to enable the physics simulation.
@@ -680,8 +679,8 @@ def draw(g, toolbar=False):
     :param g: The graph to visualize.
 
     :type toolbar: bool
-    :param toolbar: Whether to enable the toolbar. This is particularly useful
-                    for saving the visualization to a PNG file.
+    :param toolbar: Whether to enable the toolbar. This is particularly useful for saving the
+                    visualization to a PNG file.
     """
     local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
     local_width += local_left + local_right
