@@ -38,24 +38,24 @@ defined, its default value is considered.
 ========================  =
 **g.nodes[n]['size']**    Node size, in pixels. Must be positive. Default value is ``20``.
 
-**g.nodes[n]['style']**   Node style, one of: ``'circle'``, ``'star'``, ``'square'``,\
-                          ``'diamond'``, ``'triangle-up'``, or ``'triangle-down'``. Default\
+**g.nodes[n]['style']**   Node style, one of: ``'circle'``, ``'star'``, ``'square'``,
+                          ``'diamond'``, ``'triangle-up'``, or ``'triangle-down'``. Default
                           value is ``'circle'``.
 
-**g.nodes[n]['color']**   Node color, as a tuple of three integers between ``0`` and ``255``\
-                          representing red, green, and blue levels respectively. Default value\
+**g.nodes[n]['color']**   Node color, as a tuple of three integers between ``0`` and ``255``
+                          representing red, green, and blue levels respectively. Default value
                           is ``(255, 255, 255)``.
 
-**g.nodes[n]['bwidth']**  Node border width, in pixels. Must be non-negative. Default value is\
+**g.nodes[n]['bwidth']**  Node border width, in pixels. Must be non-negative. Default value is
                           ``1``.
 
-**g.nodes[n]['bcolor']**  Node border color, as a tuple of three integers between ``0`` and\
-                          ``255`` representing red, green, and blue levels respectively.\
+**g.nodes[n]['bcolor']**  Node border color, as a tuple of three integers between ``0`` and
+                          ``255`` representing red, green, and blue levels respectively.
                           Default value is ``(0, 0, 0)``.
 
-**g.nodes[n]['labpos']**  Node label position, either ``'hover'`` or ``'<vpos> <hpos>'``,\
-                          where ``<vpos>`` is ``bottom``, ``middle``, or ``top``, and\
-                          ``<hpos>`` is ``left``, ``center``, or ``right``. Default value is\
+**g.nodes[n]['labpos']**  Node label position, either ``'hover'`` or ``'<vpos> <hpos>'``, where
+                          ``<vpos>`` is ``bottom``, ``middle``, or ``top``, and ``<hpos>`` is
+                          ``left``, ``center``, or ``right``. Default value is
                           ``'middle center'``.
 ========================  =
 
@@ -66,21 +66,21 @@ attribute is not defined, its default value is considered.
 ============================  =
 **g.edges[n, m]['width']**    Edge width, in pixels. Must be positive. Default value is ``1``.
 
-**g.edges[n, m]['style']**    Edge style, one of ``'solid'``, ``'dash'``, ``'dot'``, or\
+**g.edges[n, m]['style']**    Edge style, one of ``'solid'``, ``'dash'``, ``'dot'``, or
                               ``'dashdot'``. Default value is ``'solid'``.
 
-**g.edges[n, m]['color']**    Edge color, as a tuple of three integers between ``0`` and\
-                              ``255`` representing red, green, and blue levels respectively.\
+**g.edges[n, m]['color']**    Edge color, as a tuple of three integers between ``0`` and
+                              ``255`` representing red, green, and blue levels respectively.
                               Default value is ``(255, 255, 255)``.
 
-**g.edges[n, m]['labflip']**  Whether the label should be positioned to the right of the\
-                              label instead of the left. Default value is ``False``.
+**g.edges[n, m]['labflip']**  Whether the label should be positioned to the right of the label
+                              instead of the left. Default value is ``False``.
 
 **g.edges[n, m]['labdist']**  Distance from edge to label, in pixels. Default value is ``10``.
 
-**g.edges[n, m]['labfrac']**  Where the label should be positioned between the two nodes. The\
-                              closer the value is to ``0``, the closer the label is to the\
-                              source. The closer the value is to ``1``, the closer the label is\
+**g.edges[n, m]['labfrac']**  Where the label should be positioned between the two nodes. The
+                              closer the value is to ``0``, the closer the label is to the
+                              source. The closer the value is to ``1``, the closer the label is
                               to the target. Default value is ``0.5``.
 ============================  =
 """
