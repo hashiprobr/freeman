@@ -1,6 +1,89 @@
-"""Documentation for the drawing module.
-"""
+"""Module responsible for rendering graph visualizations.
 
+The visualizations are powered by two different libraries, `pyvis
+<https://pyvis.readthedocs.io/en/latest/>`_ and `Plotly
+<https://plot.ly/python/>`_, but they are configured to be as consistent as
+possible across these libraries.
+
+The appearance is based on the eighteen visual attributes below.
+
+
+.. _visual-attributes:
+
+Visual attributes
+-----------------
+
+Given a graph **g**, the six attributes below can be used for customizing the
+appearance of this graph. When the attribute is not defined, its default value
+is considered.
+
+=====================  =
+**g.graph['width']**   Graph width, in pixels. Must be positive. Default value is ``800``.
+
+**g.graph['height']**  Graph height, in pixels. Must be positive. Default value is ``450``.
+
+**g.graph['bottom']**  Bottom padding, in pixels. Must be non-negative. Default value is ``0``.
+
+**g.graph['left']**    Left padding, in pixels. Must be non-negative. Default value is ``0``.
+
+**g.graph['right']**   Right padding, in pixels. Must be non-negative. Default value is ``0``.
+
+**g.graph['top']**     Top padding, in pixels. Must be non-negative. Default value is ``0``.
+=====================  =
+
+Given a graph **g** and a node **n** of this graph, the six attributes below can
+be used for customizing the appearance of this node. When the attribute is not
+defined, its default value is considered.
+
+========================  =
+**g.nodes[n]['size']**    Node size, in pixels. Must be positive. Default value is ``20``.
+
+**g.nodes[n]['style']**   Node style, one of: ``'circle'``, ``'star'``, ``'square'``,\
+                          ``'diamond'``, ``'triangle-up'``, or ``'triangle-down'``. Default\
+                          value is ``'circle'``.
+
+**g.nodes[n]['color']**   Node color, as a tuple of three integers between ``0`` and ``255``\
+                          representing red, green, and blue levels respectively. Default value\
+                          is ``(255, 255, 255)``.
+
+**g.nodes[n]['bwidth']**  Node border width, in pixels. Must be non-negative. Default value is\
+                          ``1``.
+
+**g.nodes[n]['bcolor']**  Node border color, as a tuple of three integers between ``0`` and\
+                          ``255`` representing red, green, and blue levels respectively.\
+                          Default value is ``(0, 0, 0)``.
+
+**g.nodes[n]['labpos']**  Node label position, either ``'hover'`` or ``'<vpos> <hpos>'``,\
+                          where ``<vpos>`` is ``bottom``, ``middle``, or ``top``, and\
+                          ``<hpos>`` is ``left``, ``center``, or ``right``. Default value is\
+                          ``'middle center'``.
+========================  =
+
+Given a graph **g** and an edge **(n, m)** of this graph, the six attributes
+below can be used for customizing the appearance of this edge. When the
+attribute is not defined, its default value is considered.
+
+============================  =
+**g.edges[n, m]['width']**    Edge width, in pixels. Must be positive. Default value is ``1``.
+
+**g.edges[n, m]['style']**    Edge style, one of ``'solid'``, ``'dash'``, ``'dot'``, or\
+                              ``'dashdot'``. Default value is ``'solid'``.
+
+**g.edges[n, m]['color']**    Edge color, as a tuple of three integers between ``0`` and\
+                              ``255`` representing red, green, and blue levels respectively.\
+                              Default value is ``(255, 255, 255)``.
+
+**g.edges[n, m]['labflip']**  Whether the label should be positioned to the right of the\
+                              label instead of the left. Default value is ``False``.
+
+**g.edges[n, m]['labdist']**  Distance from edge to label, in pixels. Default value is ``10``.
+
+**g.edges[n, m]['labfrac']**  Where the label should be positioned between the two nodes. The\
+                              closer the value is to ``0``, the closer the label is to the\
+                              source. The closer the value is to ``1``, the closer the label is\
+                              to the target. Default value is ``0.5``.
+============================  =
+"""
 import os
 import plotly
 
@@ -121,7 +204,7 @@ def _build_graph_height(g):
     return height
 
 
-def _build_graph_border(g):
+def _build_graph_padding(g):
     bottom = g.graph.get('bottom', graph_bottom)
     if not isinstance(bottom, int):
         raise TypeError('graph bottom must be an integer')
@@ -153,7 +236,7 @@ def _build_graph_key(g):
     width = _build_graph_width(g)
     height = _build_graph_height(g)
 
-    bottom, left, right, top = _build_graph_border(g)
+    bottom, left, right, top = _build_graph_padding(g)
 
     return width, height, bottom, left, right, top
 
@@ -460,8 +543,30 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
 
 def interact(g, path=None, physics=False):
     """Render an interactive visualization of a graph.
-    """
 
+    The visualization is powered by `pyvis
+    <https://pyvis.readthedocs.io/en/latest/>`_, based on the :ref:`visual
+    attributes <visual-attributes>`, and mostly consistent with the :func:`draw
+    <freeman.drawing.draw>` function and the :func:`Animation
+    <freeman.drawing.Animation>` class. The only significative difference is
+    that a pair of edges **(n, m)** and **(m, n)** in a directed graph is
+    rendered as a single edge with two heads. Such rendering is better for
+    interaction, but less faithful to the graph density.
+
+    The visualization must be saved to an HTML file.
+
+    :type g: NetworkX Graph or DiGraph
+    :param g: The graph to visualize.
+
+    :type path: str
+    :param path: Path of the HTML file. If ``None``, the visualization is saved
+                 to ``'__fmcache__/<id>.html'``, where ``<id>`` is the
+                 `identity <https://docs.python.org/3/library/functions.html#id>`_
+                 of the graph.
+
+    :type physics: bool
+    :param physics: Whether to enable the physics simulation.
+    """
     local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
     dx = local_left + local_right
     dy = local_bottom + local_top
@@ -554,8 +659,22 @@ def interact(g, path=None, physics=False):
 
 def draw(g, toolbar=False):
     """Render a static visualization of a graph.
-    """
 
+    The visualization is powered by `Plotly <https://plot.ly/python/>`_, based
+    on the :ref:`visual attributes <visual-attributes>`, completely consistent
+    with the :func:`Animation <freeman.drawing.Animation>` class, and mostly
+    consistent with the :func:`interact <freeman.drawing.interact>` function.
+    The only significative difference is that a pair of edges **(n, m)** and
+    **(m, n)** in a directed graph is rendered as two separate edges in opposite
+    directions. Such rendering is more faithful to the graph density.
+
+    :type g: NetworkX Graph or DiGraph
+    :param g: The graph to visualize.
+
+    :type toolbar: bool
+    :param toolbar: Whether to enable the toolbar. This is particularly useful
+                    for saving the visualization to a PNG file.
+    """
     local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
     local_width += local_left + local_right
     local_height += local_bottom + local_top
@@ -601,8 +720,21 @@ def draw(g, toolbar=False):
 
 class Animation:
     """An Animation renders a dynamic visualization of a sequence of graphs.
-    """
 
+    The visualization is powered by `Plotly <https://plot.ly/python/>`_, based
+    on the :ref:`visual attributes <visual-attributes>`, completely consistent
+    with the :func:`draw <freeman.drawing.draw>` function, and mostly consistent
+    with the :func:`interact <freeman.drawing.interact>` function. The only
+    significative difference is that a pair of edges **(n, m)** and **(m, n)**
+    in a directed graph is rendered as two separate edges in opposite
+    directions. Such rendering is more faithful to the graph density.
+
+    :type width: int
+    :param width: Animation width, in pixels. Must be positive.
+
+    :type height: int
+    :param height: Animation height, in pixels. Must be positive.
+    """
     def __init__(self, width=None, height=None):
         if width is not None:
             if not isinstance(width, int):
@@ -626,13 +758,8 @@ class Animation:
     def __exit__(self, type, value, traceback):
         self.play()
 
-    def rec(self, g):
-        """Record a graph.
-        """
-        self.graphs.append(g.copy())
-
-    def render(self, g, h, local_width, local_height):
-        local_bottom, local_left, local_right, local_top = _build_graph_border(g)
+    def _render(self, g, h, local_width, local_height):
+        local_bottom, local_left, local_right, local_top = _build_graph_padding(g)
         local_width += local_left + local_right
         local_height += local_bottom + local_top
 
@@ -676,10 +803,27 @@ class Animation:
 
         return frame
 
+    def rec(self, g):
+        """Record a graph.
+
+        The method simply stores a copy of the graph. The original graph is not
+        stored because it is expected to change after being recorded.
+
+        :type g: NetworkX Graph or DiGraph
+        :param g: The graph to record.
+        """
+        self.graphs.append(g.copy())
+
     def play(self):
         """Play recorded graphs.
-        """
 
+        If the animation constructor has been called with ``width=None``, checks
+        if all recorded graphs have the same width. If they do, such width is
+        used for displaying the animation. Otherwise, the default value for
+        graph width is used. Same for ``height=None``.
+
+        At least two graphs must have been recorded.
+        """
         if len(self.graphs) < 2:
             raise ValueError('animation must have at least two recs')
 
@@ -708,7 +852,7 @@ class Animation:
         frames = []
         for i, g in enumerate(self.graphs):
             if h is None:
-                frames.append(self.render(g, g, width, height))
+                frames.append(self._render(g, g, width, height))
             else:
                 if g != last:
                     next = self.graphs[i + 1]
@@ -716,7 +860,7 @@ class Animation:
                         h.nodes[n].update(next.nodes[n])
                     for n, m in next.edges:
                         h.edges[n, m].update(next.edges[n, m])
-                frames.append(self.render(g, h, width, height))
+                frames.append(self._render(g, h, width, height))
 
         # parameters estimated from screenshots
         width = 1.05 * width + 72

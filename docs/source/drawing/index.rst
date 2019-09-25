@@ -10,8 +10,8 @@ Functions
 .. autosummary::
    :toctree: generated/
 
-   draw
    interact
+   draw
 
 
 Classes
