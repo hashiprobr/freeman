@@ -61,8 +61,8 @@ exist, its default value is considered.
 
 **g.nodes[n]['labpos']**  Node label position, either ``'hover'`` or ``'<vpos> <hpos>'``, where
                           ``<vpos>`` is ``bottom``, ``middle``, or ``top``, and ``<hpos>`` is
-                          ``left``, ``center``, or ``right``. Default value is
-                          ``'middle center'``.
+                          ``left``, ``center``, or ``right``. Default value is ``'middle
+                          center'``.
 ========================  =
 
 Given a graph **g** and an edge **(n, m)** of this graph, the six attributes
