@@ -77,7 +77,8 @@ attribute is not defined, its default value is considered.
 **g.edges[n, m]['labflip']**  Whether the label should be positioned to the right of the edge
                               instead of the left. Default value is ``False``.
 
-**g.edges[n, m]['labdist']**  Distance from edge to label, in pixels. Default value is ``10``.
+**g.edges[n, m]['labdist']**  Distance from edge to label, in pixels. Must be non-negative.
+                              Default value is ``10``.
 
 **g.edges[n, m]['labfrac']**  Where the label should be positioned between the two nodes. The
                               closer the value is to ``0``, the closer the label is to the
