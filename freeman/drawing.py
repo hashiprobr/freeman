@@ -543,8 +543,9 @@ def interact(g, path=None, physics=False):
             os.mkdir(CACHE_DIR)
         path = os.path.join(CACHE_DIR, '{}.html'.format(id(g)))
 
-    # parameters estimated from screenshots
     iframe = network.show(path)
+
+    # parameters estimated from screenshots
     iframe.width += 10
     iframe.height += 10
 
