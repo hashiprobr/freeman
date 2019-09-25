@@ -2,14 +2,14 @@
 
 The visualizations are powered by two different libraries, `pyvis
 <https://pyvis.readthedocs.io/en/latest/>`_ and `Plotly
-<https://plot.ly/python/>`_, but they are configured to be as consistent as
+<https://plot.ly/python/>`_, but they are configured to be as *consistent* as
 possible across these libraries.
 
-The functions and classes require that all nodes are *positioned*: for each node
-**n**, the attribute **g.nodes[n]['pos']** must be a tuple or list of two
-numbers between ``0`` and ``1``. The easiest way to ensure this is to use the
-functions from the :ref:`Moving <moving>` module or wrap with the :func:`Graph
-<freeman.Graph>` class.
+The functions and classes require nodes to be *positioned*: given a graph **g**
+and a node **n** of this graph, the attribute **g.nodes[n]['pos']** must be a
+tuple or list of two numbers between ``0`` and ``1``. To ensure these
+attributes, use the functions from the :ref:`Moving <moving>` module or wrap
+with the :func:`Graph <freeman.Graph>` class.
 
 The appearance is based on the eighteen visual attributes below.
 
