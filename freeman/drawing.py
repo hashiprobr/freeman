@@ -5,6 +5,12 @@ The visualizations are powered by two different libraries, `pyvis
 <https://plot.ly/python/>`_, but they are configured to be as consistent as
 possible across these libraries.
 
+The functions and classes require that all nodes are *positioned*: for each node
+**n**, the attribute **g.nodes[n]['pos']** must be a tuple or list of two
+numbers between ``0`` and ``1``. The easiest way to ensure this is to use the
+functions from the :ref:`Moving <moving>` module or wrap with the :func:`Graph
+<freeman.Graph>` class.
+
 The appearance is based on the eighteen visual attributes below.
 
 
@@ -14,7 +20,7 @@ Visual attributes
 -----------------
 
 Given a graph **g**, the six attributes below can be used for customizing the
-appearance of this graph. When the attribute is not defined, its default value
+appearance of this graph. When the attribute does not exist, its default value
 is considered.
 
 =====================  =
@@ -32,8 +38,8 @@ is considered.
 =====================  =
 
 Given a graph **g** and a node **n** of this graph, the six attributes below can
-be used for customizing the appearance of this node. When the attribute is not
-defined, its default value is considered.
+be used for customizing the appearance of this node. When the attribute does not
+exist, its default value is considered.
 
 ========================  =
 **g.nodes[n]['size']**    Node size, in pixels. Must be positive. Default value is ``20``.
@@ -61,7 +67,7 @@ defined, its default value is considered.
 
 Given a graph **g** and an edge **(n, m)** of this graph, the six attributes
 below can be used for customizing the appearance of this edge. When the
-attribute is not defined, its default value is considered.
+attribute does not exist, its default value is considered.
 
 ============================  =
 **g.edges[n, m]['width']**    Edge width, in pixels. Must be positive. Default value is ``1``.
@@ -71,7 +77,7 @@ attribute is not defined, its default value is considered.
 
 **g.edges[n, m]['color']**    Edge color, as a tuple or list of three integers between ``0``
                               and ``255`` representing red, green, and blue levels,
-                              respectively, and an optional float between ``0`` and ``1``
+                              respectively, and an optional number between ``0`` and ``1``
                               representing opacity. Default value is ``(0, 0, 0)``.
 
 **g.edges[n, m]['labflip']**  Whether the label should be positioned to the right of the edge

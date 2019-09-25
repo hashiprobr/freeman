@@ -1,4 +1,18 @@
+.. _moving:
+
 The Moving Module
 =================
 
-Documentation for the moving module.
+.. automodule:: freeman.moving
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: generated/
+
+   scatter
+   move
+   move_inverse
+   move_complement
