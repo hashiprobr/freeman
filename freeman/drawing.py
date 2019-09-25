@@ -42,15 +42,15 @@ defined, its default value is considered.
                           ``'diamond'``, ``'triangle-up'``, or ``'triangle-down'``. Default
                           value is ``'circle'``.
 
-**g.nodes[n]['color']**   Node color, as a tuple of three integers between ``0`` and ``255``
-                          representing red, green, and blue levels respectively. Default value
-                          is ``(255, 255, 255)``.
+**g.nodes[n]['color']**   Node color, as a tuple or list of three integers between ``0`` and
+                          ``255`` representing red, green, and blue levels, respectively.
+                          Default value is ``(255, 255, 255)``.
 
 **g.nodes[n]['bwidth']**  Node border width, in pixels. Must be non-negative. Default value is
                           ``1``.
 
-**g.nodes[n]['bcolor']**  Node border color, as a tuple of three integers between ``0`` and
-                          ``255`` representing red, green, and blue levels respectively.
+**g.nodes[n]['bcolor']**  Node border color, as a tuple or list of three integers between ``0``
+                          and ``255`` representing red, green, and blue levels, respectively.
                           Default value is ``(0, 0, 0)``.
 
 **g.nodes[n]['labpos']**  Node label position, either ``'hover'`` or ``'<vpos> <hpos>'``, where
@@ -69,9 +69,10 @@ attribute is not defined, its default value is considered.
 **g.edges[n, m]['style']**    Edge style, one of ``'solid'``, ``'dash'``, ``'dot'``, or
                               ``'dashdot'``. Default value is ``'solid'``.
 
-**g.edges[n, m]['color']**    Edge color, as a tuple of three integers between ``0`` and
-                              ``255`` representing red, green, and blue levels respectively.
-                              Default value is ``(255, 255, 255)``.
+**g.edges[n, m]['color']**    Edge color, as a tuple or list of three integers between ``0``
+                              and ``255`` representing red, green, and blue levels,
+                              respectively, and an optional float between ``0`` and ``1``
+                              representing opacity. Default value is ``(0, 0, 0)``.
 
 **g.edges[n, m]['labflip']**  Whether the label should be positioned to the right of the label
                               instead of the left. Default value is ``False``.
