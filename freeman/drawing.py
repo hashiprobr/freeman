@@ -74,7 +74,7 @@ attribute is not defined, its default value is considered.
                               respectively, and an optional float between ``0`` and ``1``
                               representing opacity. Default value is ``(0, 0, 0)``.
 
-**g.edges[n, m]['labflip']**  Whether the label should be positioned to the right of the label
+**g.edges[n, m]['labflip']**  Whether the label should be positioned to the right of the edge
                               instead of the left. Default value is ``False``.
 
 **g.edges[n, m]['labdist']**  Distance from edge to label, in pixels. Default value is ``10``.
