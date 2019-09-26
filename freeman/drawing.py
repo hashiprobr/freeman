@@ -611,7 +611,7 @@ def interact(g, path=None, physics=False):
             },
             'label': ' ',
             'labelHighlightBold': False,
-            'physics': physics,
+            'physics': bool(physics),
             'shape': NODE_STYLES[style],
             'size': size // 2,
             'x': round((x - 0.5) * (0.9 * local_width - 24)) + dx,
@@ -654,6 +654,8 @@ def interact(g, path=None, physics=False):
         if not os.path.exists(CACHE_DIR):
             os.mkdir(CACHE_DIR)
         path = os.path.join(CACHE_DIR, '{}.html'.format(id(g)))
+    else:
+        path = str(path)
 
     iframe = network.show(path)
 
