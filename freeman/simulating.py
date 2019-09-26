@@ -64,9 +64,9 @@ class Simulation(ABC):
         if times <= 0:
             raise ValueError('run times must be positive')
 
-        if not isinstance(times, int) and not isinf(max_iter):
+        if not isinstance(max_iter, int) and not (isinstance(max_iter, float) and isinf(max_iter)):
             raise TypeError('run iters must be an integer or inf')
-        if times <= 0:
+        if max_iter <= 0:
             raise ValueError('run iters must be positive')
 
         self.data = {}
