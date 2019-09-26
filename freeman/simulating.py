@@ -1,22 +1,45 @@
 import pandas as pd
 
-from math import inf
+from math import inf, isinf
 from timeit import default_timer
 from abc import ABC, abstractmethod
 
 
 class Simulation(ABC):
     def print(self, data, condition=True):
+        if not isinstance(data, dict):
+            raise TypeError('print data must be a dict')
+        if not data:
+            raise ValueError('print data must have at least one item')
         if condition:
             print(', '.join('{}: {}'.format(key, value) for key, value in data.items()))
 
     def print_every(self, data, counter, interval):
+        if not isinstance(counter, int):
+            raise TypeError('print counter must be an integer')
+        if counter <= 0:
+            raise ValueError('print counter must be positive')
+        if not isinstance(interval, int):
+            raise TypeError('print interval must be an integer')
+        if interval <= 0:
+            raise ValueError('print interval must be positive')
         self.print(data, counter % interval == 0)
 
     def append(self, data):
-        for key, value in data.items():
-            if key not in self.data:
+        if not isinstance(data, dict):
+            raise TypeError('append data must be a dict')
+        if not data:
+            raise ValueError('append data must have at least one item')
+        if self.data:
+            if self.data.keys() != data.keys():
+                raise KeyError('append data keys must be always the same')
+            for key in data:
+                if type(self.data[key][-1]) != type(data[key]):
+                    raise TypeError('append data values must not change the type')
+        else:
+            for key in data:
                 self.data[key] = []
+        for key, value in data.items():
             self.data[key].append(value)
 
     def before_each(self):
@@ -36,6 +59,16 @@ class Simulation(ABC):
         pass
 
     def run(self, times=1, max_iter=inf):
+        if not isinstance(times, int):
+            raise TypeError('run times must be an integer')
+        if times <= 0:
+            raise ValueError('run times must be positive')
+
+        if not isinstance(times, int) and not isinf(max_iter):
+            raise TypeError('run iters must be an integer or inf')
+        if times <= 0:
+            raise ValueError('run iters must be positive')
+
         self.data = {}
 
         repetition = 1
