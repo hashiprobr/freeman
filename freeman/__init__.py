@@ -8,28 +8,74 @@ from .analyzing import *
 from .simulating import *
 
 
+def _parse(value):
+    if isinstance(value, str):
+        line = value.strip()
+        if line.startswith('rgb(') or line.startswith('rgba('):
+            if not line.endswith(')'):
+                raise ValueError('rgb and rgba must end with ")"')
+            length = line.find('(')
+            phrase = line[(length + 1):-1]
+            if phrase.find('(') != -1 or phrase.find(')') != -1:
+                raise ValueError('rgb and rgba must have only one "(" and only one ")"')
+
+            words = phrase.split(',')
+            if len(words) != length:
+                if length == 3:
+                    raise ValueError('rgb must have three components')
+                else:
+                    raise ValueError('rgba must have four components')
+
+            r = int(words[0])
+            g = int(words[1])
+            b = int(words[2])
+            if r < 0 or r > 255 or g < 0 or g > 255 or b < 0 or b > 255:
+                raise ValueError('rgb channels must be between 0 and 255')
+            if length == 4:
+                a = float(words[3])
+                if a < 0 or a > 1:
+                    raise ValueError('rgba alpha must be between 0 and 1')
+                return (r, g, b, a)
+            else:
+                return (r, g, b)
+
+    return value
+
+
 def load(path):
     g = nx.read_gml(path, 'id')
 
+    keys = list(g.graph.keys())
+    for key in keys:
+        if key.startswith('node_'):
+            set_all_nodes(g, key[5:], g.graph[key])
+            del g.graph[key]
+        if key.startswith('edge_'):
+            set_all_edges(g, key[5:], g.graph[key])
+            del g.graph[key]
+
     for n in g.nodes:
+        for key in g.nodes[n]:
+            g.nodes[n][key] = _parse(g.nodes[n][key])
+
         if 'pos' in g.nodes[n]:
             warn('node pos is not allowed in file, ignoring')
-
         if 'x' in g.nodes[n]:
             x = g.nodes[n]['x']
             del g.nodes[n]['x']
         else:
             x = None
-
         if 'y' in g.nodes[n]:
             y = g.nodes[n]['y']
             del g.nodes[n]['y']
         else:
             y = None
-
         g.nodes[n]['pos'] = (x, y)
 
     for n, m in g.edges:
+        for key in g.edges[n, m]:
+            g.edges[n, m][key] = _parse(g.edges[n, m][key])
+
         if 'labflip' in g.edges[n, m]:
             value = g.edges[n, m]['labflip']
             if value != 0 and value != 1:
