@@ -275,9 +275,9 @@ class Graph(ObjectProxy):
         draw(self, toolbar)
 
     def extract_nodes(self, map):
-        extract_nodes(self, map)
+        return extract_nodes(self, map)
     def extract_edges(self, map):
-        extract_edges(self, map)
+        return extract_edges(self, map)
     def label_nodes(self, map=None, ndigits=2):
         label_nodes(self, map, ndigits)
     def label_edges(self, map=None, ndigits=2):

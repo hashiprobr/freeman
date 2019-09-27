@@ -34,7 +34,9 @@ class Simulation(ABC):
             if self.data.keys() != data.keys():
                 raise KeyError('append data keys must be always the same')
             for key in data:
-                if type(self.data[key][-1]) != type(data[key]):
+                prev = self.data[key][-1]
+                curr = data[key]
+                if prev is not None and curr is not None and type(prev) != type(curr):
                     raise TypeError('append data values must not change the type')
         else:
             for key in data:
