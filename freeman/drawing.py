@@ -312,7 +312,7 @@ def _build_node_key(g, n):
     if not isinstance(labpos, str):
         raise TypeError('node labpos must be a string')
     if labpos != 'hover':
-        words = labpos.split(' ')
+        words = labpos.split()
         if len(words) != 2:
             raise ValueError('node labpos must be "hover" or a vertical position and an horizontal position separated by a space')
         vpos = ['bottom', 'middle', 'top']
@@ -574,6 +574,9 @@ def interact(g, path=None, physics=False):
     :type physics: bool
     :param physics: Whether to enable the physics simulation.
     """
+    if not isinstance(physics, bool):
+        raise TypeError('interact physics must be a boolean')
+
     local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
     dx = local_left + local_right
     dy = local_bottom + local_top
@@ -611,7 +614,7 @@ def interact(g, path=None, physics=False):
             },
             'label': ' ',
             'labelHighlightBold': False,
-            'physics': bool(physics),
+            'physics': physics,
             'shape': NODE_STYLES[style],
             'size': size // 2,
             'x': round((x - 0.5) * (0.9 * local_width - 24)) + dx,
@@ -654,8 +657,6 @@ def interact(g, path=None, physics=False):
         if not os.path.exists(CACHE_DIR):
             os.mkdir(CACHE_DIR)
         path = os.path.join(CACHE_DIR, '{}.html'.format(id(g)))
-    else:
-        path = str(path)
 
     iframe = network.show(path)
 
@@ -684,6 +685,9 @@ def draw(g, toolbar=False):
     :param toolbar: Whether to enable the toolbar. This is particularly useful for saving the
                     visualization to a PNG file.
     """
+    if not isinstance(toolbar, bool):
+        raise TypeError('draw toolbar must be a boolean')
+
     local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
     local_width += local_left + local_right
     local_height += local_bottom + local_top
