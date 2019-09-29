@@ -9,6 +9,7 @@ import freeman as fm
 
 
 N = 'Medici'
+M = 'Acciaiuoli'
 
 
 class DrawingTest(unittest.TestCase):
@@ -99,7 +100,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_float_graph_width(self, g):
         g = g.copy()
-        g.graph['width'] = 2.5
+        g.graph['width'] = 12.5
         return g
     def test_interact_graph_with_float_graph_width(self):
         self.assertRaises(TypeError, fm.interact, self.with_float_graph_width(self.partial_graph()))
@@ -138,7 +139,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_float_graph_height(self, g):
         g = g.copy()
-        g.graph['height'] = 2.5
+        g.graph['height'] = 112.5
         return g
     def test_interact_graph_with_float_graph_height(self):
         self.assertRaises(TypeError, fm.interact, self.with_float_graph_height(self.partial_graph()))
@@ -320,7 +321,7 @@ class DrawingTest(unittest.TestCase):
 
     def without_node_pos(self, g):
         g = g.copy()
-        del g.node[N]['pos']
+        del g.nodes[N]['pos']
         return g
     def test_interact_graph_without_node_pos(self):
         self.assertRaises(KeyError, fm.interact, self.without_node_pos(self.partial_graph()))
@@ -333,7 +334,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_none_node_pos(self, g):
         g = g.copy()
-        g.node[N]['pos'] = None
+        g.nodes[N]['pos'] = None
         return g
     def test_interact_graph_with_none_node_pos(self):
         self.assertRaises(TypeError, fm.interact, self.with_none_node_pos(self.partial_graph()))
@@ -346,7 +347,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_short_node_pos(self, g):
         g = g.copy()
-        g.node[N]['pos'] = (0.5,)
+        g.nodes[N]['pos'] = (0.5,)
         return g
     def test_interact_graph_with_short_node_pos(self):
         self.assertRaises(ValueError, fm.interact, self.with_short_node_pos(self.partial_graph()))
@@ -359,7 +360,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_long_node_pos(self, g):
         g = g.copy()
-        g.node[N]['pos'] = (0.5, 0.5, 0.5)
+        g.nodes[N]['pos'] = (0.5, 0.5, 0.5)
         return g
     def test_interact_graph_with_long_node_pos(self):
         self.assertRaises(ValueError, fm.interact, self.with_long_node_pos(self.partial_graph()))
@@ -372,7 +373,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_none_x_node_pos(self, g):
         g = g.copy()
-        g.node[N]['pos'] = (None, 0.5)
+        g.nodes[N]['pos'] = (None, 0.5)
         return g
     def test_interact_graph_with_none_x_node_pos(self):
         self.assertRaises(TypeError, fm.interact, self.with_none_x_node_pos(self.partial_graph()))
@@ -385,7 +386,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_none_y_node_pos(self, g):
         g = g.copy()
-        g.node[N]['pos'] = (0.5, None)
+        g.nodes[N]['pos'] = (0.5, None)
         return g
     def test_interact_graph_with_none_y_node_pos(self):
         self.assertRaises(TypeError, fm.interact, self.with_none_y_node_pos(self.partial_graph()))
@@ -398,7 +399,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_lower_x_node_pos(self, g):
         g = g.copy()
-        g.node[N]['pos'] = (-0.5, 0.5)
+        g.nodes[N]['pos'] = (-0.5, 0.5)
         return g
     def test_interact_graph_with_lower_x_node_pos(self):
         self.assertRaises(ValueError, fm.interact, self.with_lower_x_node_pos(self.partial_graph()))
@@ -411,7 +412,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_lower_y_node_pos(self, g):
         g = g.copy()
-        g.node[N]['pos'] = (0.5, -0.5)
+        g.nodes[N]['pos'] = (0.5, -0.5)
         return g
     def test_interact_graph_with_lower_y_node_pos(self):
         self.assertRaises(ValueError, fm.interact, self.with_lower_y_node_pos(self.partial_graph()))
@@ -424,7 +425,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_upper_x_node_pos(self, g):
         g = g.copy()
-        g.node[N]['pos'] = (1.5, 0.5)
+        g.nodes[N]['pos'] = (1.5, 0.5)
         return g
     def test_interact_graph_with_upper_x_node_pos(self):
         self.assertRaises(ValueError, fm.interact, self.with_upper_x_node_pos(self.partial_graph()))
@@ -437,7 +438,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_upper_y_node_pos(self, g):
         g = g.copy()
-        g.node[N]['pos'] = (0.5, 1.5)
+        g.nodes[N]['pos'] = (0.5, 1.5)
         return g
     def test_interact_graph_with_upper_y_node_pos(self):
         self.assertRaises(ValueError, fm.interact, self.with_upper_y_node_pos(self.partial_graph()))
@@ -450,7 +451,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_node_size(self, g):
         g = g.copy()
-        g.node[N]['size'] = 20
+        g.nodes[N]['size'] = 20
         return g
     def test_interact_graph_with_node_size(self):
         fm.interact(self.with_node_size(self.partial_graph()))
@@ -463,7 +464,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_float_node_size(self, g):
         g = g.copy()
-        g.node[N]['size'] = 2.5
+        g.nodes[N]['size'] = 2.5
         return g
     def test_interact_graph_with_float_node_size(self):
         self.assertRaises(TypeError, fm.interact, self.with_float_node_size(self.partial_graph()))
@@ -476,7 +477,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_nonpositive_node_size(self, g):
         g = g.copy()
-        g.node[N]['size'] = 0
+        g.nodes[N]['size'] = 0
         return g
     def test_interact_graph_with_nonpositive_node_size(self):
         self.assertRaises(ValueError, fm.interact, self.with_nonpositive_node_size(self.partial_graph()))
@@ -489,7 +490,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_node_style(self, g):
         g = g.copy()
-        g.node[N]['style'] = 'circle'
+        g.nodes[N]['style'] = 'circle'
         return g
     def test_interact_graph_with_node_style(self):
         fm.interact(self.with_node_style(self.partial_graph()))
@@ -502,7 +503,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_invalid_node_style(self, g):
         g = g.copy()
-        g.node[N]['style'] = 'style'
+        g.nodes[N]['style'] = 'style'
         return g
     def test_interact_graph_with_invalid_node_style(self):
         self.assertRaises(KeyError, fm.interact, self.with_invalid_node_style(self.partial_graph()))
@@ -515,7 +516,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (255, 255, 255)
+        g.nodes[N]['color'] = (255, 255, 255)
         return g
     def test_interact_graph_with_node_color(self):
         fm.interact(self.with_node_color(self.partial_graph()))
@@ -528,7 +529,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_none_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = None
+        g.nodes[N]['color'] = None
         return g
     def test_interact_graph_with_none_node_color(self):
         self.assertRaises(TypeError, fm.interact, self.with_none_node_color(self.partial_graph()))
@@ -541,7 +542,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_short_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (255, 255)
+        g.nodes[N]['color'] = (255, 255)
         return g
     def test_interact_graph_with_short_node_color(self):
         self.assertRaises(ValueError, fm.interact, self.with_short_node_color(self.partial_graph()))
@@ -554,7 +555,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_long_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (255, 255, 255, 255)
+        g.nodes[N]['color'] = (255, 255, 255, 255)
         return g
     def test_interact_graph_with_long_node_color(self):
         self.assertRaises(ValueError, fm.interact, self.with_long_node_color(self.partial_graph()))
@@ -565,48 +566,48 @@ class DrawingTest(unittest.TestCase):
     def test_draw_digraph_with_long_node_color(self):
         self.assertRaises(ValueError, fm.draw, self.with_long_node_color(self.partial_digraph()))
 
-    def with_none_r_node_color(self, g):
+    def with_float_r_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (None, 255, 255)
+        g.nodes[N]['color'] = (127.5, 255, 255)
         return g
-    def test_interact_graph_with_none_r_node_color(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_r_node_color(self.partial_graph()))
-    def test_interact_digraph_with_none_r_node_color(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_r_node_color(self.partial_digraph()))
-    def test_draw_graph_with_none_r_node_color(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_r_node_color(self.partial_graph()))
-    def test_draw_digraph_with_none_r_node_color(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_r_node_color(self.partial_digraph()))
+    def test_interact_graph_with_float_r_node_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_r_node_color(self.partial_graph()))
+    def test_interact_digraph_with_float_r_node_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_r_node_color(self.partial_digraph()))
+    def test_draw_graph_with_float_r_node_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_r_node_color(self.partial_graph()))
+    def test_draw_digraph_with_float_r_node_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_r_node_color(self.partial_digraph()))
 
-    def with_none_g_node_color(self, g):
+    def with_float_g_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (255, None, 255)
+        g.nodes[N]['color'] = (255, 127.5, 255)
         return g
-    def test_interact_graph_with_none_g_node_color(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_g_node_color(self.partial_graph()))
-    def test_interact_digraph_with_none_g_node_color(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_g_node_color(self.partial_digraph()))
-    def test_draw_graph_with_none_g_node_color(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_g_node_color(self.partial_graph()))
-    def test_draw_digraph_with_none_g_node_color(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_g_node_color(self.partial_digraph()))
+    def test_interact_graph_with_float_g_node_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_g_node_color(self.partial_graph()))
+    def test_interact_digraph_with_float_g_node_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_g_node_color(self.partial_digraph()))
+    def test_draw_graph_with_float_g_node_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_g_node_color(self.partial_graph()))
+    def test_draw_digraph_with_float_g_node_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_g_node_color(self.partial_digraph()))
 
-    def with_none_b_node_color(self, g):
+    def with_float_b_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (255, 255, None)
+        g.nodes[N]['color'] = (255, 255, 127.5)
         return g
-    def test_interact_graph_with_none_b_node_color(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_b_node_color(self.partial_graph()))
-    def test_interact_digraph_with_none_b_node_color(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_b_node_color(self.partial_digraph()))
-    def test_draw_graph_with_none_b_node_color(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_b_node_color(self.partial_graph()))
-    def test_draw_digraph_with_none_b_node_color(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_b_node_color(self.partial_digraph()))
+    def test_interact_graph_with_float_b_node_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_b_node_color(self.partial_graph()))
+    def test_interact_digraph_with_float_b_node_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_b_node_color(self.partial_digraph()))
+    def test_draw_graph_with_float_b_node_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_b_node_color(self.partial_graph()))
+    def test_draw_digraph_with_float_b_node_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_b_node_color(self.partial_digraph()))
 
     def with_lower_r_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (-1, 255, 255)
+        g.nodes[N]['color'] = (-1, 255, 255)
         return g
     def test_interact_graph_with_lower_r_node_color(self):
         self.assertRaises(ValueError, fm.interact, self.with_lower_r_node_color(self.partial_graph()))
@@ -619,7 +620,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_lower_g_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (255, -1, 255)
+        g.nodes[N]['color'] = (255, -1, 255)
         return g
     def test_interact_graph_with_lower_g_node_color(self):
         self.assertRaises(ValueError, fm.interact, self.with_lower_g_node_color(self.partial_graph()))
@@ -632,7 +633,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_lower_b_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (255, 255, -1)
+        g.nodes[N]['color'] = (255, 255, -1)
         return g
     def test_interact_graph_with_lower_b_node_color(self):
         self.assertRaises(ValueError, fm.interact, self.with_lower_b_node_color(self.partial_graph()))
@@ -645,7 +646,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_upper_r_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (256, 255, 255)
+        g.nodes[N]['color'] = (256, 255, 255)
         return g
     def test_interact_graph_with_upper_r_node_color(self):
         self.assertRaises(ValueError, fm.interact, self.with_upper_r_node_color(self.partial_graph()))
@@ -658,7 +659,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_upper_g_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (255, 256, 255)
+        g.nodes[N]['color'] = (255, 256, 255)
         return g
     def test_interact_graph_with_upper_g_node_color(self):
         self.assertRaises(ValueError, fm.interact, self.with_upper_g_node_color(self.partial_graph()))
@@ -671,7 +672,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_upper_b_node_color(self, g):
         g = g.copy()
-        g.node[N]['color'] = (255, 255, 256)
+        g.nodes[N]['color'] = (255, 255, 256)
         return g
     def test_interact_graph_with_upper_b_node_color(self):
         self.assertRaises(ValueError, fm.interact, self.with_upper_b_node_color(self.partial_graph()))
@@ -684,7 +685,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_node_bwidth(self, g):
         g = g.copy()
-        g.node[N]['bwidth'] = 1
+        g.nodes[N]['bwidth'] = 1
         return g
     def test_interact_graph_with_node_bwidth(self):
         fm.interact(self.with_node_bwidth(self.partial_graph()))
@@ -697,7 +698,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_float_node_bwidth(self, g):
         g = g.copy()
-        g.node[N]['bwidth'] = 0.5
+        g.nodes[N]['bwidth'] = 0.5
         return g
     def test_interact_graph_with_float_node_bwidth(self):
         self.assertRaises(TypeError, fm.interact, self.with_float_node_bwidth(self.partial_graph()))
@@ -710,7 +711,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_negative_node_bwidth(self, g):
         g = g.copy()
-        g.node[N]['bwidth'] = -1
+        g.nodes[N]['bwidth'] = -1
         return g
     def test_interact_graph_with_negative_node_bwidth(self):
         self.assertRaises(ValueError, fm.interact, self.with_negative_node_bwidth(self.partial_graph()))
@@ -723,7 +724,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (0, 0, 0)
+        g.nodes[N]['bcolor'] = (0, 0, 0)
         return g
     def test_interact_graph_with_node_bcolor(self):
         fm.interact(self.with_node_bcolor(self.partial_graph()))
@@ -736,7 +737,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_none_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = None
+        g.nodes[N]['bcolor'] = None
         return g
     def test_interact_graph_with_none_node_bcolor(self):
         self.assertRaises(TypeError, fm.interact, self.with_none_node_bcolor(self.partial_graph()))
@@ -749,7 +750,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_short_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (0, 0)
+        g.nodes[N]['bcolor'] = (0, 0)
         return g
     def test_interact_graph_with_short_node_bcolor(self):
         self.assertRaises(ValueError, fm.interact, self.with_short_node_bcolor(self.partial_graph()))
@@ -762,7 +763,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_long_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (0, 0, 0, 0)
+        g.nodes[N]['bcolor'] = (0, 0, 0, 0)
         return g
     def test_interact_graph_with_long_node_bcolor(self):
         self.assertRaises(ValueError, fm.interact, self.with_long_node_bcolor(self.partial_graph()))
@@ -773,48 +774,48 @@ class DrawingTest(unittest.TestCase):
     def test_draw_digraph_with_long_node_bcolor(self):
         self.assertRaises(ValueError, fm.draw, self.with_long_node_bcolor(self.partial_digraph()))
 
-    def with_none_r_node_bcolor(self, g):
+    def with_float_r_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (None, 0, 0)
+        g.nodes[N]['bcolor'] = (127.5, 0, 0)
         return g
-    def test_interact_graph_with_none_r_node_bcolor(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_r_node_bcolor(self.partial_graph()))
-    def test_interact_digraph_with_none_r_node_bcolor(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_r_node_bcolor(self.partial_digraph()))
-    def test_draw_graph_with_none_r_node_bcolor(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_r_node_bcolor(self.partial_graph()))
-    def test_draw_digraph_with_none_r_node_bcolor(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_r_node_bcolor(self.partial_digraph()))
+    def test_interact_graph_with_float_r_node_bcolor(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_r_node_bcolor(self.partial_graph()))
+    def test_interact_digraph_with_float_r_node_bcolor(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_r_node_bcolor(self.partial_digraph()))
+    def test_draw_graph_with_float_r_node_bcolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_r_node_bcolor(self.partial_graph()))
+    def test_draw_digraph_with_float_r_node_bcolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_r_node_bcolor(self.partial_digraph()))
 
-    def with_none_g_node_bcolor(self, g):
+    def with_float_g_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (0, None, 0)
+        g.nodes[N]['bcolor'] = (0, 127.5, 0)
         return g
-    def test_interact_graph_with_none_g_node_bcolor(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_g_node_bcolor(self.partial_graph()))
-    def test_interact_digraph_with_none_g_node_bcolor(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_g_node_bcolor(self.partial_digraph()))
-    def test_draw_graph_with_none_g_node_bcolor(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_g_node_bcolor(self.partial_graph()))
-    def test_draw_digraph_with_none_g_node_bcolor(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_g_node_bcolor(self.partial_digraph()))
+    def test_interact_graph_with_float_g_node_bcolor(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_g_node_bcolor(self.partial_graph()))
+    def test_interact_digraph_with_float_g_node_bcolor(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_g_node_bcolor(self.partial_digraph()))
+    def test_draw_graph_with_float_g_node_bcolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_g_node_bcolor(self.partial_graph()))
+    def test_draw_digraph_with_float_g_node_bcolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_g_node_bcolor(self.partial_digraph()))
 
-    def with_none_b_node_bcolor(self, g):
+    def with_float_b_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (0, 0, None)
+        g.nodes[N]['bcolor'] = (0, 0, 127.5)
         return g
-    def test_interact_graph_with_none_b_node_bcolor(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_b_node_bcolor(self.partial_graph()))
-    def test_interact_digraph_with_none_b_node_bcolor(self):
-        self.assertRaises(TypeError, fm.interact, self.with_none_b_node_bcolor(self.partial_digraph()))
-    def test_draw_graph_with_none_b_node_bcolor(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_b_node_bcolor(self.partial_graph()))
-    def test_draw_digraph_with_none_b_node_bcolor(self):
-        self.assertRaises(TypeError, fm.draw, self.with_none_b_node_bcolor(self.partial_digraph()))
+    def test_interact_graph_with_float_b_node_bcolor(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_b_node_bcolor(self.partial_graph()))
+    def test_interact_digraph_with_float_b_node_bcolor(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_b_node_bcolor(self.partial_digraph()))
+    def test_draw_graph_with_float_b_node_bcolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_b_node_bcolor(self.partial_graph()))
+    def test_draw_digraph_with_float_b_node_bcolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_b_node_bcolor(self.partial_digraph()))
 
     def with_lower_r_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (-1, 0, 0)
+        g.nodes[N]['bcolor'] = (-1, 0, 0)
         return g
     def test_interact_graph_with_lower_r_node_bcolor(self):
         self.assertRaises(ValueError, fm.interact, self.with_lower_r_node_bcolor(self.partial_graph()))
@@ -827,7 +828,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_lower_g_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (0, -1, 0)
+        g.nodes[N]['bcolor'] = (0, -1, 0)
         return g
     def test_interact_graph_with_lower_g_node_bcolor(self):
         self.assertRaises(ValueError, fm.interact, self.with_lower_g_node_bcolor(self.partial_graph()))
@@ -840,7 +841,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_lower_b_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (0, 0, -1)
+        g.nodes[N]['bcolor'] = (0, 0, -1)
         return g
     def test_interact_graph_with_lower_b_node_bcolor(self):
         self.assertRaises(ValueError, fm.interact, self.with_lower_b_node_bcolor(self.partial_graph()))
@@ -853,7 +854,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_upper_r_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (256, 0, 0)
+        g.nodes[N]['bcolor'] = (256, 0, 0)
         return g
     def test_interact_graph_with_upper_r_node_bcolor(self):
         self.assertRaises(ValueError, fm.interact, self.with_upper_r_node_bcolor(self.partial_graph()))
@@ -866,7 +867,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_upper_g_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (0, 256, 0)
+        g.nodes[N]['bcolor'] = (0, 256, 0)
         return g
     def test_interact_graph_with_upper_g_node_bcolor(self):
         self.assertRaises(ValueError, fm.interact, self.with_upper_g_node_bcolor(self.partial_graph()))
@@ -879,7 +880,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_upper_b_node_bcolor(self, g):
         g = g.copy()
-        g.node[N]['bcolor'] = (0, 0, 256)
+        g.nodes[N]['bcolor'] = (0, 0, 256)
         return g
     def test_interact_graph_with_upper_b_node_bcolor(self):
         self.assertRaises(ValueError, fm.interact, self.with_upper_b_node_bcolor(self.partial_graph()))
@@ -892,7 +893,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_node_labpos(self, g):
         g = g.copy()
-        g.node[N]['labpos'] = 'middle center'
+        g.nodes[N]['labpos'] = 'middle center'
         return g
     def test_interact_graph_with_node_labpos(self):
         fm.interact(self.with_node_labpos(self.partial_graph()))
@@ -905,7 +906,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_none_node_labpos(self, g):
         g = g.copy()
-        g.node[N]['labpos'] = None
+        g.nodes[N]['labpos'] = None
         return g
     def test_interact_graph_with_none_node_labpos(self):
         self.assertRaises(TypeError, fm.interact, self.with_none_node_labpos(self.partial_graph()))
@@ -918,7 +919,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_short_node_labpos(self, g):
         g = g.copy()
-        g.node[N]['labpos'] = 'middle'
+        g.nodes[N]['labpos'] = 'middle'
         return g
     def test_interact_graph_with_short_node_labpos(self):
         self.assertRaises(ValueError, fm.interact, self.with_short_node_labpos(self.partial_graph()))
@@ -931,7 +932,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_long_node_labpos(self, g):
         g = g.copy()
-        g.node[N]['labpos'] = 'middle center labpos'
+        g.nodes[N]['labpos'] = 'middle center labpos'
         return g
     def test_interact_graph_with_long_node_labpos(self):
         self.assertRaises(ValueError, fm.interact, self.with_long_node_labpos(self.partial_graph()))
@@ -944,7 +945,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_invalid_vpos_node_labpos(self, g):
         g = g.copy()
-        g.node[N]['labpos'] = 'vpos center'
+        g.nodes[N]['labpos'] = 'vpos center'
         return g
     def test_interact_graph_with_invalid_vpos_node_labpos(self):
         self.assertRaises(KeyError, fm.interact, self.with_invalid_vpos_node_labpos(self.partial_graph()))
@@ -957,7 +958,7 @@ class DrawingTest(unittest.TestCase):
 
     def with_invalid_hpos_node_labpos(self, g):
         g = g.copy()
-        g.node[N]['labpos'] = 'middle hpos'
+        g.nodes[N]['labpos'] = 'middle hpos'
         return g
     def test_interact_graph_with_invalid_hpos_node_labpos(self):
         self.assertRaises(KeyError, fm.interact, self.with_invalid_hpos_node_labpos(self.partial_graph()))
@@ -967,6 +968,396 @@ class DrawingTest(unittest.TestCase):
         self.assertRaises(KeyError, fm.draw, self.with_invalid_hpos_node_labpos(self.partial_graph()))
     def test_draw_digraph_with_invalid_hpos_node_labpos(self):
         self.assertRaises(KeyError, fm.draw, self.with_invalid_hpos_node_labpos(self.partial_digraph()))
+
+    def with_edge_width(self, g):
+        g = g.copy()
+        g.edges[N, M]['width'] = 1
+        return g
+    def test_interact_graph_with_edge_width(self):
+        fm.interact(self.with_edge_width(self.partial_graph()))
+    def test_interact_digraph_with_edge_width(self):
+        fm.interact(self.with_edge_width(self.partial_digraph()))
+    def test_draw_graph_with_edge_width(self):
+        fm.draw(self.with_edge_width(self.partial_graph()))
+    def test_draw_digraph_with_edge_width(self):
+        fm.draw(self.with_edge_width(self.partial_digraph()))
+
+    def with_float_edge_width(self, g):
+        g = g.copy()
+        g.edges[N, M]['width'] = 1.5
+        return g
+    def test_interact_graph_with_float_edge_width(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_edge_width(self.partial_graph()))
+    def test_interact_digraph_with_float_edge_width(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_edge_width(self.partial_digraph()))
+    def test_draw_graph_with_float_edge_width(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_edge_width(self.partial_graph()))
+    def test_draw_digraph_with_float_edge_width(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_edge_width(self.partial_digraph()))
+
+    def with_nonpositive_edge_width(self, g):
+        g = g.copy()
+        g.edges[N, M]['width'] = 0
+        return g
+    def test_interact_graph_with_nonpositive_edge_width(self):
+        self.assertRaises(ValueError, fm.interact, self.with_nonpositive_edge_width(self.partial_graph()))
+    def test_interact_digraph_with_nonpositive_edge_width(self):
+        self.assertRaises(ValueError, fm.interact, self.with_nonpositive_edge_width(self.partial_digraph()))
+    def test_draw_graph_with_nonpositive_edge_width(self):
+        self.assertRaises(ValueError, fm.draw, self.with_nonpositive_edge_width(self.partial_graph()))
+    def test_draw_digraph_with_nonpositive_edge_width(self):
+        self.assertRaises(ValueError, fm.draw, self.with_nonpositive_edge_width(self.partial_digraph()))
+
+    def with_edge_style(self, g):
+        g = g.copy()
+        g.edges[N, M]['style'] = 'solid'
+        return g
+    def test_interact_graph_with_edge_style(self):
+        fm.interact(self.with_edge_style(self.partial_graph()))
+    def test_interact_digraph_with_edge_style(self):
+        fm.interact(self.with_edge_style(self.partial_digraph()))
+    def test_draw_graph_with_edge_style(self):
+        fm.draw(self.with_edge_style(self.partial_graph()))
+    def test_draw_digraph_with_edge_style(self):
+        fm.draw(self.with_edge_style(self.partial_digraph()))
+
+    def with_invalid_edge_style(self, g):
+        g = g.copy()
+        g.edges[N, M]['style'] = 'style'
+        return g
+    def test_interact_graph_with_invalid_edge_style(self):
+        self.assertRaises(KeyError, fm.interact, self.with_invalid_edge_style(self.partial_graph()))
+    def test_interact_digraph_with_invalid_edge_style(self):
+        self.assertRaises(KeyError, fm.interact, self.with_invalid_edge_style(self.partial_digraph()))
+    def test_draw_graph_with_invalid_edge_style(self):
+        self.assertRaises(KeyError, fm.draw, self.with_invalid_edge_style(self.partial_graph()))
+    def test_draw_digraph_with_invalid_edge_style(self):
+        self.assertRaises(KeyError, fm.draw, self.with_invalid_edge_style(self.partial_digraph()))
+
+    def with_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 0, 0)
+        return g
+    def test_interact_graph_with_edge_color(self):
+        fm.interact(self.with_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_edge_color(self):
+        fm.interact(self.with_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_edge_color(self):
+        fm.draw(self.with_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_edge_color(self):
+        fm.draw(self.with_edge_color(self.partial_digraph()))
+
+    def with_none_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = None
+        return g
+    def test_interact_graph_with_none_edge_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_none_edge_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_none_edge_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_none_edge_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_edge_color(self.partial_digraph()))
+
+    def with_short_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 0)
+        return g
+    def test_interact_graph_with_short_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_short_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_short_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_short_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_short_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_short_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_short_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_short_edge_color(self.partial_digraph()))
+
+    def with_long_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 0, 0, 0.5, 0.5)
+        return g
+    def test_interact_graph_with_long_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_long_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_long_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_long_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_long_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_long_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_long_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_long_edge_color(self.partial_digraph()))
+
+    def with_float_r_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (127.5, 0, 0, 0.5)
+        return g
+    def test_interact_graph_with_float_r_edge_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_r_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_float_r_edge_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_r_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_float_r_edge_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_r_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_float_r_edge_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_r_edge_color(self.partial_digraph()))
+
+    def with_float_g_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 127.5, 0, 0.5)
+        return g
+    def test_interact_graph_with_float_g_edge_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_g_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_float_g_edge_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_g_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_float_g_edge_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_g_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_float_g_edge_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_g_edge_color(self.partial_digraph()))
+
+    def with_float_b_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 0, 127.5, 0.5)
+        return g
+    def test_interact_graph_with_float_b_edge_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_b_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_float_b_edge_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_b_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_float_b_edge_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_b_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_float_b_edge_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_b_edge_color(self.partial_digraph()))
+
+    def with_none_a_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 0, 0, None)
+        return g
+    def test_interact_graph_with_none_a_edge_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_a_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_none_a_edge_color(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_a_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_none_a_edge_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_a_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_none_a_edge_color(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_a_edge_color(self.partial_digraph()))
+
+    def with_lower_r_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (-1, 0, 0, 0.5)
+        return g
+    def test_interact_graph_with_lower_r_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_lower_r_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_lower_r_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_lower_r_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_lower_r_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_r_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_lower_r_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_r_edge_color(self.partial_digraph()))
+
+    def with_lower_g_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, -1, 0, 0.5)
+        return g
+    def test_interact_graph_with_lower_g_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_lower_g_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_lower_g_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_lower_g_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_lower_g_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_g_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_lower_g_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_g_edge_color(self.partial_digraph()))
+
+    def with_lower_b_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 0, -1, 0.5)
+        return g
+    def test_interact_graph_with_lower_b_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_lower_b_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_lower_b_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_lower_b_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_lower_b_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_b_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_lower_b_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_b_edge_color(self.partial_digraph()))
+
+    def with_lower_a_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 0, 0, -0.5)
+        return g
+    def test_interact_graph_with_lower_a_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_lower_a_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_lower_a_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_lower_a_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_lower_a_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_a_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_lower_a_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_a_edge_color(self.partial_digraph()))
+
+    def with_upper_r_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (256, 0, 0, 0.5)
+        return g
+    def test_interact_graph_with_upper_r_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_upper_r_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_upper_r_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_upper_r_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_upper_r_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_r_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_upper_r_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_r_edge_color(self.partial_digraph()))
+
+    def with_upper_g_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 256, 0, 0.5)
+        return g
+    def test_interact_graph_with_upper_g_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_upper_g_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_upper_g_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_upper_g_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_upper_g_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_g_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_upper_g_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_g_edge_color(self.partial_digraph()))
+
+    def with_upper_b_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 0, 256, 0.5)
+        return g
+    def test_interact_graph_with_upper_b_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_upper_b_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_upper_b_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_upper_b_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_upper_b_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_b_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_upper_b_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_b_edge_color(self.partial_digraph()))
+
+    def with_upper_a_edge_color(self, g):
+        g = g.copy()
+        g.edges[N, M]['color'] = (0, 0, 0, 1.5)
+        return g
+    def test_interact_graph_with_upper_a_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_upper_a_edge_color(self.partial_graph()))
+    def test_interact_digraph_with_upper_a_edge_color(self):
+        self.assertRaises(ValueError, fm.interact, self.with_upper_a_edge_color(self.partial_digraph()))
+    def test_draw_graph_with_upper_a_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_a_edge_color(self.partial_graph()))
+    def test_draw_digraph_with_upper_a_edge_color(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_a_edge_color(self.partial_digraph()))
+
+    def with_edge_labflip(self, g):
+        g = g.copy()
+        g.edges[N, M]['labflip'] = False
+        return g
+    def test_interact_graph_with_edge_labflip(self):
+        fm.interact(self.with_edge_labflip(self.partial_graph()))
+    def test_interact_digraph_with_edge_labflip(self):
+        fm.interact(self.with_edge_labflip(self.partial_digraph()))
+    def test_draw_graph_with_edge_labflip(self):
+        fm.draw(self.with_edge_labflip(self.partial_graph()))
+    def test_draw_digraph_with_edge_labflip(self):
+        fm.draw(self.with_edge_labflip(self.partial_digraph()))
+
+    def with_none_edge_labflip(self, g):
+        g = g.copy()
+        g.edges[N, M]['labflip'] = None
+        return g
+    def test_interact_graph_with_none_edge_labflip(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_edge_labflip(self.partial_graph()))
+    def test_interact_digraph_with_none_edge_labflip(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_edge_labflip(self.partial_digraph()))
+    def test_draw_graph_with_none_edge_labflip(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_edge_labflip(self.partial_graph()))
+    def test_draw_digraph_with_none_edge_labflip(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_edge_labflip(self.partial_digraph()))
+
+    def with_edge_labdist(self, g):
+        g = g.copy()
+        g.edges[N, M]['labdist'] = 10
+        return g
+    def test_interact_graph_with_edge_labdist(self):
+        fm.interact(self.with_edge_labdist(self.partial_graph()))
+    def test_interact_digraph_with_edge_labdist(self):
+        fm.interact(self.with_edge_labdist(self.partial_digraph()))
+    def test_draw_graph_with_edge_labdist(self):
+        fm.draw(self.with_edge_labdist(self.partial_graph()))
+    def test_draw_digraph_with_edge_labdist(self):
+        fm.draw(self.with_edge_labdist(self.partial_digraph()))
+
+    def with_float_edge_labdist(self, g):
+        g = g.copy()
+        g.edges[N, M]['labdist'] = 2.5
+        return g
+    def test_interact_graph_with_float_edge_labdist(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_edge_labdist(self.partial_graph()))
+    def test_interact_digraph_with_float_edge_labdist(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_edge_labdist(self.partial_digraph()))
+    def test_draw_graph_with_float_edge_labdist(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_edge_labdist(self.partial_graph()))
+    def test_draw_digraph_with_float_edge_labdist(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_edge_labdist(self.partial_digraph()))
+
+    def with_negative_edge_labdist(self, g):
+        g = g.copy()
+        g.edges[N, M]['labdist'] = -1
+        return g
+    def test_interact_graph_with_negative_edge_labdist(self):
+        self.assertRaises(ValueError, fm.interact, self.with_negative_edge_labdist(self.partial_graph()))
+    def test_interact_digraph_with_negative_edge_labdist(self):
+        self.assertRaises(ValueError, fm.interact, self.with_negative_edge_labdist(self.partial_digraph()))
+    def test_draw_graph_with_negative_edge_labdist(self):
+        self.assertRaises(ValueError, fm.draw, self.with_negative_edge_labdist(self.partial_graph()))
+    def test_draw_digraph_with_negative_edge_labdist(self):
+        self.assertRaises(ValueError, fm.draw, self.with_negative_edge_labdist(self.partial_digraph()))
+
+    def with_edge_labfrac(self, g):
+        g = g.copy()
+        g.edges[N, M]['labfrac'] = 0.5
+        return g
+    def test_interact_graph_with_edge_labfrac(self):
+        fm.interact(self.with_edge_labfrac(self.partial_graph()))
+    def test_interact_digraph_with_edge_labfrac(self):
+        fm.interact(self.with_edge_labfrac(self.partial_digraph()))
+    def test_draw_graph_with_edge_labfrac(self):
+        fm.draw(self.with_edge_labfrac(self.partial_graph()))
+    def test_draw_digraph_with_edge_labfrac(self):
+        fm.draw(self.with_edge_labfrac(self.partial_digraph()))
+
+    def with_none_edge_labfrac(self, g):
+        g = g.copy()
+        g.edges[N, M]['labfrac'] = None
+        return g
+    def test_interact_graph_with_none_edge_labfrac(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_edge_labfrac(self.partial_graph()))
+    def test_interact_digraph_with_none_edge_labfrac(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_edge_labfrac(self.partial_digraph()))
+    def test_draw_graph_with_none_edge_labfrac(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_edge_labfrac(self.partial_graph()))
+    def test_draw_digraph_with_none_edge_labfrac(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_edge_labfrac(self.partial_digraph()))
+
+    def with_lower_edge_labfrac(self, g):
+        g = g.copy()
+        g.edges[N, M]['labfrac'] = -0.5
+        return g
+    def test_interact_graph_with_lower_edge_labfrac(self):
+        self.assertRaises(ValueError, fm.interact, self.with_lower_edge_labfrac(self.partial_graph()))
+    def test_interact_digraph_with_lower_edge_labfrac(self):
+        self.assertRaises(ValueError, fm.interact, self.with_lower_edge_labfrac(self.partial_digraph()))
+    def test_draw_graph_with_lower_edge_labfrac(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_edge_labfrac(self.partial_graph()))
+    def test_draw_digraph_with_lower_edge_labfrac(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_edge_labfrac(self.partial_digraph()))
+
+    def with_upper_edge_labfrac(self, g):
+        g = g.copy()
+        g.edges[N, M]['labfrac'] = 1.5
+        return g
+    def test_interact_graph_with_upper_edge_labfrac(self):
+        self.assertRaises(ValueError, fm.interact, self.with_upper_edge_labfrac(self.partial_graph()))
+    def test_interact_digraph_with_upper_edge_labfrac(self):
+        self.assertRaises(ValueError, fm.interact, self.with_upper_edge_labfrac(self.partial_digraph()))
+    def test_draw_graph_with_upper_edge_labfrac(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_edge_labfrac(self.partial_graph()))
+    def test_draw_digraph_with_upper_edge_labfrac(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_edge_labfrac(self.partial_digraph()))
 
 
 if __name__ == '__main__':
