@@ -62,7 +62,7 @@ exist, its default value is considered.
 **g.nodes[n]['labpos']**  Node label position, either ``'hover'`` or ``'<vpos> <hpos>'``, where
                           ``<vpos>`` is ``bottom``, ``middle``, or ``top``, and ``<hpos>`` is
                           ``left``, ``center``, or ``right``. Default value is ``'middle
-                          center'``.
+                          center'``. Ignored by :func:`interact <freeman.drawing.interact>`.
 ========================  =
 
 Given a graph **g** and an edge **(n, m)** of this graph, the six attributes
@@ -81,15 +81,18 @@ attribute does not exist, its default value is considered.
                               representing opacity. Default value is ``(0, 0, 0)``.
 
 **g.edges[n, m]['labflip']**  Whether the label should be positioned to the right of the edge
-                              instead of the left. Default value is ``False``.
+                              instead of the left. Default value is ``False``. Ignored by
+                              :func:`interact <freeman.drawing.interact>`.
 
 **g.edges[n, m]['labdist']**  Distance from edge to label, in pixels. Must be non-negative.
-                              Default value is ``10``.
+                              Default value is ``10``. Ignored by :func:`interact
+                              <freeman.drawing.interact>`.
 
 **g.edges[n, m]['labfrac']**  Where the label should be positioned between the two nodes. The
                               closer the value is to ``0``, the closer the label is to the
                               source. The closer the value is to ``1``, the closer the label is
-                              to the target. Default value is ``0.5``.
+                              to the target. Default value is ``0.5``. Ignored by
+                              :func:`interact <freeman.drawing.interact>`.
 ============================  =
 """
 import os
@@ -556,10 +559,16 @@ def interact(g, path=None, physics=False):
     <https://pyvis.readthedocs.io/en/latest/>`_, based on the :ref:`visual
     attributes <visual-attributes>`, and mostly consistent with the :func:`draw
     <freeman.drawing.draw>` function and the :func:`Animation
-    <freeman.drawing.Animation>` class. The only significative difference is
-    that a pair of edges **(n, m)** and **(m, n)** in a directed graph is
-    rendered as a single edge with two heads. Such rendering is better for
-    interaction, but less faithful to the graph density.
+    <freeman.drawing.Animation>` class. The only significative differences are:
+
+    * The node attribute **labpos** and the edge attributes **labflip**,
+      **labdist**, and **labfrac** are ignored. A node label is only shown when
+      the mouse is over the node and edge labels are not shown at all. Less
+      clutter is better for interaction.
+
+    * A pair of edges **(n, m)** and **(m, n)** in a directed graph is rendered
+      as a single edge with two heads. Such rendering is better for interaction,
+      but less faithful to the graph density.
 
     The visualization must be saved to an HTML file.
 
