@@ -253,6 +253,162 @@ class DrawingTest(unittest.TestCase):
     def test_draw_digraph_without_node_pos(self):
         self.assertRaises(KeyError, fm.draw, self.without_node_pos(self.partial_digraph()))
 
+    def with_none_node_pos(self, g):
+        g = g.copy()
+        g.node[N]['pos'] = None
+        return g
+    def test_interact_graph_with_none_node_pos(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_node_pos(self.partial_graph()))
+    def test_interact_digraph_with_none_node_pos(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_node_pos(self.partial_digraph()))
+    def test_draw_graph_with_none_node_pos(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_node_pos(self.partial_graph()))
+    def test_draw_digraph_with_none_node_pos(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_node_pos(self.partial_digraph()))
+
+    def with_short_node_pos(self, g):
+        g = g.copy()
+        g.node[N]['pos'] = (0,)
+        return g
+    def test_interact_graph_with_short_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_short_node_pos(self.partial_graph()))
+    def test_interact_digraph_with_short_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_short_node_pos(self.partial_digraph()))
+    def test_draw_graph_with_short_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_short_node_pos(self.partial_graph()))
+    def test_draw_digraph_with_short_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_short_node_pos(self.partial_digraph()))
+
+    def with_long_node_pos(self, g):
+        g = g.copy()
+        g.node[N]['pos'] = (0, 0, 0, 0)
+        return g
+    def test_interact_graph_with_long_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_long_node_pos(self.partial_graph()))
+    def test_interact_digraph_with_long_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_long_node_pos(self.partial_digraph()))
+    def test_draw_graph_with_long_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_long_node_pos(self.partial_graph()))
+    def test_draw_digraph_with_long_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_long_node_pos(self.partial_digraph()))
+
+    def with_none_x_node_pos(self, g):
+        g = g.copy()
+        g.node[N]['pos'] = (None, 0)
+        return g
+    def test_interact_graph_with_none_x_node_pos(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_x_node_pos(self.partial_graph()))
+    def test_interact_digraph_with_none_x_node_pos(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_x_node_pos(self.partial_digraph()))
+    def test_draw_graph_with_none_x_node_pos(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_x_node_pos(self.partial_graph()))
+    def test_draw_digraph_with_none_x_node_pos(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_x_node_pos(self.partial_digraph()))
+
+    def with_none_y_node_pos(self, g):
+        g = g.copy()
+        g.node[N]['pos'] = (0, None)
+        return g
+    def test_interact_graph_with_none_y_node_pos(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_y_node_pos(self.partial_graph()))
+    def test_interact_digraph_with_none_y_node_pos(self):
+        self.assertRaises(TypeError, fm.interact, self.with_none_y_node_pos(self.partial_digraph()))
+    def test_draw_graph_with_none_y_node_pos(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_y_node_pos(self.partial_graph()))
+    def test_draw_digraph_with_none_y_node_pos(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_y_node_pos(self.partial_digraph()))
+
+    def with_minusone_x_node_pos(self, g):
+        g = g.copy()
+        g.node[N]['pos'] = (-1, 0)
+        return g
+    def test_interact_graph_with_minusone_x_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_minusone_x_node_pos(self.partial_graph()))
+    def test_interact_digraph_with_minusone_x_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_minusone_x_node_pos(self.partial_digraph()))
+    def test_draw_graph_with_minusone_x_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_minusone_x_node_pos(self.partial_graph()))
+    def test_draw_digraph_with_minusone_x_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_minusone_x_node_pos(self.partial_digraph()))
+
+    def with_minusone_y_node_pos(self, g):
+        g = g.copy()
+        g.node[N]['pos'] = (0, -1)
+        return g
+    def test_interact_graph_with_minusone_y_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_minusone_y_node_pos(self.partial_graph()))
+    def test_interact_digraph_with_minusone_y_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_minusone_y_node_pos(self.partial_digraph()))
+    def test_draw_graph_with_minusone_y_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_minusone_y_node_pos(self.partial_graph()))
+    def test_draw_digraph_with_minusone_y_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_minusone_y_node_pos(self.partial_digraph()))
+
+    def with_two_x_node_pos(self, g):
+        g = g.copy()
+        g.node[N]['pos'] = (2, 0)
+        return g
+    def test_interact_graph_with_two_x_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_two_x_node_pos(self.partial_graph()))
+    def test_interact_digraph_with_two_x_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_two_x_node_pos(self.partial_digraph()))
+    def test_draw_graph_with_two_x_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_two_x_node_pos(self.partial_graph()))
+    def test_draw_digraph_with_two_x_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_two_x_node_pos(self.partial_digraph()))
+
+    def with_two_y_node_pos(self, g):
+        g = g.copy()
+        g.node[N]['pos'] = (0, 2)
+        return g
+    def test_interact_graph_with_two_y_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_two_y_node_pos(self.partial_graph()))
+    def test_interact_digraph_with_two_y_node_pos(self):
+        self.assertRaises(ValueError, fm.interact, self.with_two_y_node_pos(self.partial_digraph()))
+    def test_draw_graph_with_two_y_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_two_y_node_pos(self.partial_graph()))
+    def test_draw_digraph_with_two_y_node_pos(self):
+        self.assertRaises(ValueError, fm.draw, self.with_two_y_node_pos(self.partial_digraph()))
+
+    def with_node_size(self, g):
+        g = g.copy()
+        g.node[N]['size'] = 20
+        return g
+    def test_interact_graph_with_node_size(self):
+        fm.interact(self.with_node_size(self.partial_graph()))
+    def test_interact_digraph_with_node_size(self):
+        fm.interact(self.with_node_size(self.partial_digraph()))
+    def test_draw_graph_with_node_size(self):
+        fm.draw(self.with_node_size(self.partial_graph()))
+    def test_draw_digraph_with_node_size(self):
+        fm.draw(self.with_node_size(self.partial_digraph()))
+
+    def with_float_node_size(self, g):
+        g = g.copy()
+        g.node[N]['size'] = 1.5
+        return g
+    def test_interact_graph_with_float_node_size(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_node_size(self.partial_graph()))
+    def test_interact_digraph_with_float_node_size(self):
+        self.assertRaises(TypeError, fm.interact, self.with_float_node_size(self.partial_digraph()))
+    def test_draw_graph_with_float_node_size(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_node_size(self.partial_graph()))
+    def test_draw_digraph_with_float_node_size(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_node_size(self.partial_digraph()))
+
+    def with_nonpositive_node_size(self, g):
+        g = g.copy()
+        g.node[N]['size'] = 0
+        return g
+    def test_interact_graph_with_nonpositive_node_size(self):
+        self.assertRaises(ValueError, fm.interact, self.with_nonpositive_node_size(self.partial_graph()))
+    def test_interact_digraph_with_nonpositive_node_size(self):
+        self.assertRaises(ValueError, fm.interact, self.with_nonpositive_node_size(self.partial_digraph()))
+    def test_draw_graph_with_nonpositive_node_size(self):
+        self.assertRaises(ValueError, fm.draw, self.with_nonpositive_node_size(self.partial_graph()))
+    def test_draw_digraph_with_nonpositive_node_size(self):
+        self.assertRaises(ValueError, fm.draw, self.with_nonpositive_node_size(self.partial_digraph()))
+
 
 if __name__ == '__main__':
     unittest.main()
