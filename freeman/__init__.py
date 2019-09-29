@@ -267,7 +267,7 @@ def skin_pyvis(g):
 
 
 class Graph(ObjectProxy):
-    def interact(self, path=None, physics=False):
+    def interact(self, physics=False, path=None):
         """Object-oriented version of :func:`interact <freeman.drawing.interact>`."""
         interact(self, path, physics)
     def draw(self, toolbar=False):

@@ -552,7 +552,7 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
             edge_trace['y'].extend([y0, y1, None])
 
 
-def interact(g, path=None, physics=False):
+def interact(g, physics=False, path=None):
     """Render an interactive visualization of a graph.
 
     The visualization is powered by `pyvis
