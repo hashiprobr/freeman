@@ -3,7 +3,9 @@ The Graph Class
 
 .. currentmodule:: freeman
 
-.. autoclass:: Graph
+.. py:class:: Graph(g)
+
+   Documentation for the Graph class.
 
 
 Methods
