@@ -1359,6 +1359,60 @@ class DrawingTest(unittest.TestCase):
     def test_draw_digraph_with_upper_edge_labfrac(self):
         self.assertRaises(ValueError, fm.draw, self.with_upper_edge_labfrac(self.partial_digraph()))
 
+    def test_interact_graph_with_physics(self):
+        fm.interact(self.partial_graph(), True)
+    def test_interact_digraph_with_physics(self):
+        fm.interact(self.partial_digraph(), True)
+    def test_interact_graph_with_none_physics(self):
+        self.assertRaises(TypeError, fm.interact, self.partial_graph(), None)
+    def test_interact_digraph_with_none_physics(self):
+        self.assertRaises(TypeError, fm.interact, self.partial_digraph(), None)
+
+    def test_draw_graph_with_toolbar(self):
+        fm.draw(self.partial_graph(), True)
+    def test_draw_digraph_with_toolbar(self):
+        fm.draw(self.partial_digraph(), True)
+    def test_draw_graph_with_none_toolbar(self):
+        self.assertRaises(TypeError, fm.draw, self.partial_graph(), None)
+    def test_draw_digraph_with_none_toolbar(self):
+        self.assertRaises(TypeError, fm.draw, self.partial_digraph(), None)
+
+    def test_animation_with_width(self):
+        fm.Animation(width=800)
+    def test_animation_with_float_width(self):
+        self.assertRaises(TypeError, fm.Animation, width=12.5)
+    def test_animation_with_nonpositive_width(self):
+        self.assertRaises(ValueError, fm.Animation, width=0)
+
+    def test_animation_with_height(self):
+        fm.Animation(height=450)
+    def test_animation_with_float_height(self):
+        self.assertRaises(TypeError, fm.Animation, height=112.5)
+    def test_animation_with_nonpositive_height(self):
+        self.assertRaises(ValueError, fm.Animation, height=0)
+
+    def test_animation(self):
+        a = fm.Animation()
+        self.assertRaises(ValueError, a.play)
+    def test_animation_with_one_graph(self):
+        a = fm.Animation()
+        a.rec(self.partial_graph())
+        self.assertRaises(ValueError, a.play)
+    def test_animation_with_one_digraph(self):
+        a = fm.Animation()
+        a.rec(self.partial_digraph())
+        self.assertRaises(ValueError, a.play)
+    def test_animation_with_two_graphs(self):
+        a = fm.Animation()
+        a.rec(self.partial_graph())
+        a.rec(self.partial_graph())
+        a.play()
+    def test_animation_with_two_digraphs(self):
+        a = fm.Animation()
+        a.rec(self.partial_digraph())
+        a.rec(self.partial_digraph())
+        a.play()
+
 
 if __name__ == '__main__':
     unittest.main()
