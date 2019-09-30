@@ -214,9 +214,9 @@ def distest_loose(x):
     data = {
         'Shapiro-Wilk (normal)': shapiro(x),
         'D\'Agostino-Pearson (normal)': normaltest(x),
-        'Kolmogorov-Smirnov (normal)': kstest(x, 'norm', norm.fit(x)),
-        'Kolmogorov-Smirnov (powerlaw)': kstest(x, 'powerlaw', powerlaw.fit(x)),
-        'Kolmogorov-Smirnov (exponential)': kstest(x, 'expon', expon.fit(x)),
+        'Kolmogorov-Smirnov (normal)': kstest(x, norm.cdf, norm.fit(x)),
+        'Kolmogorov-Smirnov (powerlaw)': kstest(x, powerlaw.cdf, powerlaw.fit(x)),
+        'Kolmogorov-Smirnov (exponential)': kstest(x, expon.cdf, expon.fit(x)),
     }
     keys = data.keys()
     values = (p for _, p in data.values())
