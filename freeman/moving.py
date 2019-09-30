@@ -1,5 +1,5 @@
-"""Module responsible for positioning graph nodes.
-"""
+'''Module responsible for positioning graph nodes.
+'''
 import networkx as nx
 
 from math import isclose

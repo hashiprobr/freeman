@@ -1,4 +1,4 @@
-"""Module responsible for rendering graph visualizations.
+'''Module responsible for rendering graph visualizations.
 
 The visualizations are powered by two different libraries, `pyvis
 <https://pyvis.readthedocs.io/en/latest/>`_ and `Plotly
@@ -94,7 +94,7 @@ attribute does not exist, its default value is considered.
                               to the target. Default value is ``0.5``. Ignored by
                               :func:`interact <freeman.drawing.interact>`.
 ============================  =
-"""
+'''
 import os
 import plotly
 
@@ -553,7 +553,7 @@ def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_si
 
 
 def interact(g, physics=False, path=None):
-    """Render an interactive visualization of a graph.
+    '''Render an interactive visualization of a graph.
 
     The visualization is powered by `pyvis
     <https://pyvis.readthedocs.io/en/latest/>`_, based on the :ref:`visual
@@ -582,7 +582,7 @@ def interact(g, physics=False, path=None):
 
     :type physics: bool
     :param physics: Whether to enable the physics simulation.
-    """
+    '''
     if not isinstance(physics, bool):
         raise TypeError('interact physics must be a boolean')
 
@@ -677,7 +677,7 @@ def interact(g, physics=False, path=None):
 
 
 def draw(g, toolbar=False):
-    """Render a static visualization of a graph.
+    '''Render a static visualization of a graph.
 
     The visualization is powered by `Plotly <https://plot.ly/python/>`_, based
     on the :ref:`visual attributes <visual-attributes>`, completely consistent
@@ -693,7 +693,7 @@ def draw(g, toolbar=False):
     :type toolbar: bool
     :param toolbar: Whether to enable the toolbar. This is particularly useful for saving the
                     visualization to a PNG file.
-    """
+    '''
     if not isinstance(toolbar, bool):
         raise TypeError('draw toolbar must be a boolean')
 
@@ -741,7 +741,7 @@ def draw(g, toolbar=False):
 
 
 class Animation:
-    """An Animation renders a dynamic visualization of a sequence of graphs.
+    '''An Animation renders a dynamic visualization of a sequence of graphs.
 
     The visualization is powered by `Plotly <https://plot.ly/python/>`_, based
     on the :ref:`visual attributes <visual-attributes>`, completely consistent
@@ -756,7 +756,7 @@ class Animation:
 
     :type height: int
     :param height: Animation height, in pixels. Must be positive.
-    """
+    '''
     def __init__(self, width=None, height=None):
         if width is not None:
             if not isinstance(width, int):
@@ -826,18 +826,18 @@ class Animation:
         return frame
 
     def rec(self, g):
-        """Record a graph.
+        '''Record a graph.
 
         The method simply stores a copy of the graph. The original graph is not
         stored because it is expected to change after being recorded.
 
         :type g: NetworkX Graph or DiGraph
         :param g: The graph to record.
-        """
+        '''
         self.graphs.append(g.copy())
 
     def play(self):
-        """Play recorded graphs.
+        '''Play recorded graphs.
 
         If the animation constructor has been called with ``width=None``, checks
         if all recorded graphs have the same width. If they do, such width is
@@ -845,7 +845,7 @@ class Animation:
         graph width is used. Same for ``height=None``.
 
         At least two graphs must have been recorded.
-        """
+        '''
         if len(self.graphs) < 2:
             raise ValueError('animation must have at least two recs')
 
