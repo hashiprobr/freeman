@@ -13,11 +13,11 @@ def _parse(value):
         line = value.strip()
         if line.startswith('rgb(') or line.startswith('rgba('):
             if not line.endswith(')'):
-                raise ValueError('rgb and rgba must end with ")"')
+                raise ValueError('rgb and rgba must end with \')\'')
             length = line.find('(')
             phrase = line[(length + 1):-1]
             if phrase.find('(') != -1 or phrase.find(')') != -1:
-                raise ValueError('rgb and rgba must have only one "(" and only one ")"')
+                raise ValueError('rgb and rgba must have only one \'(\' and only one \')\'')
 
             words = phrase.split(',')
             if len(words) != length:

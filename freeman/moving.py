@@ -63,7 +63,7 @@ def scatter(g, xmap, ymap):
 
 def move(g, key, *args, **kwargs):
     if key not in LAYOUTS:
-        raise KeyError('layout key must be one of the following: ' + ', '.join('"{}"'.format(k) for k in LAYOUTS))
+        raise KeyError('layout key must be one of the following: ' + ', '.join('\'{}\''.format(k) for k in LAYOUTS))
 
     layout = LAYOUTS[key]
 

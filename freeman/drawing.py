@@ -283,7 +283,7 @@ def _build_node_key(g, n):
 
     style = g.nodes[n].get('style', node_style)
     if style not in NODE_STYLES:
-        raise KeyError('node style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in NODE_STYLES))
+        raise KeyError('node style must be one of the following: ' + ', '.join('\'{}\''.format(s) for s in NODE_STYLES))
 
     color = g.nodes[n].get('color', node_color)
     if not isinstance(color, (tuple, list)):
@@ -317,13 +317,13 @@ def _build_node_key(g, n):
     if labpos != 'hover':
         words = labpos.split()
         if len(words) != 2:
-            raise ValueError('node labpos must be "hover" or a vertical position and an horizontal position separated by a space')
+            raise ValueError('node labpos must be \'hover\' or a vertical position and an horizontal position separated by a space')
         vpos = ['bottom', 'middle', 'top']
         if words[0] not in vpos:
-            raise KeyError('node vertical position must be one of the following: ' + ', '.join('"{}"'.format(v) for v in vpos))
+            raise KeyError('node vertical position must be one of the following: ' + ', '.join('\'{}\''.format(v) for v in vpos))
         hpos = ['left', 'center', 'right']
         if words[1] not in hpos:
-            raise KeyError('node horizontal position must be one of the following: ' + ', '.join('"{}"'.format(h) for h in hpos))
+            raise KeyError('node horizontal position must be one of the following: ' + ', '.join('\'{}\''.format(h) for h in hpos))
 
     return size, style, color, bwidth, bcolor, labpos
 
@@ -340,7 +340,7 @@ def _build_edge_key(g, n, m):
 
     style = g.edges[n, m].get('style', edge_style)
     if style not in EDGE_STYLES:
-        raise KeyError('edge style must be one of the following: ' + ', '.join('"{}"'.format(s) for s in EDGE_STYLES))
+        raise KeyError('edge style must be one of the following: ' + ', '.join('\'{}\''.format(s) for s in EDGE_STYLES))
 
     color = g.edges[n, m].get('color', edge_color)
     if not isinstance(color, (tuple, list)):
