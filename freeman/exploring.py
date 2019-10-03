@@ -1,3 +1,43 @@
+'''Module responsible for transforming graph data into :ref:`visual attributes <visual-attributes>`.
+
+
+Data maps
+---------
+
+Given a graph **g** and a node **n** of this graph, a *node map*, as the name
+implies, maps this node to a value. This map can have one of the four types
+below.
+
+===================================  =
+:func:`Log <freeman.exploring.Log>`  If **map** is a logarithm wrapper, the value is
+                                     **log(w + s)**, where **w** is the value recursively
+                                     mapped from **n** by **map.wrapped** and **s** is
+                                     **map.shift**.
+
+*str*                                If **map** is a string, the value is **g.nodes[n][map]**.
+
+*dict*                               If **map** is a dictionary, the value is **map[n]**.
+
+*callable*                           If **map** is callable, the value is **map(n)**.
+===================================  =
+
+Given a graph **g** and an edge **(n, m)** of this graph, an *edge map*, as the
+name implies, maps this edge to a value. This map can have one of the four types
+below.
+
+===================================  =
+:func:`Log <freeman.exploring.Log>`  If **map** is a logarithm wrapper, the value is
+                                     **log(w + s)**, where **w** is the value recursively
+                                     mapped from **(n, m)** by **map.wrapped** and **s** is
+                                     **map.shift**.
+
+*str*                                If **map** is a string, the value is **g.edges[n, m][map]**.
+
+*dict*                               If **map** is a dictionary, the value is **map[n, m]**.
+
+*callable*                           If **map** is callable, the value is **map(n, m)**.
+===================================  =
+'''
 from math import isclose, isinf, log
 from statistics import mean
 from colorsys import rgb_to_hsv, hsv_to_rgb
@@ -271,6 +311,8 @@ def heat_edges(g, map, lower=None, upper=None, middle=None):
 
 
 class Log:
+    '''A Log is a logarithm wrapper for an object.
+    '''
     def __init__(self, wrapped, shift=0):
         self.wrapped = wrapped
 
