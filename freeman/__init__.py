@@ -340,14 +340,14 @@ class Graph(ObjectProxy):
         return logregress_nodes(self, X, y, *args, **kwargs)
     def logregress_edges(self, X, y, *args, **kwargs):
         return logregress_edges(self, X, y, *args, **kwargs)
-    def intencode_nodes(self, col, order=None):
-        return intencode_nodes(self, col, order)
-    def intencode_edges(self, col, order=None):
-        return intencode_edges(self, col, order)
-    def binencode_nodes(self, col):
-        return binencode_nodes(self, col)
-    def binencode_edges(self, col):
-        return binencode_edges(self, col)
+    def intencode_nodes(self, x, order=None):
+        return intencode_nodes(self, x, order)
+    def intencode_edges(self, x, order=None):
+        return intencode_edges(self, x, order)
+    def binencode_nodes(self, x):
+        return binencode_nodes(self, x)
+    def binencode_edges(self, x):
+        return binencode_edges(self, x)
     def displot_nodes(self, x):
         displot_nodes(self, x)
     def displot_edges(self, x):

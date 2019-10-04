@@ -377,8 +377,9 @@ def logregress_edges(g, X, y, *args, **kwargs):
     return logregress(g.edgeframe, X, y, *args, **kwargs)
 
 
-def intencode(df, col, order=None):
-    values = df[col].unique()
+def intencode_loose(x, order=None):
+    x = _series(x)
+    values = x.unique()
     if order is None:
         order = tuple(sorted(values))
     else:
@@ -388,33 +389,52 @@ def intencode(df, col, order=None):
             raise ValueError('order has repeated values')
         if any(value not in order for value in values):
             raise ValueError('data has values not in order')
-    new = col + '_order'
-    df[new] = df[col].apply(lambda v: order.index(v))
-    return new
+    return x.apply(lambda v: order.index(v))
 
 
-def intencode_nodes(g, col, order=None):
-    return intencode(g.nodeframe, col, order)
+def intencode(df, x, order=None):
+    df = df.copy()
+    df[x] = intencode_loose(df[x], order)
+    return df
 
 
-def intencode_edges(g, col, order=None):
-    return intencode(g.edgeframe, col, order)
+def intencode_nodes(g, x, order=None):
+    g = g.copy()
+    g.nodeframe = intencode(g.nodeframe, x, order)
+    return g
 
 
-def binencode(df, col):
-    values = df[col].unique()
-    news = tuple('{}_{}'.format(col, value) for value in values)
-    for new, value in zip(news, values):
-        df[new] = df[col].apply(lambda v: int(v == value))
-    return news
+def intencode_edges(g, x, order=None):
+    g = g.copy()
+    g.edgeframe = intencode(g.edgeframe, x, order)
+    return g
 
 
-def binencode_nodes(g, col):
-    return binencode(g.nodeframe, col)
+def binencode_loose(x):
+    x = _series(x)
+    values = x.unique()
+    return {value: x.apply(lambda v: int(v == value)) for value in values}
 
 
-def binencode_edges(g, col):
-    return binencode(g.edgeframe, col)
+def binencode(df, x):
+    df = df.copy()
+    X = binencode_loose(df[x])
+    for value in X:
+        df['{}_{}'.format(x, value)] = X[value]
+    del df[x]
+    return df
+
+
+def binencode_nodes(g, x):
+    g = g.copy()
+    g.nodeframe = binencode(g.nodeframe, x)
+    return g
+
+
+def binencode_edges(g, x):
+    g = g.copy()
+    g.edgeframe = binencode(g.edgeframe, x)
+    return g
 
 
 def resize_next_plot(width, height):
