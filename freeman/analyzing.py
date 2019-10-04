@@ -387,7 +387,7 @@ def intencode(df, col, order=None):
         if len(order) > len(set(order)):
             raise ValueError('order has repeated values')
         if any(value not in order for value in values):
-            raise ValueError('column has values not in order')
+            raise ValueError('data has values not in order')
     new = col + '_order'
     df[new] = df[col].apply(lambda v: order.index(v))
     return new
@@ -518,7 +518,13 @@ def valcount_loose(x, order=None, transpose=False):
     df = pd.DataFrame(x.value_counts(True)).round(2)
     df.columns = ['All']
     if order is not None:
-        df = df.reindex(order)
+        if not isinstance(order, (tuple, list)):
+            raise TypeError('order must be a tuple or list')
+        if len(order) > len(set(order)):
+            raise ValueError('order has repeated values')
+        if any(value not in order for value in df.index):
+            raise ValueError('data has values not in order')
+        df = df.reindex(order).fillna(0)
     if transpose:
         return df.transpose()
     return df
