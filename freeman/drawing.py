@@ -575,13 +575,13 @@ def interact(g, physics=False, path=None):
     :type g: NetworkX Graph or DiGraph
     :param g: The graph to visualize.
 
+    :type physics: bool
+    :param physics: Whether to enable the physics simulation.
+
     :type path: str
     :param path: Path of the HTML file. If ``None``, the visualization is saved to
                  ``'__fmcache__/<id>.html'``, where ``<id>`` is the `identity
                  <https://docs.python.org/3/library/functions.html#id>`_ of the graph.
-
-    :type physics: bool
-    :param physics: Whether to enable the physics simulation.
     '''
     if not isinstance(physics, bool):
         raise TypeError('interact physics must be a boolean')
@@ -666,6 +666,17 @@ def interact(g, physics=False, path=None):
         if not os.path.exists(CACHE_DIR):
             os.mkdir(CACHE_DIR)
         path = os.path.join(CACHE_DIR, '{}.html'.format(id(g)))
+    else:
+        if not isinstance(path, str):
+            raise TypeError('interact path must be a string')
+        if not path.endswith('.html'):
+            raise ValueError('interact path must end with .html')
+        if os.path.exists(path):
+            access = os.access(path, os.W_OK)
+        else:
+            access = os.access(os.path.dirname(os.path.abspath(path)), os.W_OK)
+        if not access:
+            raise ValueError('interact path must have write permission')
 
     iframe = network.show(path)
 
