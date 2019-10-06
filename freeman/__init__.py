@@ -143,9 +143,6 @@ def init(g):
 
     normalize(g)
 
-    set_nodeframe(g)
-    set_edgeframe(g)
-
 
 def dyads(g, ordered=False):
     if ordered:
@@ -392,6 +389,8 @@ class Graph(ObjectProxy):
     def __init__(self, g):
         super().__init__(g.copy())
         init(self)
+        self._nodeframe = None
+        self._edgeframe = None
     def dyads(self, ordered=False):
         return dyads(self, ordered)
     def triads(self, ordered=False):
@@ -427,3 +426,23 @@ class Graph(ObjectProxy):
         return Graph(self.__wrapped__.edge_subgraph(edges))
     def reverse(self):
         return Graph(self.__wrapped__.reverse())
+
+    @property
+    def nodeframe(self):
+        if self._nodeframe is None:
+            set_nodeframe(self)
+        return self._nodeframe
+
+    @property
+    def edgeframe(self):
+        if self._edgeframe is None:
+            set_edgeframe(self)
+        return self._edgeframe
+
+    @nodeframe.setter
+    def nodeframe(self, nodeframe):
+        self._nodeframe = nodeframe
+
+    @edgeframe.setter
+    def edgeframe(self, edgeframe):
+        self._edgeframe = edgeframe
