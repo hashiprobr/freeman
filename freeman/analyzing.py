@@ -466,7 +466,7 @@ def girvan_newman(g):
         clusters[j] = None
         clusters.append(c)
 
-    labels = [g.nodes[n].get('label', str(n)) for n in g.nodes]
+    labels = [g.nodes[n].get('label', n) for n in g.nodes]
 
     dendrogram(linkage, orientation='right', labels=labels)
 
