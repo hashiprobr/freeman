@@ -217,6 +217,18 @@ def unset_edges(g, key):
             del g.edges[n, m][key]
 
 
+def convert_nodes(g, src, dst, ref):
+    values = [ref[g.nodes[n][src]] for n in g.nodes]
+    for n, value in zip(g.nodes, values):
+        g.nodes[n][dst] = value
+
+
+def convert_edges(g, src, dst, ref):
+    values = [ref[g.edges[n, m][src]] for n, m in g.edges]
+    for (n, m), value in zip(g.edges, values):
+        g.edges[n, m][dst] = value
+
+
 def stack_and_track(graphs, targets=None):
     nodes = set.intersection(*(set(g.nodes) for g in graphs))
 
@@ -447,6 +459,10 @@ class Graph(ObjectProxy):
         unset_nodes(self, key)
     def unset_edges(self, key):
         unset_edges(self, key)
+    def convert_nodes(g, src, dst, ref):
+        convert_nodes(g, src, dst, ref)
+    def convert_edges(g, src, dst, ref):
+        convert_edges(g, src, dst, ref)
     def skin_seaborn(self):
         skin_seaborn(self)
     def skin_pyvis(self):
