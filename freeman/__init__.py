@@ -306,10 +306,10 @@ class Graph(ObjectProxy):
         scale_nodes_dark(self, map, lower, upper, hue)
     def scale_edges_alpha(self, map, lower=None, upper=None, hue=None):
         scale_edges_alpha(self, map, lower, upper, hue)
-    def heat_nodes(self, map, lower=None, upper=None, middle=None):
-        heat_nodes(self, map, lower, upper, middle)
-    def heat_edges(self, map, lower=None, upper=None, middle=None):
-        heat_edges(self, map, lower, upper, middle)
+    def heat_nodes(self, map, lower=None, upper=None, middle=None, classic=False):
+        heat_nodes(self, map, lower, upper, middle, classic)
+    def heat_edges(self, map, lower=None, upper=None, middle=None, classic=False):
+        heat_edges(self, map, lower, upper, middle, classic)
 
     def scatter(self, xmap, ymap):
         scatter(self, xmap, ymap)

@@ -188,7 +188,7 @@ def _convert(color):
     b = color[2]
 
     if len(color) == 4:
-        a = color[3]
+        a = round(color[3], 6)
 
         return 'rgba({}, {}, {}, {})'.format(r, g, b, a)
 

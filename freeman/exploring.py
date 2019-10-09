@@ -318,7 +318,7 @@ def scale_edges_alpha(g, map, lower=None, upper=None, color=None):
             g.edges[n, m]['color'] = (*_transform(h, 1, 1), sc)
 
 
-def heat_nodes(g, map, lower=None, upper=None, middle=None):
+def heat_nodes(g, map, lower=None, upper=None, middle=None, classic=False):
     values, lower, upper = _assert_bounds(extract_nodes(g, map), lower, upper)
 
     middle = _assert_reference(values, lower, upper, middle)
@@ -329,15 +329,25 @@ def heat_nodes(g, map, lower=None, upper=None, middle=None):
         else:
             if value < middle:
                 sc = (value - lower) / (middle - lower)
-                c = round(sc * 255)
-                g.nodes[n]['color'] = (c, c, 255)
+                if classic:
+                    h = (2 / 3) - sc * (1 / 3)
+                    s = 1
+                else:
+                    h = 2 / 3
+                    s = 1 - sc
+                g.nodes[n]['color'] = _transform(h, s, 1)
             else:
                 sc = (value - middle) / (upper - middle)
-                c = 255 - round(sc * 255)
-                g.nodes[n]['color'] = (255, c, c)
+                if classic:
+                    h = (1 / 3) - sc * (1 / 3)
+                    s = 1
+                else:
+                    h = 0
+                    s = sc
+                g.nodes[n]['color'] = _transform(h, s, 1)
 
 
-def heat_edges(g, map, lower=None, upper=None, middle=None):
+def heat_edges(g, map, lower=None, upper=None, middle=None, classic=False):
     values, lower, upper = _assert_bounds(extract_edges(g, map), lower, upper)
 
     middle = _assert_reference(values, lower, upper, middle)
@@ -348,10 +358,22 @@ def heat_edges(g, map, lower=None, upper=None, middle=None):
         else:
             if value < middle:
                 sc = (value - lower) / (middle - lower)
-                g.edges[n, m]['color'] = (0, 0, 255, 1 - sc)
+                if classic:
+                    h = (2 / 3) - sc * (1 / 3)
+                    a = 1
+                else:
+                    h = 2 / 3
+                    a = 1 - sc
+                g.edges[n, m]['color'] = (*_transform(h, 1, 1), a)
             else:
                 sc = (value - middle) / (upper - middle)
-                g.edges[n, m]['color'] = (255, 0, 0, sc)
+                if classic:
+                    h = (1 / 3) - sc * (1 / 3)
+                    a = 1
+                else:
+                    h = 0
+                    a = sc
+                g.edges[n, m]['color'] = (*_transform(h, 1, 1), a)
 
 
 class Log:
