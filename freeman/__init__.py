@@ -217,41 +217,16 @@ def unset_edges(g, key):
             del g.edges[n, m][key]
 
 
-def convert_nodes(g, src, dst, ref):
-    values = [ref[g.nodes[n][src]] for n in g.nodes]
+def convert_nodes(g, source, target, map):
+    values = [map[g.nodes[n][source]] for n in g.nodes]
     for n, value in zip(g.nodes, values):
-        g.nodes[n][dst] = value
+        g.nodes[n][target] = value
 
 
-def convert_edges(g, src, dst, ref):
-    values = [ref[g.edges[n, m][src]] for n, m in g.edges]
+def convert_edges(g, source, target, map):
+    values = [map[g.edges[n, m][source]] for n, m in g.edges]
     for (n, m), value in zip(g.edges, values):
-        g.edges[n, m][dst] = value
-
-
-def stack_and_track(graphs, targets=None):
-    nodes = set.intersection(*(set(g.nodes) for g in graphs))
-
-    if targets is None:
-        targets = nodes
-
-    h = nx.DiGraph()
-
-    for j, n in enumerate(nodes):
-        prev = None
-
-        for i, g in enumerate(graphs):
-            curr = i * len(nodes) + j
-
-            h.add_node(curr)
-            h.nodes[curr].update(g.nodes[n])
-
-            if prev is not None and n in targets:
-                h.add_edge(prev, curr)
-
-            prev = curr
-
-    return h
+        g.edges[n, m][target] = value
 
 
 def skin_seaborn(g):
@@ -459,10 +434,10 @@ class Graph(ObjectProxy):
         unset_nodes(self, key)
     def unset_edges(self, key):
         unset_edges(self, key)
-    def convert_nodes(self, src, dst, ref):
-        convert_nodes(self, src, dst, ref)
-    def convert_edges(self, src, dst, ref):
-        convert_edges(self, src, dst, ref)
+    def convert_nodes(self, source, target, map):
+        convert_nodes(self, source, target, map)
+    def convert_edges(self, source, target, map):
+        convert_edges(self, source, target, map)
     def skin_seaborn(self):
         skin_seaborn(self)
     def skin_pyvis(self):

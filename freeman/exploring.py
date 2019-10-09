@@ -38,6 +38,8 @@ below.
 *callable*                           If **map** is callable, the value is **map(n, m)**.
 ===================================  =
 '''
+import networkx as nx
+
 from math import isclose, isinf, log
 from statistics import mean
 from colorsys import rgb_to_hsv, hsv_to_rgb
@@ -374,6 +376,43 @@ def heat_edges(g, map, lower=None, upper=None, middle=None, classic=False):
                     h = 0
                     a = sc
                 g.edges[n, m]['color'] = (*_transform(h, 1, 1), a)
+
+
+def stack_and_track(graphs, nodes=[]):
+    union = set.union(*(set(g.nodes) for g in graphs))
+
+    step = 1 / len(graphs)
+
+    h = nx.DiGraph()
+
+    for j, n in enumerate(union):
+        frac = step
+
+        prev = None
+
+        for i, g in enumerate(graphs):
+            if g.has_node(n):
+                curr = i * len(union) + j
+
+                h.add_node(curr)
+                h.nodes[curr].update(g.nodes[n])
+                h.nodes[curr]['id'] = n
+
+                if 'label' in h.nodes[curr]:
+                    h.nodes[curr]['label'] = '{} ({})'.format(h.nodes[curr]['label'], i + 1)
+
+                if 'color' in h.nodes[curr]:
+                    hue, sat, val = _assert_hsv(g.nodes[curr]['color'])
+                    h.nodes[curr]['color'] = _transform(hue, frac * sat, val + frac * (1 - val))
+
+                if prev is not None and n in nodes:
+                    h.add_edge(prev, curr)
+
+                frac += step
+
+                prev = curr
+
+    return h
 
 
 class Log:
