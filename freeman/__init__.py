@@ -198,15 +198,6 @@ def unset_edges(g, key):
             del g.edges[n, m][key]
 
 
-def colorize_communities(g, C):
-    map = {}
-    for i, c in enumerate(C):
-        for n in c:
-            map[n] = i
-
-    colorize_nodes(g, map)
-
-
 def stack_and_track(graphs, targets=None):
     nodes = set.intersection(*(set(g.nodes) for g in graphs))
 
@@ -297,10 +288,16 @@ class Graph(ObjectProxy):
         label_nodes(self, map, ndigits)
     def label_edges(self, map=None, ndigits=2):
         label_edges(self, map, ndigits)
-    def colorize_nodes(self, map=None):
-        colorize_nodes(self, map)
-    def colorize_edges(self, map=None):
-        colorize_edges(self, map)
+    def colorize_borders(self, dark=0.5):
+        colorize_borders(self, dark)
+    def colorize_nodes(self, map=None, dark=0):
+        colorize_nodes(self, map, dark)
+    def colorize_edges(self, map=None, dark=0.5):
+        colorize_edges(self, map, dark)
+    def colorize_community_nodes(self, C, dark=0):
+        colorize_community_nodes(self, C, dark)
+    def colorize_community_edges(self, C, dark=0.5, alpha=0.5):
+        colorize_community_edges(self, C, dark, alpha)
     def scale_nodes_size(self, map, lower=None, upper=None):
         scale_nodes_size(self, map, lower, upper)
     def scale_edges_width(self, map, lower=None, upper=None):
@@ -427,8 +424,6 @@ class Graph(ObjectProxy):
         unset_nodes(self, key)
     def unset_edges(self, key):
         unset_edges(self, key)
-    def colorize_communities(self, C):
-        colorize_communities(self, C)
     def skin_seaborn(self):
         skin_seaborn(self)
     def skin_pyvis(self):
