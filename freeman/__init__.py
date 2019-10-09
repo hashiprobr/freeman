@@ -332,77 +332,77 @@ class Graph(ObjectProxy):
     def assign_edges(self, other, key):
         assign(self.edgeframe, other.edgeframe, key)
     def distest_nodes(self, x):
-        return distest_nodes(self, x)
+        return distest(self.nodeframe, x)
     def distest_edges(self, x):
-        return distest_edges(self, x)
+        return distest(self.edgeframe, x)
     def cortest_nodes(self, x, y, max_perm=None):
-        return cortest_nodes(self, x, y, max_perm)
+        return cortest(self.nodeframe, x, y, max_perm)
     def cortest_edges(self, x, y, max_perm=None):
-        return cortest_edges(self, x, y, max_perm)
+        return cortest(self.edgeframe, x, y, max_perm)
     def chitest_nodes(self, x, y, max_perm=None):
-        return chitest_nodes(self, x, y, max_perm)
+        return chitest(self.nodeframe, x, y, max_perm)
     def chitest_edges(self, x, y, max_perm=None):
-        return chitest_edges(self, x, y, max_perm)
+        return chitest(self.edgeframe, x, y, max_perm)
     def reltest_nodes(self, a, b, max_perm=None):
-        return reltest_nodes(self, a, b, max_perm)
+        return reltest(self.nodeframe, a, b, max_perm)
     def reltest_edges(self, a, b, max_perm=None):
-        return reltest_edges(self, a, b, max_perm)
+        return reltest(self.edgeframe, a, b, max_perm)
     def mixtest_nodes(self, x, y, max_perm=None):
-        return mixtest_nodes(self, x, y, max_perm)
+        return mixtest(self.nodeframe, x, y, max_perm)
     def mixtest_edges(self, x, y, max_perm=None):
-        return mixtest_edges(self, x, y, max_perm)
+        return mixtest(self.edgeframe, x, y, max_perm)
     def linregress_nodes(self, X, y, *args, **kwargs):
-        return linregress_nodes(self, X, y, *args, **kwargs)
+        return linregress(self.nodeframe, X, y, *args, **kwargs)
     def linregress_edges(self, X, y, *args, **kwargs):
-        return linregress_edges(self, X, y, *args, **kwargs)
+        return linregress(self.edgeframe, X, y, *args, **kwargs)
     def logregress_nodes(self, X, y, *args, **kwargs):
-        return logregress_nodes(self, X, y, *args, **kwargs)
+        return logregress(self.nodeframe, X, y, *args, **kwargs)
     def logregress_edges(self, X, y, *args, **kwargs):
-        return logregress_edges(self, X, y, *args, **kwargs)
+        return logregress(self.edgeframe, X, y, *args, **kwargs)
     def intencode_nodes(self, x, order=None):
-        return intencode_nodes(self, x, order)
+        return intencode(self.nodeframe, x, order)
     def intencode_edges(self, x, order=None):
-        return intencode_edges(self, x, order)
+        return intencode(self.edgeframe, x, order)
     def binencode_nodes(self, x):
-        return binencode_nodes(self, x)
+        return binencode(self.nodeframe, x)
     def binencode_edges(self, x):
-        return binencode_edges(self, x)
+        return binencode(self.edgeframe, x)
     def displot_nodes(self, x):
-        displot_nodes(self, x)
+        displot(self.nodeframe, x)
     def displot_edges(self, x):
-        displot_edges(self, x)
+        displot(self.edgeframe, x)
     def barplot_nodes(self, x, control=None):
-        barplot_nodes(self, x, control)
+        barplot(self.nodeframe, x, control)
     def barplot_edges(self, x, control=None):
-        barplot_edges(self, x, control)
+        barplot(self.edgeframe, x, control)
     def linplot_nodes(self, x, y, control=None):
-        linplot_nodes(self, x, y, control)
+        linplot(self.nodeframe, x, y, control)
     def linplot_edges(self, x, y, control=None):
-        linplot_edges(self, x, y, control)
+        linplot(self.edgeframe, x, y, control)
     def scaplot_nodes(self, x, y, control=None):
-        scaplot_nodes(self, x, y, control)
+        scaplot(self.nodeframe, x, y, control)
     def scaplot_edges(self, x, y, control=None):
-        scaplot_edges(self, x, y, control)
+        scaplot(self.edgeframe, x, y, control)
     def matplot_nodes(self, X, control=None):
-        matplot_nodes(self, X, control)
+        matplot(self.nodeframe, X, control)
     def matplot_edges(self, X, control=None):
-        matplot_edges(self, X, control)
+        matplot(self.edgeframe, X, control)
     def valcount_nodes(self, x, order=None, transpose=False):
-        return valcount_nodes(self, x, order, transpose)
+        return valcount(self.nodeframe, x, order, transpose)
     def valcount_edges(self, x, order=None, transpose=False):
-        return valcount_edges(self, x, order, transpose)
+        return valcount(self.edgeframe, x, order, transpose)
     def contable_nodes(self, x, y):
-        return contable_nodes(self, x, y)
+        return contable(self.nodeframe, x, y)
     def contable_edges(self, x, y):
-        return contable_edges(self, x, y)
+        return contable(self.edgeframe, x, y)
     def corplot_nodes(self, x, y):
-        corplot_nodes(self, x, y)
+        corplot(self.nodeframe, x, y)
     def corplot_edges(self, x, y):
-        corplot_edges(self, x, y)
+        corplot(self.edgeframe, x, y)
     def boxplot_nodes(self, x, y, control=None):
-        boxplot_nodes(self, x, y, control)
+        boxplot(self.nodeframe, x, y, control)
     def boxplot_edges(self, x, y, control=None):
-        boxplot_edges(self, x, y, control)
+        boxplot(self.edgeframe, x, y, control)
     def girvan_newman(self):
         girvan_newman(self)
     def corplot_graph(self, nodes, weight='weight', plot=True):

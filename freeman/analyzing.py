@@ -201,14 +201,6 @@ def distest(df, x):
     return distest_loose(_iterable(df, x))
 
 
-def distest_nodes(g, x):
-    return distest(g.nodeframe, x)
-
-
-def distest_edges(g, x):
-    return distest(g.edgeframe, x)
-
-
 def cortest_loose(x, y, max_perm=None):
     r, p = _cortest(x, y, max_perm)
     return round(r, DEC), round(p, DEC)
@@ -218,14 +210,6 @@ def cortest(df, x, y, max_perm=None):
     return cortest_loose(_iterable(df, x), _iterable(df, y), max_perm)
 
 
-def cortest_nodes(g, x, y, max_perm=None):
-    return cortest(g.nodeframe, x, y, max_perm)
-
-
-def cortest_edges(g, x, y, max_perm=None):
-    return cortest(g.edgeframe, x, y, max_perm)
-
-
 def chitest_loose(x, y, max_perm=None):
     v, p = _chitest(x, y, max_perm)
     return round(v, DEC), round(p, DEC)
@@ -233,14 +217,6 @@ def chitest_loose(x, y, max_perm=None):
 
 def chitest(df, x, y, max_perm=None):
     return chitest_loose(_iterable(df, x), _iterable(df, y), max_perm)
-
-
-def chitest_nodes(g, x, y, max_perm=None):
-    return chitest(g.nodeframe, x, y, max_perm)
-
-
-def chitest_edges(g, x, y, max_perm=None):
-    return chitest(g.edgeframe, x, y, max_perm)
 
 
 def onetest_loose(a, mean):
@@ -277,14 +253,6 @@ def reltest(df, a, b, max_perm=None):
     return reltest_loose(_iterable(df, a), _iterable(df, b), max_perm)
 
 
-def reltest_nodes(g, a, b, max_perm=None):
-    return reltest(g.nodeframe, a, b, max_perm)
-
-
-def reltest_edges(g, a, b, max_perm=None):
-    return reltest(g.edgeframe, a, b, max_perm)
-
-
 def mixtest_loose(x, y, max_perm=None):
     data = {}
     for X, Y in zip(_series(x), _series(y)):
@@ -303,14 +271,6 @@ def mixtest(df, x, y, max_perm=None):
     return mixtest_loose(_iterable(df, x), _iterable(df, y), max_perm)
 
 
-def mixtest_nodes(g, x, y, max_perm=None):
-    return mixtest(g.nodeframe, x, y, max_perm)
-
-
-def mixtest_edges(g, x, y, max_perm=None):
-    return mixtest(g.edgeframe, x, y, max_perm)
-
-
 def linregress_loose(X, y, *args, **kwargs):
     X = list(zip(*(_series(x) for x in X)))
     y = _series(y)
@@ -323,14 +283,6 @@ def linregress(df, X, y, *args, **kwargs):
     return linregress_loose((_iterable(df, x) for x in X), _iterable(df, y), *args, **kwargs)
 
 
-def linregress_nodes(g, X, y, *args, **kwargs):
-    return linregress(g.nodeframe, X, y, *args, **kwargs)
-
-
-def linregress_edges(g, X, y, *args, **kwargs):
-    return linregress(g.edgeframe, X, y, *args, **kwargs)
-
-
 def logregress_loose(X, y, *args, **kwargs):
     X = list(zip(*(_series(x) for x in X)))
     y = _series(y)
@@ -341,14 +293,6 @@ def logregress_loose(X, y, *args, **kwargs):
 
 def logregress(df, X, y, *args, **kwargs):
     return logregress_loose((_iterable(df, x) for x in X), _iterable(df, y), *args, **kwargs)
-
-
-def logregress_nodes(g, X, y, *args, **kwargs):
-    return logregress(g.nodeframe, X, y, *args, **kwargs)
-
-
-def logregress_edges(g, X, y, *args, **kwargs):
-    return logregress(g.edgeframe, X, y, *args, **kwargs)
 
 
 def intencode_loose(x, order=None):
@@ -372,18 +316,6 @@ def intencode(df, x, order=None):
     return df
 
 
-def intencode_nodes(g, x, order=None):
-    g = g.copy()
-    g.nodeframe = intencode(g.nodeframe, x, order)
-    return g
-
-
-def intencode_edges(g, x, order=None):
-    g = g.copy()
-    g.edgeframe = intencode(g.edgeframe, x, order)
-    return g
-
-
 def binencode_loose(x):
     x = _series(x)
     values = x.unique()
@@ -397,18 +329,6 @@ def binencode(df, x):
         df['{}_{}'.format(x, value)] = X[value]
     del df[x]
     return df
-
-
-def binencode_nodes(g, x):
-    g = g.copy()
-    g.nodeframe = binencode(g.nodeframe, x)
-    return g
-
-
-def binencode_edges(g, x):
-    g = g.copy()
-    g.edgeframe = binencode(g.edgeframe, x)
-    return g
 
 
 def resize_next_plot(width, height):
@@ -428,28 +348,12 @@ def displot(df, x):
     displot_loose(_iterable(df, x))
 
 
-def displot_nodes(g, x):
-    displot(g.nodeframe, x)
-
-
-def displot_edges(g, x):
-    displot(g.edgeframe, x)
-
-
 def barplot_loose(x, control=None):
     sns.countplot(_series(x), hue=_series(control))
 
 
 def barplot(df, x, control=None):
     barplot_loose(_iterable(df, x), _iterable(df, control))
-
-
-def barplot_nodes(g, x, control=None):
-    barplot(g.nodeframe, x, control)
-
-
-def barplot_edges(g, x, control=None):
-    barplot(g.edgeframe, x, control)
 
 
 def linplot_loose(x, y, control=None):
@@ -460,28 +364,12 @@ def linplot(df, x, y, control=None):
     linplot_loose(_iterable(df, x), _iterable(df, y), _iterable(df, control))
 
 
-def linplot_nodes(g, x, y, control=None):
-    linplot(g.nodeframe, x, y, control)
-
-
-def linplot_edges(g, x, y, control=None):
-    linplot(g.edgeframe, x, y, control)
-
-
 def scaplot_loose(x, y, control=None):
     sns.scatterplot(_series(x), _series(y), _series(control))
 
 
 def scaplot(df, x, y, control=None):
     scaplot_loose(_iterable(df, x), _iterable(df, y), _iterable(df, control))
-
-
-def scaplot_nodes(g, x, y, control=None):
-    scaplot(g.nodeframe, x, y, control)
-
-
-def scaplot_edges(g, x, y, control=None):
-    scaplot(g.edgeframe, x, y, control)
 
 
 def matplot_loose(X, control=None):
@@ -497,14 +385,6 @@ def matplot_loose(X, control=None):
 
 def matplot(df, X, control=None):
     matplot_loose((_iterable(df, x) for x in X), _iterable(df, control))
-
-
-def matplot_nodes(g, X, control=None):
-    matplot(g.nodeframe, X, control)
-
-
-def matplot_edges(g, X, control=None):
-    matplot(g.edgeframe, X, control)
 
 
 def valcount_loose(x, order=None, transpose=False):
@@ -528,28 +408,12 @@ def valcount(df, x, order=None, transpose=False):
     return valcount_loose(_iterable(df, x), order, transpose)
 
 
-def valcount_nodes(g, x, order=None, transpose=False):
-    return valcount(g.nodeframe, x, order, transpose)
-
-
-def valcount_edges(g, x, order=None, transpose=False):
-    return valcount(g.edgeframe, x, order, transpose)
-
-
 def contable_loose(x, y):
     return pd.crosstab(_series(x), _series(y), margins=True, normalize=True)
 
 
 def contable(df, x, y):
     return contable_loose(_iterable(df, x), _iterable(df, y))
-
-
-def contable_nodes(g, x, y):
-    return contable(g.nodeframe, x, y)
-
-
-def contable_edges(g, x, y):
-    return contable(g.edgeframe, x, y)
 
 
 def corplot_loose(x, y):
@@ -563,28 +427,12 @@ def corplot(df, x, y):
     corplot_loose(_iterable(df, x), _iterable(df, y))
 
 
-def corplot_nodes(g, x, y):
-    corplot(g.nodeframe, x, y)
-
-
-def corplot_edges(g, x, y):
-    corplot(g.edgeframe, x, y)
-
-
 def boxplot_loose(x, y, control=None):
     sns.boxplot(_series(x), _series(y), _series(control), orient='h')
 
 
 def boxplot(df, x, y, control=None):
     boxplot_loose(_iterable(df, x), _iterable(df, y), _iterable(df, control))
-
-
-def boxplot_nodes(g, x, y, control=None):
-    boxplot(g.nodeframe, x, y, control)
-
-
-def boxplot_edges(g, x, y, control=None):
-    boxplot(g.edgeframe, x, y, control)
 
 
 def girvan_newman(g):
