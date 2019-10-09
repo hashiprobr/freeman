@@ -263,6 +263,24 @@ def skin_pyvis(g):
     set_all_edges(g, 'color', (43, 124, 233))
 
 
+def concat_nodes(graphs, key):
+    dataframes = {}
+    for value, g in graphs.items():
+        df = g.nodeframe.copy()
+        df['node'] = g.nodes
+        dataframes[value] = df
+    return concat(dataframes, key)
+
+
+def concat_edges(graphs, key):
+    dataframes = {}
+    for value, g in graphs.items():
+        df = g.edgeframe.copy()
+        df['edge'] = g.edges
+        dataframes[value] = df
+    return concat(dataframes, key)
+
+
 class Graph(ObjectProxy):
     def interact(self, physics=False, path=None):
         '''Object-oriented wrapper for :func:`interact <freeman.drawing.interact>`.'''
@@ -305,10 +323,10 @@ class Graph(ObjectProxy):
     def move_complement(self, key, *args, **kwargs):
         move_complement(self, key, *args, **kwargs)
 
-    def set_nodecol(self, col, map):
-        set_nodecol(self, col, map)
-    def set_edgecol(self, col, map):
-        set_edgecol(self, col, map)
+    def set_nodedata(self, key, map):
+        self.nodeframe[key] = list(extract_nodes(self, map))
+    def set_edgedata(self, key, map):
+        self.edgeframe[key] = list(extract_edges(self, map))
     def distest_nodes(self, x):
         return distest_nodes(self, x)
     def distest_edges(self, x):
@@ -429,14 +447,14 @@ class Graph(ObjectProxy):
     def nodeframe(self):
         if not hasattr(self, '_nodeframe'):
             self._nodeframe = pd.DataFrame()
-        self._nodeframe = self._nodeframe.reindex(self.nodes, copy=False)
+        self._nodeframe = self._nodeframe.reindex(self.nodes, copy=False, fill_value=None)
         return self._nodeframe
 
     @property
     def edgeframe(self):
         if not hasattr(self, '_edgeframe'):
             self._edgeframe = pd.DataFrame()
-        self._edgeframe = self._edgeframe.reindex(self.edges, copy=False)
+        self._edgeframe = self._edgeframe.reindex(self.edges, copy=False, fill_value=None)
         return self._edgeframe
 
     @nodeframe.setter

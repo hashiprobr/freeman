@@ -52,12 +52,12 @@ def _series(iterable):
     return pd.Series(iterable)
 
 
-def _iterable(df, col):
-    if col is None:
+def _iterable(df, key):
+    if key is None:
         return None
-    if isinstance(col, Log):
-        return Log(_iterable(df, col.wrapped), col.shift)
-    return df[col]
+    if isinstance(key, Log):
+        return Log(_iterable(df, key.wrapped), key.shift)
+    return df[key]
 
 
 def _cortest(x, y, max_perm):
@@ -172,26 +172,10 @@ def _reltest(a, b, max_perm):
     return t, p
 
 
-def set_nodecol(g, col, map):
-    g.nodeframe[col] = list(extract_nodes(g, map))
-
-
-def set_edgecol(g, col, map):
-    g.edgeframe[col] = list(extract_edges(g, map))
-
-
-def concat(dfs, col):
-    for key, df in dfs.items():
-        df[col] = key
-    return pd.concat(dfs.values())
-
-
-def concat_nodes(graphs, col):
-    return concat({key: g.nodeframe for key, g in graphs.items()}, col)
-
-
-def concat_edges(graphs, col):
-    return concat({key: g.edgeframe for key, g in graphs.items()}, col)
+def concat(dataframes, key):
+    for value, df in dataframes.items():
+        df[key] = value
+    return pd.concat(dataframes.values(), ignore_index=True)
 
 
 def distest_loose(x):
