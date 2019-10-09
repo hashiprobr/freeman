@@ -156,6 +156,25 @@ def triads(g, ordered=False):
     return combinations(g.nodes, 3)
 
 
+def switch(g, n, m):
+    if g.has_edge(n, m):
+        g.remove_edge(n, m)
+    else:
+        g.add_edge(n, m)
+
+
+def invert(g, n, m):
+    if not isinstance(g, nx.DiGraph):
+        raise TypeError('graph must be directed')
+    if not g.has_edge(n, m):
+        raise ValueError('original edge must exist')
+    if g.has_edge(m, n):
+        raise ValueError('inverted edge must not exist')
+    g.add_edge(m, n)
+    g.edges[m, n].update(g.edges[n, m])
+    g.remove_edge(n, m)
+
+
 def set_each_node(g, key, map):
     values = list(extract_nodes(g, map))
     for n, value in zip(g.nodes, values):
@@ -412,6 +431,10 @@ class Graph(ObjectProxy):
         return dyads(self, ordered)
     def triads(self, ordered=False):
         return triads(self, ordered)
+    def switch(self, n, m):
+        switch(self, n, m)
+    def invert(self, n, m):
+        invert(self, n, m)
     def set_each_node(self, key, map):
         set_each_node(self, key, map)
     def set_each_edge(self, key, map):
