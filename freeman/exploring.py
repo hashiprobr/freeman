@@ -400,7 +400,7 @@ def stack_and_track(graphs, nodes=[]):
 
                 if 'label' in h.nodes[curr]:
                     h.nodes[curr]['label'] = '{} ({})'.format(h.nodes[curr]['label'], i + 1)
-                print(frac)
+
                 if 'color' in h.nodes[curr]:
                     hue, sat, val = _assert_hsv(h.nodes[curr]['color'])
                     h.nodes[curr]['color'] = _transform(hue, frac * sat, 1 - frac * (1 - val))
