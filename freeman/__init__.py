@@ -327,6 +327,10 @@ class Graph(ObjectProxy):
         self.nodeframe[key] = list(extract_nodes(self, map))
     def set_edgedata(self, key, map):
         self.edgeframe[key] = list(extract_edges(self, map))
+    def assign_nodes(self, other, key):
+        assign(self.nodeframe, other.nodeframe, key)
+    def assign_edges(self, other, key):
+        assign(self.edgeframe, other.edgeframe, key)
     def distest_nodes(self, x):
         return distest_nodes(self, x)
     def distest_edges(self, x):

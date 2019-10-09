@@ -178,6 +178,11 @@ def concat(dataframes, key):
     return pd.concat(dataframes.values(), ignore_index=True)
 
 
+def assign(df, other, key):
+    index = df.index.intersection(other.index)
+    df[key] = other.loc[index][key]
+
+
 def distest_loose(x):
     x = _series(x)
     data = {
