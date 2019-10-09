@@ -186,7 +186,10 @@ def colorize_borders(g, dark=0.5):
     for n in g.nodes:
         if 'color' in g.nodes[n]:
             h, s, v = _assert_hsv(g.nodes[n]['color'])
-            g.nodes[n]['bcolor'] = _transform(h, s, f * v)
+        else:
+            h, s, v = 0, 0, 1
+
+        g.nodes[n]['bcolor'] = _transform(h, s, f * v)
 
 
 def colorize_nodes(g, map=None, dark=0):
