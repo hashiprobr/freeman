@@ -460,11 +460,3 @@ class Graph(ObjectProxy):
             self._edgeframe = pd.DataFrame()
         self._edgeframe = self._edgeframe.reindex(self.edges, copy=False, fill_value=None)
         return self._edgeframe
-
-    @nodeframe.setter
-    def nodeframe(self, nodeframe):
-        self._nodeframe = nodeframe
-
-    @edgeframe.setter
-    def edgeframe(self, edgeframe):
-        self._edgeframe = edgeframe

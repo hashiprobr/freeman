@@ -21,7 +21,7 @@ try:
 except NotImplementedError:
     pass
 
-from .exploring import extract_nodes, extract_edges, Log
+from .exploring import Log
 from .moving import normalize
 
 
