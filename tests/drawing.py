@@ -449,6 +449,32 @@ class DrawingTest(unittest.TestCase):
     def test_draw_digraph_with_upper_y_node_pos(self):
         self.assertRaises(ValueError, fm.draw, self.with_upper_y_node_pos(self.partial_digraph()))
 
+    def with_node_label(self, g):
+        g = g.copy()
+        g.nodes[N]['label'] = 'label'
+        return g
+    def test_interact_graph_with_node_label(self):
+        fm.interact(self.with_node_label(self.partial_graph()))
+    def test_interact_digraph_with_node_label(self):
+        fm.interact(self.with_node_label(self.partial_digraph()))
+    def test_draw_graph_with_node_label(self):
+        fm.draw(self.with_node_label(self.partial_graph()))
+    def test_draw_digraph_with_node_label(self):
+        fm.draw(self.with_node_label(self.partial_digraph()))
+
+    def with_int_node_label(self, g):
+        g = g.copy()
+        g.nodes[N]['label'] = 5
+        return g
+    def test_interact_graph_with_int_node_label(self):
+        self.assertRaises(TypeError, fm.interact, self.with_int_node_label(self.partial_graph()))
+    def test_interact_digraph_with_int_node_label(self):
+        self.assertRaises(TypeError, fm.interact, self.with_int_node_label(self.partial_digraph()))
+    def test_draw_graph_with_int_node_label(self):
+        self.assertRaises(TypeError, fm.draw, self.with_int_node_label(self.partial_graph()))
+    def test_draw_digraph_with_int_node_label(self):
+        self.assertRaises(TypeError, fm.draw, self.with_int_node_label(self.partial_digraph()))
+
     def with_node_size(self, g):
         g = g.copy()
         g.nodes[N]['size'] = 20
@@ -968,6 +994,32 @@ class DrawingTest(unittest.TestCase):
         self.assertRaises(KeyError, fm.draw, self.with_invalid_hpos_node_labpos(self.partial_graph()))
     def test_draw_digraph_with_invalid_hpos_node_labpos(self):
         self.assertRaises(KeyError, fm.draw, self.with_invalid_hpos_node_labpos(self.partial_digraph()))
+
+    def with_edge_label(self, g):
+        g = g.copy()
+        g.edges[N, M]['label'] = 'label'
+        return g
+    def test_interact_graph_with_edge_label(self):
+        fm.interact(self.with_edge_label(self.partial_graph()))
+    def test_interact_digraph_with_edge_label(self):
+        fm.interact(self.with_edge_label(self.partial_digraph()))
+    def test_draw_graph_with_edge_label(self):
+        fm.draw(self.with_edge_label(self.partial_graph()))
+    def test_draw_digraph_with_edge_label(self):
+        fm.draw(self.with_edge_label(self.partial_digraph()))
+
+    def with_int_edge_label(self, g):
+        g = g.copy()
+        g.edges[N, M]['label'] = 5
+        return g
+    def test_interact_graph_with_int_edge_label(self):
+        self.assertRaises(TypeError, fm.interact, self.with_int_edge_label(self.partial_graph()))
+    def test_interact_digraph_with_int_edge_label(self):
+        self.assertRaises(TypeError, fm.interact, self.with_int_edge_label(self.partial_digraph()))
+    def test_draw_graph_with_int_edge_label(self):
+        self.assertRaises(TypeError, fm.draw, self.with_int_edge_label(self.partial_graph()))
+    def test_draw_digraph_with_int_edge_label(self):
+        self.assertRaises(TypeError, fm.draw, self.with_int_edge_label(self.partial_digraph()))
 
     def with_edge_width(self, g):
         g = g.copy()
