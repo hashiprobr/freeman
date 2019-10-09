@@ -182,6 +182,16 @@ def _correct(c):
     return sc / 12.92
 
 
+def _toodark(color):
+    r = _correct(color[0])
+    g = _correct(color[1])
+    b = _correct(color[2])
+
+    contrast = (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05)**2
+
+    return contrast < 0.0525
+
+
 def _convert(color):
     r = color[0]
     g = color[1]
@@ -401,15 +411,10 @@ def _build_node_trace(size, style, color, bwidth, bcolor, labpos):
         mode = 'markers+text'
         textposition = labpos
 
-    textcolor = (0, 0, 0)
-
-    if labpos == 'middle center':
-        r = _correct(color[0])
-        g = _correct(color[1])
-        b = _correct(color[2])
-
-        if (0.2126 * r + 0.7152 * g + 0.0722 * b + 0.05)**2 < 0.0525:
-            textcolor = (255, 255, 255)
+    if labpos == 'middle center' and _toodark(color):
+        textcolor = (255, 255, 255)
+    else:
+        textcolor = (0, 0, 0)
 
     return {
         'x': [],
@@ -447,6 +452,34 @@ def _build_node_label_trace(width, height, bottom, left, right, top):
                 'width': 0,
                 'color': 'rgba(255, 255, 255, 0.0)',
             },
+        },
+    }
+
+
+def _build_node_black_trace():
+    return {
+        'x': [],
+        'y': [],
+        'text': [],
+        'hoverinfo': 'none',
+        'mode': 'text',
+        'textposition': 'middle center',
+        'textfont': {
+            'color': 'rgb(0, 0, 0)',
+        },
+    }
+
+
+def _build_node_white_trace():
+    return {
+        'x': [],
+        'y': [],
+        'text': [],
+        'hoverinfo': 'none',
+        'mode': 'text',
+        'textposition': 'middle center',
+        'textfont': {
+            'color': 'rgb(255, 255, 255)',
         },
     }
 
@@ -504,13 +537,24 @@ def _build_layout(width, height):
     }
 
 
-def _add_node(g, n, node_trace):
+def _add_node(g, n, node_trace, node_extra_trace, labpos):
     x, y = _get_node_pos(g, n)
     text = _get_node_label(g, n)
 
     node_trace['x'].append(x)
     node_trace['y'].append(y)
     node_trace['text'].append(text)
+
+    extra = g.nodes[n].get('extra', None)
+    if extra is not None:
+        if not isinstance(extra, str):
+            raise TypeError('node extra must be a string')
+        if text is not None and labpos == 'middle center':
+            raise ValueError('node extra and node label must not have the same position')
+
+    node_extra_trace['x'].append(x)
+    node_extra_trace['y'].append(y)
+    node_extra_trace['text'].append(extra)
 
 
 def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_size, labflip, labdist, labfrac):
@@ -731,12 +775,15 @@ def draw(g, toolbar=False):
 
     node_traces = {}
     node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
+    node_black_trace = _build_node_black_trace()
+    node_white_trace = _build_node_white_trace()
     for n in g.nodes:
         size, style, color, bwidth, bcolor, labpos = _build_node_key(g, n)
         key = (size, style, color, bwidth, bcolor, labpos)
         if key not in node_traces:
             node_traces[key] = _build_node_trace(size, style, color, bwidth, bcolor, labpos)
-        _add_node(g, n, node_traces[key])
+        node_extra_trace = node_white_trace if _toodark(color) else node_black_trace
+        _add_node(g, n, node_traces[key], node_extra_trace, labpos)
 
     edge_traces = {}
     edge_label_trace = _build_edge_label_trace()
@@ -754,6 +801,8 @@ def draw(g, toolbar=False):
     data.extend(node_traces.values())
     data.append(edge_label_trace)
     data.append(node_label_trace)
+    data.append(node_white_trace)
+    data.append(node_black_trace)
 
     layout = _build_layout(local_width, local_height)
     if isinstance(g, nx.DiGraph):
@@ -815,16 +864,20 @@ class Animation:
 
         node_traces = []
         node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
+        node_extra_traces = []
         for n in h.nodes:
             if g.has_node(n):
                 size, style, color, bwidth, bcolor, labpos = _build_node_key(g, n)
                 node_trace = _build_node_trace(size, style, color, bwidth, bcolor, labpos)
-                _add_node(g, n, node_trace)
+                node_extra_trace = _build_node_white_trace() if _toodark(color) else _build_node_black_trace()
+                _add_node(g, n, node_trace, node_extra_trace, labpos)
             else:
                 size, style, _, bwidth, _, labpos = _build_node_key(h, n)
                 node_trace = _build_node_trace(size, style, (255, 255, 255, 0.0), bwidth, (255, 255, 255, 0.0), labpos)
-                _add_node(h, n, node_trace)
+                node_extra_trace = _build_node_white_trace()
+                _add_node(h, n, node_trace, node_extra_trace, labpos)
             node_traces.append(node_trace)
+            node_extra_traces.append(node_extra_trace)
 
         edge_traces = []
         edge_label_trace = _build_edge_label_trace()
@@ -846,6 +899,7 @@ class Animation:
         data.extend(node_traces)
         data.append(edge_label_trace)
         data.append(node_label_trace)
+        data.extend(node_extra_traces)
 
         frame = {
             'data': data,
