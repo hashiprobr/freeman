@@ -172,21 +172,6 @@ def _reltest(a, b, max_perm):
     return t, p
 
 
-def set_nodeframe(g):
-    data = {
-        'id': g.nodes,
-    }
-    g.nodeframe = pd.DataFrame(data)
-
-
-def set_edgeframe(g):
-    data = {
-        'source': [n for n, m in g.edges],
-        'target': [m for n, m in g.edges],
-    }
-    g.edgeframe = pd.DataFrame(data)
-
-
 def set_nodecol(g, col, map):
     g.nodeframe[col] = list(extract_nodes(g, map))
 

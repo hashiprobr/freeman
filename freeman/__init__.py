@@ -389,8 +389,6 @@ class Graph(ObjectProxy):
     def __init__(self, g):
         super().__init__(g.copy())
         init(self)
-        self._nodeframe = None
-        self._edgeframe = None
     def dyads(self, ordered=False):
         return dyads(self, ordered)
     def triads(self, ordered=False):
@@ -429,14 +427,16 @@ class Graph(ObjectProxy):
 
     @property
     def nodeframe(self):
-        if self._nodeframe is None:
-            set_nodeframe(self)
+        if not hasattr(self, '_nodeframe'):
+            self._nodeframe = pd.DataFrame()
+        self._nodeframe = self._nodeframe.reindex(self.nodes)
         return self._nodeframe
 
     @property
     def edgeframe(self):
-        if self._edgeframe is None:
-            set_edgeframe(self)
+        if not hasattr(self, '_edgeframe'):
+            self._edgeframe = pd.DataFrame()
+        self._edgeframe = self._edgeframe.reindex(self.edges)
         return self._edgeframe
 
     @nodeframe.setter
