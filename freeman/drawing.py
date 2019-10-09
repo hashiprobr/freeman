@@ -438,6 +438,29 @@ def _build_node_trace(size, style, color, bwidth, bcolor, labpos):
     }
 
 
+def _build_node_false_trace(size, style, bwidth):
+    return {
+        'x': [],
+        'y': [],
+        'text': [],
+        'hoverinfo': 'none',
+        'mode': 'markers+text',
+        'marker': {
+            'size': size,
+            'symbol': style,
+            'color': 'rgba(255, 255, 255, 0)',
+            'line': {
+                'width': bwidth,
+                'color': 'rgba(255, 255, 255, 0)',
+            },
+        },
+        'textposition': 'middle center',
+        'textfont': {
+            'color': 'rgba(255, 255, 255, 0)',
+        },
+    }
+
+
 def _build_node_label_trace(width, height, bottom, left, right, top):
     return {
         'x': [0.5, -left / width, 1 + right / width, 0.5],
@@ -447,16 +470,16 @@ def _build_node_label_trace(width, height, bottom, left, right, top):
         'marker': {
             'size': 0,
             'symbol': 'circle',
-            'color': 'rgba(255, 255, 255, 0.0)',
+            'color': 'rgba(255, 255, 255, 0)',
             'line': {
                 'width': 0,
-                'color': 'rgba(255, 255, 255, 0.0)',
+                'color': 'rgba(255, 255, 255, 0)',
             },
         },
     }
 
 
-def _build_node_black_trace():
+def _build_node_extra_trace(color):
     return {
         'x': [],
         'y': [],
@@ -465,21 +488,7 @@ def _build_node_black_trace():
         'mode': 'text',
         'textposition': 'middle center',
         'textfont': {
-            'color': 'rgb(0, 0, 0)',
-        },
-    }
-
-
-def _build_node_white_trace():
-    return {
-        'x': [],
-        'y': [],
-        'text': [],
-        'hoverinfo': 'none',
-        'mode': 'text',
-        'textposition': 'middle center',
-        'textfont': {
-            'color': 'rgb(255, 255, 255)',
+            'color': _convert(color),
         },
     }
 
@@ -775,8 +784,8 @@ def draw(g, toolbar=False):
 
     node_traces = {}
     node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
-    node_black_trace = _build_node_black_trace()
-    node_white_trace = _build_node_white_trace()
+    node_black_trace = _build_node_extra_trace((0, 0, 0))
+    node_white_trace = _build_node_extra_trace((255, 255, 255))
     for n in g.nodes:
         size, style, color, bwidth, bcolor, labpos = _build_node_key(g, n)
         key = (size, style, color, bwidth, bcolor, labpos)
@@ -869,12 +878,12 @@ class Animation:
             if g.has_node(n):
                 size, style, color, bwidth, bcolor, labpos = _build_node_key(g, n)
                 node_trace = _build_node_trace(size, style, color, bwidth, bcolor, labpos)
-                node_extra_trace = _build_node_white_trace() if _toodark(color) else _build_node_black_trace()
+                node_extra_trace = _build_node_extra_trace((255, 255, 255) if _toodark(color) else (0, 0, 0))
                 _add_node(g, n, node_trace, node_extra_trace, labpos)
             else:
                 size, style, _, bwidth, _, labpos = _build_node_key(h, n)
-                node_trace = _build_node_trace(size, style, (255, 255, 255, 0.0), bwidth, (255, 255, 255, 0.0), labpos)
-                node_extra_trace = _build_node_white_trace()
+                node_trace = _build_node_false_trace(size, style, bwidth)
+                node_extra_trace = _build_node_extra_trace((255, 255, 255, 0))
                 _add_node(h, n, node_trace, node_extra_trace, labpos)
             node_traces.append(node_trace)
             node_extra_traces.append(node_extra_trace)
@@ -891,7 +900,7 @@ class Animation:
                     _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
                 else:
                     n_size, m_size, width, style, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
-                    edge_trace = _build_edge_trace(width, style, (255, 255, 255, 0.0))
+                    edge_trace = _build_edge_trace(width, style, (255, 255, 255, 0))
                     _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
                 edge_traces.append(edge_trace)
 

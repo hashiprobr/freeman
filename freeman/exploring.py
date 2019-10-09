@@ -356,7 +356,7 @@ def heat_edges(g, map, lower=None, upper=None, middle=None, classic=False):
 
     for (n, m), value in zip(g.edges, values):
         if isclose(lower, upper):
-            g.edges[n, m]['color'] = (255, 255, 255, 0.0)
+            g.edges[n, m]['color'] = (255, 255, 255, 0)
         else:
             if value < middle:
                 sc = (value - lower) / (middle - lower)
