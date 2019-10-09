@@ -459,10 +459,10 @@ class Graph(ObjectProxy):
         unset_nodes(self, key)
     def unset_edges(self, key):
         unset_edges(self, key)
-    def convert_nodes(g, src, dst, ref):
-        convert_nodes(g, src, dst, ref)
-    def convert_edges(g, src, dst, ref):
-        convert_edges(g, src, dst, ref)
+    def convert_nodes(self, src, dst, ref):
+        convert_nodes(self, src, dst, ref)
+    def convert_edges(self, src, dst, ref):
+        convert_edges(self, src, dst, ref)
     def skin_seaborn(self):
         skin_seaborn(self)
     def skin_pyvis(self):
