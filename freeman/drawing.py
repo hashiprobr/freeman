@@ -484,6 +484,7 @@ def _build_layout(width, height):
             'zeroline': False,
             'showticklabels': False,
         },
+        'plot_bgcolor': 'rgb(255, 255, 255)',
     }
 
 
