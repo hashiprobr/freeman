@@ -163,13 +163,13 @@ def switch(g, n, m):
         g.add_edge(n, m)
 
 
-def invert(g, n, m):
+def mirror(g, n, m):
     if not isinstance(g, nx.DiGraph):
         raise TypeError('graph must be directed')
     if not g.has_edge(n, m):
         raise ValueError('original edge must exist')
     if g.has_edge(m, n):
-        raise ValueError('inverted edge must not exist')
+        raise ValueError('mirrored edge must not exist')
     g.add_edge(m, n)
     g.edges[m, n].update(g.edges[n, m])
     g.remove_edge(n, m)
@@ -420,8 +420,8 @@ class Graph(ObjectProxy):
         return triads(self, ordered)
     def switch(self, n, m):
         switch(self, n, m)
-    def invert(self, n, m):
-        invert(self, n, m)
+    def mirror(self, n, m):
+        mirror(self, n, m)
     def set_each_node(self, key, map):
         set_each_node(self, key, map)
     def set_each_edge(self, key, map):
