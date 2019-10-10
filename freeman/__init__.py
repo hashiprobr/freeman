@@ -50,13 +50,13 @@ def load(path):
         if key.startswith('node_'):
             suffix = key[5:]
             for n in g.nodes:
-                if suffix in g.nodes[n]:
+                if suffix not in g.nodes[n]:
                     g.nodes[n][suffix] = g.graph[key]
             del g.graph[key]
         if key.startswith('edge_'):
             suffix = key[5:]
             for n, m in g.edges:
-                if suffix in g.edges[n, m]:
+                if suffix not in g.edges[n, m]:
                     g.edges[n, m][suffix] = g.graph[key]
             del g.graph[key]
 
