@@ -48,10 +48,16 @@ def load(path):
     keys = list(g.graph.keys())
     for key in keys:
         if key.startswith('node_'):
-            set_all_nodes(g, key[5:], g.graph[key])
+            suffix = key[5:]
+            for n in g.nodes:
+                if suffix in g.nodes[n]:
+                    g.nodes[n][suffix] = g.graph[key]
             del g.graph[key]
         if key.startswith('edge_'):
-            set_all_edges(g, key[5:], g.graph[key])
+            suffix = key[5:]
+            for n, m in g.edges:
+                if suffix in g.edges[n, m]:
+                    g.edges[n, m][suffix] = g.graph[key]
             del g.graph[key]
 
     for n in g.nodes:
