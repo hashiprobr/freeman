@@ -300,16 +300,16 @@ class Graph(ObjectProxy):
         label_nodes(self, map, ndigits)
     def label_edges(self, map=None, ndigits=2):
         label_edges(self, map, ndigits)
-    def colorize_borders(self, dark=0.5):
-        colorize_borders(self, dark)
-    def colorize_nodes(self, map=None, dark=0):
-        colorize_nodes(self, map, dark)
-    def colorize_edges(self, map=None, dark=0.5):
-        colorize_edges(self, map, dark)
-    def colorize_community_nodes(self, C, dark=0):
-        colorize_community_nodes(self, C, dark)
-    def colorize_community_edges(self, C, dark=0.5, alpha=0.5):
-        colorize_community_edges(self, C, dark, alpha)
+    def color_borders(self, dark=0.5):
+        color_borders(self, dark)
+    def color_nodes(self, map=None, dark=0):
+        color_nodes(self, map, dark)
+    def color_edges(self, map=None, dark=0.5):
+        color_edges(self, map, dark)
+    def color_community_nodes(self, C, dark=0):
+        color_community_nodes(self, C, dark)
+    def color_community_edges(self, C, dark=0.5, alpha=0.5):
+        color_community_edges(self, C, dark, alpha)
     def scale_nodes_size(self, map, lower=None, upper=None):
         scale_nodes_size(self, map, lower, upper)
     def scale_edges_width(self, map, lower=None, upper=None):

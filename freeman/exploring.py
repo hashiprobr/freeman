@@ -180,7 +180,7 @@ def label_edges(g, map=None, ndigits=2):
         g.edges[n, m]['label'] = label
 
 
-def colorize_borders(g, dark=0.5):
+def color_borders(g, dark=0.5):
     f = 1 - _assert_fraction(dark)
 
     for n in g.nodes:
@@ -192,7 +192,7 @@ def colorize_borders(g, dark=0.5):
         g.nodes[n]['bcolor'] = _transform(h, s, f * v)
 
 
-def colorize_nodes(g, map=None, dark=0):
+def color_nodes(g, map=None, dark=0):
     if map is None:
         groups = list(zip(g.nodes))
     else:
@@ -214,7 +214,7 @@ def colorize_nodes(g, map=None, dark=0):
         h += s
 
 
-def colorize_edges(g, map=None, dark=0.5):
+def color_edges(g, map=None, dark=0.5):
     if map is None:
         groups = list(zip(g.edges))
     else:
@@ -236,7 +236,7 @@ def colorize_edges(g, map=None, dark=0.5):
         h += s
 
 
-def colorize_community_nodes(g, C, dark=0):
+def color_community_nodes(g, C, dark=0):
     h = 0
     s = 1 / len(C)
     v = 1 - _assert_fraction(dark)
@@ -247,7 +247,7 @@ def colorize_community_nodes(g, C, dark=0):
         h += s
 
 
-def colorize_community_edges(g, C, dark=0.5, alpha=0.5):
+def color_community_edges(g, C, dark=0.5, alpha=0.5):
     h = 0
     s = 1 / len(C)
     v = 1 - _assert_fraction(dark)
