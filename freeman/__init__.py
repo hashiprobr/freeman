@@ -162,14 +162,14 @@ def triads(g, ordered=False):
     return combinations(g.nodes, 3)
 
 
-def switch(g, n, m):
+def flip_existence(g, n, m):
     if g.has_edge(n, m):
         g.remove_edge(n, m)
     else:
         g.add_edge(n, m)
 
 
-def mirror(g, n, m):
+def flip_direction(g, n, m):
     if not isinstance(g, nx.DiGraph):
         raise TypeError('graph must be directed')
     if not g.has_edge(n, m):
@@ -424,10 +424,10 @@ class Graph(ObjectProxy):
         return dyads(self, ordered)
     def triads(self, ordered=False):
         return triads(self, ordered)
-    def switch(self, n, m):
-        switch(self, n, m)
-    def mirror(self, n, m):
-        mirror(self, n, m)
+    def flip_existence(self, n, m):
+        flip_existence(self, n, m)
+    def flip_direction(self, n, m):
+        flip_direction(self, n, m)
     def set_each_node(self, key, map):
         set_each_node(self, key, map)
     def set_each_edge(self, key, map):
