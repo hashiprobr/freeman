@@ -175,7 +175,7 @@ def flip_direction(g, n, m):
     if not g.has_edge(n, m):
         raise ValueError('original edge must exist')
     if g.has_edge(m, n):
-        raise ValueError('mirrored edge must not exist')
+        raise ValueError('opposite edge must not exist')
     g.add_edge(m, n)
     g.edges[m, n].update(g.edges[n, m])
     g.remove_edge(n, m)
