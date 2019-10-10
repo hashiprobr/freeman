@@ -28,6 +28,23 @@ LAYOUTS = {
 }
 
 
+def _displace(value, lower, upper):
+    if isclose(lower, upper):
+        if value < 0 or value > 1:
+            return 0.5
+    else:
+        if lower < 0 or upper > 1:
+            value -= lower
+            upper -= lower
+
+            if upper > 1:
+                return value / upper
+            else:
+                return value + (1 - upper) / 2
+
+    return value
+
+
 def normalize(g):
     if g.number_of_nodes() == 0:
         return
@@ -40,14 +57,14 @@ def normalize(g):
         Y.append(y)
 
     xmin = min(X)
-    xmax = max(X) - xmin
+    xmax = max(X)
     ymin = min(Y)
-    ymax = max(Y) - ymin
+    ymax = max(Y)
 
     for n in g.nodes:
         x, y = g.nodes[n]['pos']
-        x = 0.5 if isclose(xmax, 0) else (x - xmin) / xmax
-        y = 0.5 if isclose(ymax, 0) else (y - ymin) / ymax
+        x = _displace(x, xmin, xmax)
+        y = _displace(y, ymin, ymax)
         g.nodes[n]['pos'] = (x, y)
 
 
