@@ -1,7 +1,6 @@
 graph [
   width 400
   height 225
-  node_color "rgb(255, 0, 0)"
   node [
     id 0
     x 0.00
