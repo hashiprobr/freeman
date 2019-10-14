@@ -466,12 +466,12 @@ class Graph(ObjectProxy):
     def nodeframe(self):
         if not hasattr(self, '_nodeframe'):
             self._nodeframe = pd.DataFrame()
-        self._nodeframe = self._nodeframe.reindex(self.nodes, copy=False, fill_value=None)
+        self._nodeframe = self._nodeframe.reindex(self.nodes, copy=False)
         return self._nodeframe
 
     @property
     def edgeframe(self):
         if not hasattr(self, '_edgeframe'):
             self._edgeframe = pd.DataFrame()
-        self._edgeframe = self._edgeframe.reindex(self.edges, copy=False, fill_value=None)
+        self._edgeframe = self._edgeframe.reindex(self.edges, copy=False)
         return self._edgeframe
