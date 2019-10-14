@@ -113,7 +113,7 @@ def _indtest(a, b, max_perm):
     a = _series(a)
     b = _series(b)
     length = len(a)
-    if length == 0 or len(b) == 0 or (_varzero(a) and _varzero(b)):
+    if length < 2 or len(b) < 2 or (_varzero(a) and _varzero(b)):
         return None
     t, p = ttest_ind(a, b, equal_var=False)
     if max_perm is not None:
@@ -140,7 +140,7 @@ def _reltest(a, b, max_perm):
     a = _series(a)
     b = _series(b)
     length = len(a)
-    if length == 0 or length != len(b) or _varzero(A - B for A, B in zip(a, b)):
+    if length < 2 or length != len(b) or _varzero(A - B for A, B in zip(a, b)):
         return None
     t, p = ttest_rel(a, b)
     if max_perm is not None:
@@ -221,7 +221,7 @@ def chitest(df, x, y, max_perm=None):
 
 def onetest_loose(a, mean):
     a = _series(a)
-    if len(a) == 0 or _varzero(a):
+    if len(a) < 2 or _varzero(a):
         return None
     _, p = ttest_1samp(a, mean)
     return round(p, DEC)
