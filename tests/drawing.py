@@ -477,7 +477,9 @@ class DrawingTest(unittest.TestCase):
 
     def with_node_extra(self, g):
         g = g.copy()
+        g.nodes[N]['label'] = 'label'
         g.nodes[N]['extra'] = 'extra'
+        g.nodes[N]['labpos'] = 'hover'
         return g
     def test_draw_graph_with_node_extra(self):
         fm.draw(self.with_node_extra(self.partial_graph()))
@@ -486,7 +488,9 @@ class DrawingTest(unittest.TestCase):
 
     def with_int_node_extra(self, g):
         g = g.copy()
+        g.nodes[N]['label'] = 'label'
         g.nodes[N]['extra'] = 5
+        g.nodes[N]['labpos'] = 'hover'
         return g
     def test_draw_graph_with_int_node_extra(self):
         self.assertRaises(TypeError, fm.draw, self.with_int_node_extra(self.partial_graph()))
@@ -495,13 +499,23 @@ class DrawingTest(unittest.TestCase):
 
     def with_invalid_node_extra(self, g):
         g = g.copy()
-        g.nodes[N]['label'] = 'label'
         g.nodes[N]['extra'] = 'extra'
+        g.nodes[N]['labpos'] = 'hover'
         return g
     def test_draw_graph_with_invalid_node_extra(self):
         self.assertRaises(ValueError, fm.draw, self.with_invalid_node_extra(self.partial_graph()))
     def test_draw_digraph_with_invalid_node_extra(self):
         self.assertRaises(ValueError, fm.draw, self.with_invalid_node_extra(self.partial_digraph()))
+
+    def with_overlap_node_extra(self, g):
+        g = g.copy()
+        g.nodes[N]['label'] = 'label'
+        g.nodes[N]['extra'] = 'extra'
+        return g
+    def test_draw_graph_with_overlap_node_extra(self):
+        self.assertRaises(ValueError, fm.draw, self.with_overlap_node_extra(self.partial_graph()))
+    def test_draw_digraph_with_overlap_node_extra(self):
+        self.assertRaises(ValueError, fm.draw, self.with_overlap_node_extra(self.partial_digraph()))
 
     def with_node_size(self, g):
         g = g.copy()

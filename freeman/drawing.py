@@ -558,8 +558,11 @@ def _add_node(g, n, node_trace, node_extra_trace, labpos):
     if extra is not None:
         if not isinstance(extra, str):
             raise TypeError('node extra must be a string')
-        if text is not None and labpos == 'middle center':
-            raise ValueError('node extra and node label must not have the same position')
+        if text is None:
+            raise ValueError('node extra must not exist if node label exists')
+        else:
+            if labpos == 'middle center':
+                raise ValueError('node extra and node label must not have the same position')
 
     node_extra_trace['x'].append(x)
     node_extra_trace['y'].append(y)
