@@ -233,7 +233,7 @@ def convert_edges(g, source, target, map):
         g.edges[n, m][target] = value
 
 
-def skin_seaborn(g):
+def skin_seaborn(g, nodes=[]):
     g.graph['width'] = 450
     g.graph['height'] = 450
     g.graph['bottom'] = 0
@@ -243,6 +243,8 @@ def skin_seaborn(g):
 
     set_all_nodes(g, 'size', 10)
     set_all_nodes(g, 'style', 'circle')
+    set_all_nodes(g, 'color', (76, 116, 172))
+    set_all_nodes(g, 'color', (219, 130, 87), lambda n: n not in nodes)
     set_all_nodes(g, 'bwidth', 0)
     set_all_nodes(g, 'labpos', 'hover')
 
@@ -402,6 +404,10 @@ class Graph(ObjectProxy):
         return contable(self.nodeframe, x, y)
     def contable_edges(self, x, y):
         return contable(self.edgeframe, x, y)
+    def corplot_twomode(self, nodes, weight='weight'):
+        corplot_twomode(self, nodes, weight='weight')
+    def analyze_to_move(self, nodes, weight='weight'):
+        analyze_to_move(self, nodes, weight='weight')
     def corplot_nodes(self, x, y):
         corplot(self.nodeframe, x, y)
     def corplot_edges(self, x, y):
@@ -412,8 +418,6 @@ class Graph(ObjectProxy):
         boxplot(self.edgeframe, x, y, control)
     def girvan_newman(self):
         girvan_newman(self)
-    def corplot_graph(self, nodes, weight='weight', plot=True):
-        return corplot_graph(self, nodes, weight, plot)
 
     def __init__(self, g):
         super().__init__(g.copy())
@@ -442,8 +446,8 @@ class Graph(ObjectProxy):
         convert_nodes(self, source, target, map)
     def convert_edges(self, source, target, map):
         convert_edges(self, source, target, map)
-    def skin_seaborn(self):
-        skin_seaborn(self)
+    def skin_seaborn(self, other=[]):
+        skin_seaborn(self, other)
     def skin_pyvis(self):
         skin_pyvis(self)
 

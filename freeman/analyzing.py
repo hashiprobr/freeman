@@ -171,6 +171,34 @@ def _reltest(a, b, max_perm):
     return t, p
 
 
+def _crosstab(g, nodes, weight='weight'):
+    if any(g.degree(n) == 0 for n in g.nodes):
+        raise ValueError('graph must not have isolates')
+
+    other = [m for m in g.nodes if m not in nodes]
+
+    for n, m in g.edges:
+        if (n in nodes and m in nodes) or (n in other and m in other):
+            raise ValueError('nodes must define a bipartition')
+        if isinstance(g, nx.DiGraph) and (n in other and m in nodes):
+            raise ValueError('nodes must define a directed bipartition')
+
+    sparse = nx.bipartite.biadjacency_matrix(g, nodes, other, weight=weight)
+    matrix = sparse.toarray()
+
+    return pd.DataFrame(matrix, nodes, other)
+
+
+def _project(g, ca, observed):
+    pos = ca.row_coordinates(observed)
+    for n, x, y in zip(observed.index, pos[0], pos[1]):
+        g.nodes[n]['pos'] = (x, y)
+
+    pos = ca.column_coordinates(observed)
+    for m, x, y in zip(observed.columns, pos[0], pos[1]):
+        g.nodes[m]['pos'] = (x, y)
+
+
 def concat(dataframes, key):
     for value, df in dataframes.items():
         df[key] = value
@@ -426,6 +454,33 @@ def corplot(df, x, y):
     corplot_loose(_iterable(df, x), _iterable(df, y))
 
 
+def corplot_twomode(g, nodes, weight='weight'):
+    observed = _crosstab(g, nodes, weight)
+    ca = CA()
+    ca.fit(observed)
+    ca.plot_coordinates(observed)
+
+
+def analyze_to_move(g, nodes, weight='weight'):
+    observed = _crosstab(g, nodes, weight)
+    ca = CA()
+    ca.fit(observed)
+    _project(g, ca, observed)
+
+
+def analyze_last_to_move_all(graphs, nodes, weight='weight'):
+    last = graphs[-1]
+    observed = _crosstab(last, nodes, weight)
+    ca = CA()
+    ca.fit(observed)
+    _project(last, ca, observed)
+    for g in graphs[:-1]:
+        if g.nodes.keys() != last.nodes.keys():
+            raise ValueError('all graphs must have the same nodes')
+        observed = _crosstab(g, nodes, weight)
+        _project(g, ca, observed)
+
+
 def boxplot_loose(x, y, control=None):
     sns.boxplot(_series(x), _series(y), _series(control), orient='h')
 
@@ -468,43 +523,6 @@ def girvan_newman(g):
     labels = [g.nodes[n].get('label', n) for n in g.nodes]
 
     dendrogram(linkage, orientation='right', labels=labels)
-
-
-def corplot_graph(g, nodes, weight='weight', plot=True):
-    other = [m for m in g.nodes if m not in nodes]
-
-    for n, m in g.edges:
-        if (n in nodes and m in nodes) or (n in other and m in other):
-            raise ValueError('nodes do not define a bipartition')
-        if isinstance(g, nx.DiGraph) and (n in other and m in nodes):
-            raise ValueError('nodes do not define a directed bipartition')
-
-    nodes = [n for n in nodes if g.degree(n) > 0]
-    other = [m for m in other if g.degree(m) > 0]
-
-    sparse = nx.bipartite.biadjacency_matrix(g, nodes, other, weight=weight)
-    matrix = sparse.toarray()
-
-    observed = pd.DataFrame(matrix, nodes, other)
-    ca = CA()
-    ca.fit(observed)
-
-    if plot:
-        ca.plot_coordinates(observed)
-
-    h = g.subgraph(nodes + other).copy()
-
-    pos = ca.row_coordinates(observed)
-    for n, x, y in zip(nodes, pos[0], pos[1]):
-        h.nodes[n]['pos'] = (x, y)
-        h.nodes[n]['color'] = (76, 116, 172)
-
-    pos = ca.column_coordinates(observed)
-    for m, x, y in zip(other, pos[0], pos[1]):
-        h.nodes[m]['pos'] = (x, y)
-        h.nodes[m]['color'] = (219, 130, 87)
-
-    return h
 
 
 if sns is not None:
