@@ -44,6 +44,8 @@ from math import isclose, isinf, log
 from statistics import mean
 from colorsys import rgb_to_hsv, hsv_to_rgb
 
+from .drawing import get_node_label
+
 
 def _stringify(value, ndigits):
     if isinstance(value, float):
@@ -401,8 +403,9 @@ def stack_and_track(graphs, nodes=[]):
                 h.nodes[curr].update(g.nodes[n])
                 h.nodes[curr]['id'] = n
 
-                if 'label' in h.nodes[curr]:
-                    h.nodes[curr]['label'] = '{} ({})'.format(h.nodes[curr]['label'], i + 1)
+                label = get_node_label(h, curr)
+                if label is not None:
+                    h.nodes[curr]['label'] = '{} ({})'.format(label, i + 1)
 
                 color = h.nodes[curr].get('color', (255, 255, 255))
                 hue, sat, val = _assert_hsv(color)

@@ -21,6 +21,7 @@ try:
 except NotImplementedError:
     pass
 
+from .drawing import get_node_label
 from .exploring import Log
 
 
@@ -520,7 +521,12 @@ def girvan_newman(g):
         clusters[j] = None
         clusters.append(c)
 
-    labels = [g.nodes[n].get('label', n) for n in g.nodes]
+    labels = []
+    for n in g.nodes:
+        label = get_node_label(g, n)
+        if label is None:
+            label = n
+        labels.append(label)
 
     dendrogram(linkage, orientation='right', labels=labels)
 

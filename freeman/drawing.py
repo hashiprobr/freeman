@@ -302,14 +302,6 @@ def _get_node_pos(g):
     return pos
 
 
-def _get_node_label(g, n):
-    label = g.nodes[n].get('label', None)
-    if label is not None and not isinstance(label, str):
-        raise TypeError('node label must be a string')
-
-    return label
-
-
 def _build_node_size(g, n):
     size = g.nodes[n].get('size', node_size)
     if not isinstance(size, int):
@@ -368,14 +360,6 @@ def _build_node_key(g, n):
             raise KeyError('node horizontal position must be one of the following: ' + ', '.join('\'{}\''.format(h) for h in hpos))
 
     return size, style, color, bwidth, bcolor, labpos
-
-
-def _get_edge_label(g, n, m):
-    label = g.edges[n, m].get('label', None)
-    if label is not None and not isinstance(label, str):
-        raise TypeError('edge label must be a string')
-
-    return label
 
 
 def _build_edge_key(g, n, m):
@@ -572,7 +556,7 @@ def _build_layout(width, height):
 
 def _add_node(g, n, pos, node_trace, node_extra_trace, labpos):
     x, y = pos[n]
-    text = _get_node_label(g, n)
+    text = get_node_label(g, n)
 
     node_trace['x'].append(x)
     node_trace['y'].append(y)
@@ -622,7 +606,7 @@ def _add_edge(g, n, m, pos, edge_trace, edge_label_trace, width, height, n_size,
     sx, sy = _scale(dx, dy, width, height, labdist)
     edge_label_trace['x'].append(x0 + labfrac * (x1 - x0) + sx)
     edge_label_trace['y'].append(y0 + labfrac * (y1 - y0) + sy)
-    edge_label_trace['text'].append(_get_edge_label(g, n, m))
+    edge_label_trace['text'].append(get_edge_label(g, n, m))
 
     if isinstance(g, nx.DiGraph):
         dx = x0 - x1
@@ -647,6 +631,22 @@ def _add_edge(g, n, m, pos, edge_trace, edge_label_trace, width, height, n_size,
             y1 = y0 + ry
             edge_trace['x'].extend([x0, x1, None])
             edge_trace['y'].extend([y0, y1, None])
+
+
+def get_node_label(g, n):
+    label = g.nodes[n].get('label', None)
+    if label is not None and not isinstance(label, str):
+        raise TypeError('node label must be a string')
+
+    return label
+
+
+def get_edge_label(g, n, m):
+    label = g.edges[n, m].get('label', None)
+    if label is not None and not isinstance(label, str):
+        raise TypeError('edge label must be a string')
+
+    return label
 
 
 def interact(g, physics=False, path=None):
@@ -728,7 +728,7 @@ def interact(g, physics=False, path=None):
             'x': round((x - 0.5) * (0.9 * local_width - 24)) + dx,
             'y': round((0.5 - y) * (0.9 * local_height - 24)) + dy,
         }
-        label = _get_node_label(g, n)
+        label = get_node_label(g, n)
         if label:
             options['title'] = label
         network.add_node(n, **options)
@@ -750,7 +750,7 @@ def interact(g, physics=False, path=None):
                 'selectionWidth': 0,
                 'width': width,
             }
-            label = _get_edge_label(g, n, m)
+            label = get_edge_label(g, n, m)
             if label:
                 options['title'] = label
             network.add_edge(n, m, **options)
