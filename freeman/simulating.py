@@ -31,7 +31,7 @@ class Simulation(ABC):
         if not data:
             raise ValueError('append data must have at least one item')
         if self.data:
-            if self.data.keys() != data.keys():
+            if sorted(self.data) != sorted(data):
                 raise KeyError('append data keys must be always the same')
             for key in data:
                 prev = self.data[key][-1]

@@ -45,7 +45,7 @@ def _parse(value):
 def load(path):
     g = nx.read_gml(path, 'id')
 
-    keys = list(g.graph.keys())
+    keys = list(g.graph)
     for key in keys:
         if key.startswith('node_'):
             suffix = key[5:]
