@@ -7,11 +7,11 @@ possible across these libraries.
 
 The functions and classes require nodes to be *positioned*: given a graph **g**
 and a node **n** of this graph, the attribute **g.nodes[n]['pos']** must be a
-tuple or list of two numbers between ``0`` and ``1``. To ensure these
-attributes, use the functions from the :ref:`Moving <moving>` module or wrap
-with the :func:`Graph <freeman.Graph>` class.
+tuple or list of two numbers. To ensure these attributes, use the functions from
+the :ref:`Moving <moving>` module or wrap with the :func:`Graph <freeman.Graph>`
+class.
 
-The appearance is based on the eighteen visual attributes below.
+The appearance is based on the twenty one visual attributes below.
 
 
 .. _visual-attributes:
@@ -37,11 +37,16 @@ is considered.
 **g.graph['top']**     Top padding, in pixels. Must be non-negative. Default value is ``0``.
 =====================  =
 
-Given a graph **g** and a node **n** of this graph, the six attributes below can
-be used for customizing the appearance of this node. When the attribute does not
-exist, its default value is considered.
+Given a graph **g** and a node **n** of this graph, the eight attributes below
+can be used for customizing the appearance of this node. When the attribute does
+not exist, its default value is considered.
 
 ========================  =
+**g.nodes[n]['label']**   Node label, either ``None`` or a string. Default value is ``None``.
+
+**g.nodes[n]['extra']**   Node secondary label, either ``None`` or a string. Default value is
+                          ``None``. Ignored by :func:`interact <freeman.drawing.interact>`.
+
 **g.nodes[n]['size']**    Node size, in pixels. Must be positive. Default value is ``20``.
 
 **g.nodes[n]['style']**   Node style, one of: ``'circle'``, ``'star'``, ``'square'``,
@@ -65,11 +70,13 @@ exist, its default value is considered.
                           center'``. Ignored by :func:`interact <freeman.drawing.interact>`.
 ========================  =
 
-Given a graph **g** and an edge **(n, m)** of this graph, the six attributes
+Given a graph **g** and an edge **(n, m)** of this graph, the seven attributes
 below can be used for customizing the appearance of this edge. When the
 attribute does not exist, its default value is considered.
 
 ============================  =
+**g.edges[n, m]['label']**    Edge label, either ``None`` or a string. Default value is ``None``.
+
 **g.edges[n, m]['width']**    Edge width, in pixels. Must be positive. Default value is ``1``.
 
 **g.edges[n, m]['style']**    Edge style, one of ``'solid'``, ``'dash'``, ``'dot'``, or
@@ -649,16 +656,16 @@ def interact(g, physics=False, path=None):
     <https://pyvis.readthedocs.io/en/latest/>`_, based on the :ref:`visual
     attributes <visual-attributes>`, and mostly consistent with the :func:`draw
     <freeman.drawing.draw>` function and the :func:`Animation
-    <freeman.drawing.Animation>` class. The only significative differences are:
+    <freeman.drawing.Animation>` class. The only significative difference is
+    that a pair of edges **(n, m)** and **(m, n)** in a directed graph is
+    rendered as a single edge with two heads. Such rendering is better for
+    interaction, but less faithful to the graph density.
 
-    * The node attribute **labpos** and the edge attributes **labflip**,
-      **labdist**, and **labfrac** are ignored. A node label is only shown when
-      the mouse is over the node and edge labels are not shown at all. Less
-      clutter is better for interaction.
-
-    * A pair of edges **(n, m)** and **(m, n)** in a directed graph is rendered
-      as a single edge with two heads. Such rendering is better for interaction,
-      but less faithful to the graph density.
+    The node attributes **extra** and **labpos** and the edge attributes
+    **labflip**, **labdist**, and **labfrac** are ignored. A node label is only
+    shown when the mouse is over the node, node secondary labels are not shown
+    at all, and an edge label is only shown when the mouse is over the edge.
+    Less clutter is better for interaction.
 
     The visualization must be saved to an HTML file.
 
