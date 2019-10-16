@@ -143,6 +143,8 @@ graph_bottom = 0
 graph_left = 0
 graph_right = 0
 graph_top = 0
+graph_awidth = 0
+graph_acolor = (127, 127, 127)
 
 node_size = 20
 node_style = 'circle'
@@ -212,6 +214,53 @@ def _convert(color):
     return 'rgb({}, {}, {})'.format(r, g, b)
 
 
+def _normalize(value, lower, delta):
+    if isclose(delta, 0):
+        return 0.5
+
+    return (value - lower) / delta
+
+
+def _build_graph_bounds(g):
+    if g.number_of_nodes() == 0:
+        return None
+
+    X = []
+    Y = []
+    for n in g.nodes:
+        if 'pos' not in g.nodes[n]:
+            raise KeyError('node must have a pos')
+        if not isinstance(g.nodes[n]['pos'], (tuple, list)):
+            raise TypeError('node pos must be a tuple or list')
+        if len(g.nodes[n]['pos']) != 2:
+            raise ValueError('node pos must have exactly two elements')
+        x, y = g.nodes[n]['pos']
+        if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
+            raise TypeError('both node pos elements must be numeric')
+        X.append(x)
+        Y.append(y)
+
+    xmin = min(X)
+    xdif = max(X) - xmin
+    ymin = min(Y)
+    ydif = max(Y) - ymin
+
+    return xmin, xdif, ymin, ydif
+
+
+def _build_graph_origin(g, bounds):
+    if bounds is None:
+        origin = (0.5, 0.5)
+    else:
+        xmin, xdif, ymin, ydif = bounds
+
+        x = _normalize(0, xmin, xdif)
+        y = _normalize(0, ymin, ydif)
+        origin = (x, y)
+
+    return origin
+
+
 def _build_graph_width(g):
     width = g.graph.get('width', graph_width)
     if not isinstance(width, int):
@@ -269,34 +318,16 @@ def _build_graph_key(g):
     return width, height, bottom, left, right, top
 
 
-def _normalized_pos(g):
+def _build_graph_pos(g, bounds):
     pos = {}
 
-    if g.number_of_nodes() > 0:
-        X = []
-        Y = []
-        for n in g.nodes:
-            if 'pos' not in g.nodes[n]:
-                raise KeyError('node must have a pos')
-            if not isinstance(g.nodes[n]['pos'], (tuple, list)):
-                raise TypeError('node pos must be a tuple or list')
-            if len(g.nodes[n]['pos']) != 2:
-                raise ValueError('node pos must have exactly two elements')
-            x, y = g.nodes[n]['pos']
-            if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
-                raise TypeError('both node pos elements must be numeric')
-            X.append(x)
-            Y.append(y)
-
-        xmin = min(X)
-        xmax = max(X) - xmin
-        ymin = min(Y)
-        ymax = max(Y) - ymin
+    if bounds is not None:
+        xmin, xdif, ymin, ydif = bounds
 
         for n in g.nodes:
             x, y = g.nodes[n]['pos']
-            x = 0.5 if isclose(xmax, 0) else (x - xmin) / xmax
-            y = 0.5 if isclose(ymax, 0) else (y - ymin) / ymax
+            x = _normalize(x, xmin, xdif)
+            y = _normalize(y, ymin, ydif)
             pos[n] = (x, y)
 
     return pos
@@ -407,6 +438,38 @@ def _build_edge_key(g, n, m):
         raise ValueError('edge labfrac must be between 0 and 1')
 
     return n_size, m_size, width, style, color, labflip, labdist, labfrac
+
+
+def _build_graph_trace(g, origin):
+    awidth = g.graph.get('awidth', graph_awidth)
+    if not isinstance(awidth, int):
+        raise TypeError('graph awidth must be an integer')
+    if awidth < 0:
+        raise ValueError('graph awidth must be non-negative')
+
+    acolor = g.graph.get('acolor', graph_acolor)
+    if not isinstance(acolor, (tuple, list)):
+        raise TypeError('graph acolor must be a tuple or list')
+    if len(acolor) != 3:
+        raise ValueError('graph acolor must have exactly three elements')
+    if not isinstance(acolor[0], int) or not isinstance(acolor[1], int) or not isinstance(acolor[2], int):
+        raise TypeError('all graph ncolor elements must be integers')
+    if acolor[0] < 0 or acolor[0] > 255 or acolor[1] < 0 or acolor[1] > 255 or acolor[2] < 0 or acolor[2] > 255:
+        raise ValueError('all graph ncolor elements must be between 0 and 255')
+
+    x, y = origin
+
+    return {
+        'x': [x, x, None, 0, 1, None],
+        'y': [0, 1, None, y, y, None],
+        'hoverinfo': 'none',
+        'mode': 'lines',
+        'line': {
+            'width': awidth,
+            'dash': 'solid',
+            'color': _convert(acolor),
+        },
+    }
 
 
 def _build_node_trace(size, style, color, bwidth, bcolor, labpos):
@@ -683,6 +746,8 @@ def interact(g, physics=False, path=None):
     if not isinstance(physics, bool):
         raise TypeError('interact physics must be a boolean')
 
+    bounds = _build_graph_bounds(g)
+
     local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
     dx = local_left + local_right
     dy = local_bottom + local_top
@@ -696,7 +761,7 @@ def interact(g, physics=False, path=None):
         layout=None,
     )
 
-    pos = _normalized_pos(g)
+    pos = _build_graph_pos(g, bounds)
 
     dx = local_left - dx // 2
     dy = local_top - dy // 2
@@ -807,11 +872,14 @@ def draw(g, toolbar=False):
     if not isinstance(toolbar, bool):
         raise TypeError('draw toolbar must be a boolean')
 
+    bounds = _build_graph_bounds(g)
+    origin = _build_graph_origin(g, bounds)
+
     local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
     local_width += local_left + local_right
     local_height += local_bottom + local_top
 
-    pos = _normalized_pos(g)
+    pos = _build_graph_pos(g, bounds)
 
     node_traces = {}
     node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
@@ -837,7 +905,8 @@ def draw(g, toolbar=False):
                 edge_traces[key] = _build_edge_trace(width, style, color)
             _add_edge(g, n, m, pos, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
 
-    data = list(edge_traces.values())
+    data = [_build_graph_trace(g, origin)]
+    data.extend(edge_traces.values())
     data.extend(node_traces.values())
     data.append(edge_label_trace)
     data.append(node_label_trace)
@@ -897,13 +966,13 @@ class Animation:
     def __exit__(self, type, value, traceback):
         self.play()
 
-    def _render(self, g, h, local_width, local_height):
+    def _render(self, g, h, local_width, local_height, bounds, origin):
         local_bottom, local_left, local_right, local_top = _build_graph_padding(g)
         local_width += local_left + local_right
         local_height += local_bottom + local_top
 
-        gpos = _normalized_pos(g)
-        hpos = _normalized_pos(h)
+        gpos = _build_graph_pos(g, bounds)
+        hpos = _build_graph_pos(h, bounds)
 
         node_traces = []
         node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
@@ -938,7 +1007,8 @@ class Animation:
                     _add_edge(h, n, m, hpos, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
                 edge_traces.append(edge_trace)
 
-        data = edge_traces
+        data = [_build_graph_trace(g, origin)]
+        data.extend(edge_traces)
         data.extend(node_traces)
         data.append(edge_label_trace)
         data.append(node_label_trace)
@@ -996,10 +1066,14 @@ class Animation:
         if height is None:
             height = local_height
 
+        union = nx.disjoint_union_all(self.graphs)
+        bounds = _build_graph_bounds(union)
+        origin = _build_graph_origin(union, bounds)
+
         frames = []
         for i, g in enumerate(self.graphs):
             if h is None:
-                frames.append(self._render(g, g, width, height))
+                frames.append(self._render(g, g, width, height, bounds, origin))
             else:
                 if g != last:
                     next = self.graphs[i + 1]
@@ -1007,7 +1081,7 @@ class Animation:
                         h.nodes[n].update(next.nodes[n])
                     for n, m in next.edges:
                         h.edges[n, m].update(next.edges[n, m])
-                frames.append(self._render(g, h, width, height))
+                frames.append(self._render(g, h, width, height, bounds, origin))
 
         # parameters estimated from screenshots
         width = 1.05 * width + 72
