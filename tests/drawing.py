@@ -397,58 +397,6 @@ class DrawingTest(unittest.TestCase):
     def test_draw_digraph_with_none_y_node_pos(self):
         self.assertRaises(TypeError, fm.draw, self.with_none_y_node_pos(self.partial_digraph()))
 
-    def with_lower_x_node_pos(self, g):
-        g = g.copy()
-        g.nodes[N]['pos'] = (-0.5, 0.5)
-        return g
-    def test_interact_graph_with_lower_x_node_pos(self):
-        self.assertRaises(ValueError, fm.interact, self.with_lower_x_node_pos(self.partial_graph()))
-    def test_interact_digraph_with_lower_x_node_pos(self):
-        self.assertRaises(ValueError, fm.interact, self.with_lower_x_node_pos(self.partial_digraph()))
-    def test_draw_graph_with_lower_x_node_pos(self):
-        self.assertRaises(ValueError, fm.draw, self.with_lower_x_node_pos(self.partial_graph()))
-    def test_draw_digraph_with_lower_x_node_pos(self):
-        self.assertRaises(ValueError, fm.draw, self.with_lower_x_node_pos(self.partial_digraph()))
-
-    def with_lower_y_node_pos(self, g):
-        g = g.copy()
-        g.nodes[N]['pos'] = (0.5, -0.5)
-        return g
-    def test_interact_graph_with_lower_y_node_pos(self):
-        self.assertRaises(ValueError, fm.interact, self.with_lower_y_node_pos(self.partial_graph()))
-    def test_interact_digraph_with_lower_y_node_pos(self):
-        self.assertRaises(ValueError, fm.interact, self.with_lower_y_node_pos(self.partial_digraph()))
-    def test_draw_graph_with_lower_y_node_pos(self):
-        self.assertRaises(ValueError, fm.draw, self.with_lower_y_node_pos(self.partial_graph()))
-    def test_draw_digraph_with_lower_y_node_pos(self):
-        self.assertRaises(ValueError, fm.draw, self.with_lower_y_node_pos(self.partial_digraph()))
-
-    def with_upper_x_node_pos(self, g):
-        g = g.copy()
-        g.nodes[N]['pos'] = (1.5, 0.5)
-        return g
-    def test_interact_graph_with_upper_x_node_pos(self):
-        self.assertRaises(ValueError, fm.interact, self.with_upper_x_node_pos(self.partial_graph()))
-    def test_interact_digraph_with_upper_x_node_pos(self):
-        self.assertRaises(ValueError, fm.interact, self.with_upper_x_node_pos(self.partial_digraph()))
-    def test_draw_graph_with_upper_x_node_pos(self):
-        self.assertRaises(ValueError, fm.draw, self.with_upper_x_node_pos(self.partial_graph()))
-    def test_draw_digraph_with_upper_x_node_pos(self):
-        self.assertRaises(ValueError, fm.draw, self.with_upper_x_node_pos(self.partial_digraph()))
-
-    def with_upper_y_node_pos(self, g):
-        g = g.copy()
-        g.nodes[N]['pos'] = (0.5, 1.5)
-        return g
-    def test_interact_graph_with_upper_y_node_pos(self):
-        self.assertRaises(ValueError, fm.interact, self.with_upper_y_node_pos(self.partial_graph()))
-    def test_interact_digraph_with_upper_y_node_pos(self):
-        self.assertRaises(ValueError, fm.interact, self.with_upper_y_node_pos(self.partial_digraph()))
-    def test_draw_graph_with_upper_y_node_pos(self):
-        self.assertRaises(ValueError, fm.draw, self.with_upper_y_node_pos(self.partial_graph()))
-    def test_draw_digraph_with_upper_y_node_pos(self):
-        self.assertRaises(ValueError, fm.draw, self.with_upper_y_node_pos(self.partial_digraph()))
-
     def with_node_label(self, g):
         g = g.copy()
         g.nodes[N]['label'] = 'label'
