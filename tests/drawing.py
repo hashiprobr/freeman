@@ -319,6 +319,150 @@ class DrawingTest(unittest.TestCase):
     def test_draw_digraph_with_negative_graph_top(self):
         self.assertRaises(ValueError, fm.draw, self.with_negative_graph_top(self.partial_digraph()))
 
+    def with_graph_awidth(self, g):
+        g = g.copy()
+        g.graph['awidth'] = 0
+        return g
+    def test_draw_graph_with_graph_awidth(self):
+        fm.draw(self.with_graph_awidth(self.partial_graph()))
+    def test_draw_digraph_with_graph_awidth(self):
+        fm.draw(self.with_graph_awidth(self.partial_digraph()))
+
+    def with_float_graph_awidth(self, g):
+        g = g.copy()
+        g.graph['awidth'] = 0.5
+        return g
+    def test_draw_graph_with_float_graph_awidth(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_graph_awidth(self.partial_graph()))
+    def test_draw_digraph_with_float_graph_awidth(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_graph_awidth(self.partial_digraph()))
+
+    def with_negative_graph_awidth(self, g):
+        g = g.copy()
+        g.graph['awidth'] = -1
+        return g
+    def test_draw_graph_with_negative_graph_awidth(self):
+        self.assertRaises(ValueError, fm.draw, self.with_negative_graph_awidth(self.partial_graph()))
+    def test_draw_digraph_with_negative_graph_awidth(self):
+        self.assertRaises(ValueError, fm.draw, self.with_negative_graph_awidth(self.partial_digraph()))
+
+    def with_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (127, 127, 127)
+        return g
+    def test_draw_graph_with_graph_acolor(self):
+        fm.draw(self.with_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_graph_acolor(self):
+        fm.draw(self.with_graph_acolor(self.partial_digraph()))
+
+    def with_none_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = None
+        return g
+    def test_draw_graph_with_none_graph_acolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_none_graph_acolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_none_graph_acolor(self.partial_digraph()))
+
+    def with_short_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (127, 127)
+        return g
+    def test_draw_graph_with_short_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_short_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_short_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_short_graph_acolor(self.partial_digraph()))
+
+    def with_long_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (127, 127, 127, 127)
+        return g
+    def test_draw_graph_with_long_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_long_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_long_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_long_graph_acolor(self.partial_digraph()))
+
+    def with_float_r_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (63.5, 0, 0)
+        return g
+    def test_draw_graph_with_float_r_graph_acolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_r_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_float_r_graph_acolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_r_graph_acolor(self.partial_digraph()))
+
+    def with_float_g_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (0, 63.5, 0)
+        return g
+    def test_draw_graph_with_float_g_graph_acolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_g_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_float_g_graph_acolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_g_graph_acolor(self.partial_digraph()))
+
+    def with_float_b_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (0, 0, 63.5)
+        return g
+    def test_draw_graph_with_float_b_graph_acolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_b_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_float_b_graph_acolor(self):
+        self.assertRaises(TypeError, fm.draw, self.with_float_b_graph_acolor(self.partial_digraph()))
+
+    def with_lower_r_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (-1, 0, 0)
+        return g
+    def test_draw_graph_with_lower_r_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_r_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_lower_r_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_r_graph_acolor(self.partial_digraph()))
+
+    def with_lower_g_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (0, -1, 0)
+        return g
+    def test_draw_graph_with_lower_g_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_g_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_lower_g_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_g_graph_acolor(self.partial_digraph()))
+
+    def with_lower_b_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (0, 0, -1)
+        return g
+    def test_draw_graph_with_lower_b_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_b_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_lower_b_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_lower_b_graph_acolor(self.partial_digraph()))
+
+    def with_upper_r_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (256, 0, 0)
+        return g
+    def test_draw_graph_with_upper_r_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_r_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_upper_r_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_r_graph_acolor(self.partial_digraph()))
+
+    def with_upper_g_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (0, 256, 0)
+        return g
+    def test_draw_graph_with_upper_g_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_g_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_upper_g_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_g_graph_acolor(self.partial_digraph()))
+
+    def with_upper_b_graph_acolor(self, g):
+        g = g.copy()
+        g.graph['acolor'] = (0, 0, 256)
+        return g
+    def test_draw_graph_with_upper_b_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_b_graph_acolor(self.partial_graph()))
+    def test_draw_digraph_with_upper_b_graph_acolor(self):
+        self.assertRaises(ValueError, fm.draw, self.with_upper_b_graph_acolor(self.partial_digraph()))
+
     def without_node_pos(self, g):
         g = g.copy()
         del g.nodes[N]['pos']
