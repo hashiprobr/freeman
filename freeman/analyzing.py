@@ -171,7 +171,7 @@ def _reltest(a, b, max_perm):
     return t, p
 
 
-def _crosstab(g, nodes, weight='weight'):
+def _crosstab(g, nodes, weight):
     if any(g.degree(n) == 0 for n in g.nodes):
         raise ValueError('graph must not have isolates')
 
@@ -475,7 +475,7 @@ def analyze_last_to_move_all(graphs, nodes, weight='weight'):
     ca.fit(observed)
     _project(last, ca, observed)
     for g in graphs[:-1]:
-        if g.nodes.keys() != last.nodes.keys():
+        if sorted(g.nodes) != sorted(last.nodes):
             raise ValueError('all graphs must have the same nodes')
         observed = _crosstab(g, nodes, weight)
         _project(g, ca, observed)

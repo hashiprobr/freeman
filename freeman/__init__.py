@@ -405,9 +405,9 @@ class Graph(ObjectProxy):
     def contable_edges(self, x, y):
         return contable(self.edgeframe, x, y)
     def corplot_twomode(self, nodes, weight='weight'):
-        corplot_twomode(self, nodes, weight='weight')
+        corplot_twomode(self, nodes, weight)
     def analyze_to_move(self, nodes, weight='weight'):
-        analyze_to_move(self, nodes, weight='weight')
+        analyze_to_move(self, nodes, weight)
     def corplot_nodes(self, x, y):
         corplot(self.nodeframe, x, y)
     def corplot_edges(self, x, y):
