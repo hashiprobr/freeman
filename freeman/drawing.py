@@ -11,7 +11,7 @@ tuple or list of two numbers. To ensure these attributes, use the functions from
 the :ref:`Moving <moving>` module or wrap with the :func:`Graph <freeman.Graph>`
 class.
 
-The appearance is based on the twenty one visual attributes below.
+The appearance is based on the twenty three visual attributes below.
 
 
 .. _visual-attributes:
@@ -19,7 +19,7 @@ The appearance is based on the twenty one visual attributes below.
 Visual attributes
 -----------------
 
-Given a graph **g**, the six attributes below can be used for customizing the
+Given a graph **g**, the eight attributes below can be used for customizing the
 appearance of this graph. When the attribute does not exist, its default value
 is considered.
 
@@ -28,13 +28,25 @@ is considered.
 
 **g.graph['height']**  Graph height, in pixels. Must be positive. Default value is ``450``.
 
-**g.graph['bottom']**  Bottom padding, in pixels. Must be non-negative. Default value is ``0``.
+**g.graph['bottom']**  Graph bottom padding, in pixels. Must be non-negative. Default value is
+                       ``0``.
 
-**g.graph['left']**    Left padding, in pixels. Must be non-negative. Default value is ``0``.
+**g.graph['left']**    Graph left padding, in pixels. Must be non-negative. Default value is
+                       ``0``.
 
-**g.graph['right']**   Right padding, in pixels. Must be non-negative. Default value is ``0``.
+**g.graph['right']**   Graph right padding, in pixels. Must be non-negative. Default value is
+                       ``0``.
 
-**g.graph['top']**     Top padding, in pixels. Must be non-negative. Default value is ``0``.
+**g.graph['top']**     Graph top padding, in pixels. Must be non-negative. Default value is
+                       ``0``.
+
+**g.graph['awidth']**  Graph axis width, in pixels. Must be non-negative. Default value is
+                       ``0``. Ignored by :func:`interact <freeman.drawing.interact>`.
+
+**g.graph['acolor']**  Graph axis color, as a tuple or list of three integers between ``0`` and
+                       ``255`` representing red, green, and blue levels, respectively. Default
+                       value is ``(127, 127, 127)``. Ignored by
+                       :func:`interact <freeman.drawing.interact>`.
 =====================  =
 
 Given a graph **g** and a node **n** of this graph, the eight attributes below
@@ -724,11 +736,12 @@ def interact(g, physics=False, path=None):
     rendered as a single edge with two heads. Such rendering is better for
     interaction, but less faithful to the graph density.
 
-    The node attributes **extra** and **labpos** and the edge attributes
-    **labflip**, **labdist**, and **labfrac** are ignored. A node label is only
-    shown when the mouse is over the node, node secondary labels are not shown
-    at all, and an edge label is only shown when the mouse is over the edge.
-    Less clutter is better for interaction.
+    The graph attributes **awidth** and **acolor**, the node attributes
+    **extra** and **labpos**, and the edge attributes **labflip**, **labdist**,
+    and **labfrac** are ignored. A node label is only shown when the mouse is
+    over the node, node secondary labels are not shown at all, and an edge label
+    is only shown when the mouse is over the edge. Less clutter is better for
+    interaction.
 
     The visualization must be saved to an HTML file.
 
