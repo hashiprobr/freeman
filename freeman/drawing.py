@@ -269,7 +269,7 @@ def _build_graph_key(g):
     return width, height, bottom, left, right, top
 
 
-def _get_node_pos(g):
+def _normalized_pos(g):
     pos = {}
 
     if g.number_of_nodes() > 0:
@@ -696,7 +696,7 @@ def interact(g, physics=False, path=None):
         layout=None,
     )
 
-    pos = _get_node_pos(g)
+    pos = _normalized_pos(g)
 
     dx = local_left - dx // 2
     dy = local_top - dy // 2
@@ -811,7 +811,7 @@ def draw(g, toolbar=False):
     local_width += local_left + local_right
     local_height += local_bottom + local_top
 
-    pos = _get_node_pos(g)
+    pos = _normalized_pos(g)
 
     node_traces = {}
     node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
@@ -902,8 +902,8 @@ class Animation:
         local_width += local_left + local_right
         local_height += local_bottom + local_top
 
-        gpos = _get_node_pos(g)
-        hpos = _get_node_pos(h)
+        gpos = _normalized_pos(g)
+        hpos = _normalized_pos(h)
 
         node_traces = []
         node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
