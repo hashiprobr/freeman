@@ -22,7 +22,6 @@ except NotImplementedError:
     pass
 
 from .exploring import Log
-from .moving import normalize
 
 
 DPI = 100
@@ -504,8 +503,6 @@ def corplot_graph(g, nodes, weight='weight', plot=True):
     for m, x, y in zip(other, pos[0], pos[1]):
         h.nodes[m]['pos'] = (x, y)
         h.nodes[m]['color'] = (219, 130, 87)
-
-    normalize(h)
 
     return h
 

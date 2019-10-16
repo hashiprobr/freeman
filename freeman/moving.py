@@ -2,8 +2,6 @@
 '''
 import networkx as nx
 
-from math import isclose
-
 from .exploring import assert_numerics, extract_nodes
 
 
@@ -28,37 +26,12 @@ LAYOUTS = {
 }
 
 
-def normalize(g):
-    if g.number_of_nodes() == 0:
-        return
-
-    X = []
-    Y = []
-    for n in g.nodes:
-        x, y = g.nodes[n]['pos']
-        X.append(x)
-        Y.append(y)
-
-    xmin = min(X)
-    xmax = max(X) - xmin
-    ymin = min(Y)
-    ymax = max(Y) - ymin
-
-    for n in g.nodes:
-        x, y = g.nodes[n]['pos']
-        x = 0.5 if isclose(xmax, 0) else (x - xmin) / xmax
-        y = 0.5 if isclose(ymax, 0) else (y - ymin) / ymax
-        g.nodes[n]['pos'] = (x, y)
-
-
 def scatter(g, xmap, ymap):
     X = list(assert_numerics(extract_nodes(g, xmap)))
     Y = list(assert_numerics(extract_nodes(g, ymap)))
 
     for n, x, y in zip(g.nodes, X, Y):
         g.nodes[n]['pos'] = (x, y)
-
-    normalize(g)
 
 
 def move(g, key, *args, **kwargs):
@@ -73,8 +46,6 @@ def move(g, key, *args, **kwargs):
         x = float(x)
         y = float(y)
         g.nodes[n]['pos'] = (x, y)
-
-    normalize(g)
 
 
 def move_copy(g, h, key, *args, **kwargs):

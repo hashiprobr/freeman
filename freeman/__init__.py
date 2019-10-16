@@ -147,8 +147,6 @@ def init(g):
     for n, x, y in zip(g.nodes, X, Y):
         g.nodes[n]['pos'] = (x, y)
 
-    normalize(g)
-
 
 def dyads(g, ordered=False):
     if ordered:

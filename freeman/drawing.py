@@ -262,18 +262,35 @@ def _build_graph_key(g):
     return width, height, bottom, left, right, top
 
 
-def _get_node_pos(g, n):
-    if 'pos' not in g.nodes[n]:
-        raise KeyError('node must have a pos')
-    pos = g.nodes[n]['pos']
-    if not isinstance(pos, (tuple, list)):
-        raise TypeError('node pos must be a tuple or list')
-    if len(pos) != 2:
-        raise ValueError('node pos must have exactly two elements')
-    if not isinstance(pos[0], (int, float)) or not isinstance(pos[1], (int, float)):
-        raise TypeError('both node pos elements must be numeric')
-    if pos[0] < 0 or pos[0] > 1 or pos[1] < 0 or pos[1] > 1:
-        raise ValueError('both node pos elements must be between 0 and 1')
+def _get_node_pos(g):
+    pos = {}
+
+    if g.number_of_nodes() > 0:
+        X = []
+        Y = []
+        for n in g.nodes:
+            if 'pos' not in g.nodes[n]:
+                raise KeyError('node must have a pos')
+            if not isinstance(g.nodes[n]['pos'], (tuple, list)):
+                raise TypeError('node pos must be a tuple or list')
+            if len(g.nodes[n]['pos']) != 2:
+                raise ValueError('node pos must have exactly two elements')
+            x, y = g.nodes[n]['pos']
+            if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
+                raise TypeError('both node pos elements must be numeric')
+            X.append(x)
+            Y.append(y)
+
+        xmin = min(X)
+        xmax = max(X) - xmin
+        ymin = min(Y)
+        ymax = max(Y) - ymin
+
+        for n in g.nodes:
+            x, y = g.nodes[n]['pos']
+            x = 0.5 if isclose(xmax, 0) else (x - xmin) / xmax
+            y = 0.5 if isclose(ymax, 0) else (y - ymin) / ymax
+            pos[n] = (x, y)
 
     return pos
 
@@ -546,8 +563,8 @@ def _build_layout(width, height):
     }
 
 
-def _add_node(g, n, node_trace, node_extra_trace, labpos):
-    x, y = _get_node_pos(g, n)
+def _add_node(g, n, pos, node_trace, node_extra_trace, labpos):
+    x, y = pos[n]
     text = _get_node_label(g, n)
 
     node_trace['x'].append(x)
@@ -569,9 +586,9 @@ def _add_node(g, n, node_trace, node_extra_trace, labpos):
     node_extra_trace['text'].append(extra)
 
 
-def _add_edge(g, n, m, edge_trace, edge_label_trace, width, height, n_size, m_size, labflip, labdist, labfrac):
-    x0, y0 = _get_node_pos(g, n)
-    x1, y1 = _get_node_pos(g, m)
+def _add_edge(g, n, m, pos, edge_trace, edge_label_trace, width, height, n_size, m_size, labflip, labdist, labfrac):
+    x0, y0 = pos[n]
+    x1, y1 = pos[m]
 
     # parameters estimated from screenshots
     width = 0.9 * width - 24
@@ -672,10 +689,12 @@ def interact(g, physics=False, path=None):
         layout=None,
     )
 
+    pos = _get_node_pos(g)
+
     dx = local_left - dx // 2
     dy = local_top - dy // 2
     for n in g.nodes:
-        x, y = _get_node_pos(g, n)
+        x, y = pos[n]
         size, style, color, bwidth, bcolor, _ = _build_node_key(g, n)
         color = _convert(color)
         bcolor = _convert(bcolor)
@@ -785,6 +804,8 @@ def draw(g, toolbar=False):
     local_width += local_left + local_right
     local_height += local_bottom + local_top
 
+    pos = _get_node_pos(g)
+
     node_traces = {}
     node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
     node_black_trace = _build_node_extra_trace((0, 0, 0))
@@ -795,7 +816,7 @@ def draw(g, toolbar=False):
         if key not in node_traces:
             node_traces[key] = _build_node_trace(size, style, color, bwidth, bcolor, labpos)
         node_extra_trace = node_white_trace if _toodark(color) else node_black_trace
-        _add_node(g, n, node_traces[key], node_extra_trace, labpos)
+        _add_node(g, n, pos, node_traces[key], node_extra_trace, labpos)
 
     edge_traces = {}
     edge_label_trace = _build_edge_label_trace()
@@ -807,7 +828,7 @@ def draw(g, toolbar=False):
             key = (width, style, color)
             if key not in edge_traces:
                 edge_traces[key] = _build_edge_trace(width, style, color)
-            _add_edge(g, n, m, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
+            _add_edge(g, n, m, pos, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
 
     data = list(edge_traces.values())
     data.extend(node_traces.values())
@@ -874,6 +895,9 @@ class Animation:
         local_width += local_left + local_right
         local_height += local_bottom + local_top
 
+        gpos = _get_node_pos(g)
+        hpos = _get_node_pos(h)
+
         node_traces = []
         node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
         node_extra_traces = []
@@ -882,12 +906,12 @@ class Animation:
                 size, style, color, bwidth, bcolor, labpos = _build_node_key(g, n)
                 node_trace = _build_node_trace(size, style, color, bwidth, bcolor, labpos)
                 node_extra_trace = _build_node_extra_trace((255, 255, 255) if _toodark(color) else (0, 0, 0))
-                _add_node(g, n, node_trace, node_extra_trace, labpos)
+                _add_node(g, n, gpos, node_trace, node_extra_trace, labpos)
             else:
                 size, style, _, bwidth, _, labpos = _build_node_key(h, n)
                 node_trace = _build_node_false_trace(size, style, bwidth)
                 node_extra_trace = _build_node_extra_trace((255, 255, 255, 0))
-                _add_node(h, n, node_trace, node_extra_trace, labpos)
+                _add_node(h, n, hpos, node_trace, node_extra_trace, labpos)
             node_traces.append(node_trace)
             node_extra_traces.append(node_extra_trace)
 
@@ -900,11 +924,11 @@ class Animation:
                 if g.has_edge(n, m):
                     n_size, m_size, width, style, color, labflip, labdist, labfrac = _build_edge_key(g, n, m)
                     edge_trace = _build_edge_trace(width, style, color)
-                    _add_edge(g, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
+                    _add_edge(g, n, m, gpos, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
                 else:
                     n_size, m_size, width, style, _, labflip, labdist, labfrac = _build_edge_key(h, n, m)
                     edge_trace = _build_edge_trace(width, style, (255, 255, 255, 0))
-                    _add_edge(h, n, m, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
+                    _add_edge(h, n, m, hpos, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
                 edge_traces.append(edge_trace)
 
         data = edge_traces
