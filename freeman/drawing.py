@@ -233,46 +233,6 @@ def _normalize(value, lower, delta):
     return (value - lower) / delta
 
 
-def _build_graph_bounds(g):
-    if g.number_of_nodes() == 0:
-        return None
-
-    X = []
-    Y = []
-    for n in g.nodes:
-        if 'pos' not in g.nodes[n]:
-            raise KeyError('node must have a pos')
-        if not isinstance(g.nodes[n]['pos'], (tuple, list)):
-            raise TypeError('node pos must be a tuple or list')
-        if len(g.nodes[n]['pos']) != 2:
-            raise ValueError('node pos must have exactly two elements')
-        x, y = g.nodes[n]['pos']
-        if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
-            raise TypeError('both node pos elements must be numeric')
-        X.append(x)
-        Y.append(y)
-
-    xmin = min(X)
-    xdif = max(X) - xmin
-    ymin = min(Y)
-    ydif = max(Y) - ymin
-
-    return xmin, xdif, ymin, ydif
-
-
-def _build_graph_origin(g, bounds):
-    if bounds is None:
-        origin = (0.5, 0.5)
-    else:
-        xmin, xdif, ymin, ydif = bounds
-
-        x = _normalize(0, xmin, xdif)
-        y = _normalize(0, ymin, ydif)
-        origin = (x, y)
-
-    return origin
-
-
 def _build_graph_width(g):
     width = g.graph.get('width', graph_width)
     if not isinstance(width, int):
@@ -293,7 +253,37 @@ def _build_graph_height(g):
     return height
 
 
-def _build_graph_padding(g):
+def _build_graph_plane(g):
+    if g.number_of_nodes() == 0:
+        return None, (0.5, 0.5)
+
+    X = []
+    Y = []
+    for n in g.nodes:
+        if 'pos' not in g.nodes[n]:
+            raise KeyError('node must have a pos')
+        pos = g.nodes[n]['pos']
+        if not isinstance(pos, (tuple, list)):
+            raise TypeError('node pos must be a tuple or list')
+        if len(pos) != 2:
+            raise ValueError('node pos must have exactly two elements')
+        if not isinstance(pos[0], (int, float)) or not isinstance(pos[1], (int, float)):
+            raise TypeError('both node pos elements must be numeric')
+        X.append(pos[0])
+        Y.append(pos[1])
+
+    xmin = min(X)
+    xdif = max(X) - xmin
+    ymin = min(Y)
+    ydif = max(Y) - ymin
+
+    x = _normalize(0, xmin, xdif)
+    y = _normalize(0, ymin, ydif)
+
+    return (xmin, xdif, ymin, ydif), (x, y)
+
+
+def _build_graph_key(g):
     bottom = g.graph.get('bottom', graph_bottom)
     if not isinstance(bottom, int):
         raise TypeError('graph bottom must be an integer')
@@ -318,16 +308,23 @@ def _build_graph_padding(g):
     if top < 0:
         raise ValueError('graph top must be non-negative')
 
-    return bottom, left, right, top
+    awidth = g.graph.get('awidth', graph_awidth)
+    if not isinstance(awidth, int):
+        raise TypeError('graph awidth must be an integer')
+    if awidth < 0:
+        raise ValueError('graph awidth must be non-negative')
 
+    acolor = g.graph.get('acolor', graph_acolor)
+    if not isinstance(acolor, (tuple, list)):
+        raise TypeError('graph acolor must be a tuple or list')
+    if len(acolor) != 3:
+        raise ValueError('graph acolor must have exactly three elements')
+    if not isinstance(acolor[0], int) or not isinstance(acolor[1], int) or not isinstance(acolor[2], int):
+        raise TypeError('all graph ncolor elements must be integers')
+    if acolor[0] < 0 or acolor[0] > 255 or acolor[1] < 0 or acolor[1] > 255 or acolor[2] < 0 or acolor[2] > 255:
+        raise ValueError('all graph ncolor elements must be between 0 and 255')
 
-def _build_graph_key(g):
-    width = _build_graph_width(g)
-    height = _build_graph_height(g)
-
-    bottom, left, right, top = _build_graph_padding(g)
-
-    return width, height, bottom, left, right, top
+    return bottom, left, right, top, awidth, acolor
 
 
 def _build_graph_pos(g, bounds):
@@ -345,18 +342,12 @@ def _build_graph_pos(g, bounds):
     return pos
 
 
-def _build_node_size(g, n):
+def _build_node_key(g, n):
     size = g.nodes[n].get('size', node_size)
     if not isinstance(size, int):
         raise TypeError('node size must be an integer')
     if size <= 0:
         raise ValueError('node size must be positive')
-
-    return size
-
-
-def _build_node_key(g, n):
-    size = _build_node_size(g, n)
 
     style = g.nodes[n].get('style', node_style)
     if style not in NODE_STYLES:
@@ -406,8 +397,8 @@ def _build_node_key(g, n):
 
 
 def _build_edge_key(g, n, m):
-    n_size = _build_node_size(g, n)
-    m_size = _build_node_size(g, m)
+    n_size = g.nodes[n].get('size', node_size)
+    m_size = g.nodes[m].get('size', node_size)
 
     width = g.edges[n, m].get('width', edge_width)
     if not isinstance(width, int):
@@ -452,28 +443,10 @@ def _build_edge_key(g, n, m):
     return n_size, m_size, width, style, color, labflip, labdist, labfrac
 
 
-def _build_graph_trace(g, origin):
-    awidth = g.graph.get('awidth', graph_awidth)
-    if not isinstance(awidth, int):
-        raise TypeError('graph awidth must be an integer')
-    if awidth < 0:
-        raise ValueError('graph awidth must be non-negative')
-
-    acolor = g.graph.get('acolor', graph_acolor)
-    if not isinstance(acolor, (tuple, list)):
-        raise TypeError('graph acolor must be a tuple or list')
-    if len(acolor) != 3:
-        raise ValueError('graph acolor must have exactly three elements')
-    if not isinstance(acolor[0], int) or not isinstance(acolor[1], int) or not isinstance(acolor[2], int):
-        raise TypeError('all graph ncolor elements must be integers')
-    if acolor[0] < 0 or acolor[0] > 255 or acolor[1] < 0 or acolor[1] > 255 or acolor[2] < 0 or acolor[2] > 255:
-        raise ValueError('all graph ncolor elements must be between 0 and 255')
-
-    x, y = origin
-
+def _build_graph_trace(g, origin, awidth, acolor):
     return {
-        'x': [x, x, None, 0, 1, None],
-        'y': [0, 1, None, y, y, None],
+        'x': [origin[0], origin[0], None, 0, 1, None],
+        'y': [0, 1, None, origin[1], origin[1], None],
         'hoverinfo': 'none',
         'mode': 'lines',
         'line': {
@@ -484,7 +457,10 @@ def _build_graph_trace(g, origin):
     }
 
 
-def _build_node_trace(size, style, color, bwidth, bcolor, labpos):
+def _build_node_trace(size, style, color, bwidth, bcolor, labpos, hidden):
+    if hidden and labpos == 'hover':
+        labpos = 'middle center'
+
     if labpos == 'hover':
         hoverinfo = 'text'
         mode = 'markers'
@@ -494,10 +470,13 @@ def _build_node_trace(size, style, color, bwidth, bcolor, labpos):
         mode = 'markers+text'
         textposition = labpos
 
-    if labpos == 'middle center' and _toodark(color):
-        textcolor = (255, 255, 255)
+    if hidden:
+        textcolor = (255, 255, 255, 0)
     else:
-        textcolor = (0, 0, 0)
+        if textposition == 'middle center' and _toodark(color):
+            textcolor = (255, 255, 255)
+        else:
+            textcolor = (0, 0, 0)
 
     return {
         'x': [],
@@ -517,29 +496,6 @@ def _build_node_trace(size, style, color, bwidth, bcolor, labpos):
         'textposition': textposition,
         'textfont': {
             'color': _convert(textcolor),
-        },
-    }
-
-
-def _build_node_false_trace(size, style, bwidth):
-    return {
-        'x': [],
-        'y': [],
-        'text': [],
-        'hoverinfo': 'none',
-        'mode': 'markers+text',
-        'marker': {
-            'size': size,
-            'symbol': style,
-            'color': 'rgba(255, 255, 255, 0)',
-            'line': {
-                'width': bwidth,
-                'color': 'rgba(255, 255, 255, 0)',
-            },
-        },
-        'textposition': 'middle center',
-        'textfont': {
-            'color': 'rgba(255, 255, 255, 0)',
         },
     }
 
@@ -759,11 +715,14 @@ def interact(g, physics=False, path=None):
     if not isinstance(physics, bool):
         raise TypeError('interact physics must be a boolean')
 
-    bounds = _build_graph_bounds(g)
+    local_width = _build_graph_width(g)
+    local_height = _build_graph_height(g)
 
-    local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
-    dx = local_left + local_right
-    dy = local_bottom + local_top
+    bounds, _ = _build_graph_plane(g)
+
+    bottom, left, right, top, _, _ = _build_graph_key(g)
+    dx = left + right
+    dy = bottom + top
     network = Network(
         height=local_height + dy,
         width=local_width + dx,
@@ -776,8 +735,8 @@ def interact(g, physics=False, path=None):
 
     pos = _build_graph_pos(g, bounds)
 
-    dx = local_left - dx // 2
-    dy = local_top - dy // 2
+    dx = left - dx // 2
+    dy = top - dy // 2
     for n in g.nodes:
         x, y = pos[n]
         size, style, color, bwidth, bcolor, _ = _build_node_key(g, n)
@@ -885,24 +844,27 @@ def draw(g, toolbar=False):
     if not isinstance(toolbar, bool):
         raise TypeError('draw toolbar must be a boolean')
 
-    bounds = _build_graph_bounds(g)
-    origin = _build_graph_origin(g, bounds)
+    local_width = _build_graph_width(g)
+    local_height = _build_graph_height(g)
 
-    local_width, local_height, local_bottom, local_left, local_right, local_top = _build_graph_key(g)
-    local_width += local_left + local_right
-    local_height += local_bottom + local_top
+    bounds, origin = _build_graph_plane(g)
+
+    bottom, left, right, top, awidth, acolor = _build_graph_key(g)
+    local_width += left + right
+    local_height += bottom + top
+    graph_trace = _build_graph_trace(g, origin, awidth, acolor)
 
     pos = _build_graph_pos(g, bounds)
 
     node_traces = {}
-    node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
+    node_label_trace = _build_node_label_trace(local_width, local_height, bottom, left, right, top)
     node_black_trace = _build_node_extra_trace((0, 0, 0))
     node_white_trace = _build_node_extra_trace((255, 255, 255))
     for n in g.nodes:
         size, style, color, bwidth, bcolor, labpos = _build_node_key(g, n)
         key = (size, style, color, bwidth, bcolor, labpos)
         if key not in node_traces:
-            node_traces[key] = _build_node_trace(size, style, color, bwidth, bcolor, labpos)
+            node_traces[key] = _build_node_trace(size, style, color, bwidth, bcolor, labpos, False)
         node_extra_trace = node_white_trace if _toodark(color) else node_black_trace
         _add_node(g, n, pos, node_traces[key], node_extra_trace, labpos)
 
@@ -918,13 +880,13 @@ def draw(g, toolbar=False):
                 edge_traces[key] = _build_edge_trace(width, style, color)
             _add_edge(g, n, m, pos, edge_traces[key], edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
 
-    data = [_build_graph_trace(g, origin)]
+    data = [graph_trace]
     data.extend(edge_traces.values())
     data.extend(node_traces.values())
-    data.append(edge_label_trace)
-    data.append(node_label_trace)
     data.append(node_white_trace)
     data.append(node_black_trace)
+    data.append(edge_label_trace)
+    data.append(node_label_trace)
 
     layout = _build_layout(local_width, local_height)
     if isinstance(g, nx.DiGraph):
@@ -980,25 +942,26 @@ class Animation:
         self.play()
 
     def _render(self, g, h, local_width, local_height, bounds, origin):
-        local_bottom, local_left, local_right, local_top = _build_graph_padding(g)
-        local_width += local_left + local_right
-        local_height += local_bottom + local_top
+        bottom, left, right, top, awidth, acolor = _build_graph_key(g)
+        local_width += left + right
+        local_height += bottom + top
+        graph_trace = _build_graph_trace(g, origin, awidth, acolor)
 
         gpos = _build_graph_pos(g, bounds)
         hpos = _build_graph_pos(h, bounds)
 
         node_traces = []
-        node_label_trace = _build_node_label_trace(local_width, local_height, local_bottom, local_left, local_right, local_top)
+        node_label_trace = _build_node_label_trace(local_width, local_height, bottom, left, right, top)
         node_extra_traces = []
         for n in h.nodes:
             if g.has_node(n):
                 size, style, color, bwidth, bcolor, labpos = _build_node_key(g, n)
-                node_trace = _build_node_trace(size, style, color, bwidth, bcolor, labpos)
+                node_trace = _build_node_trace(size, style, color, bwidth, bcolor, labpos, False)
                 node_extra_trace = _build_node_extra_trace((255, 255, 255) if _toodark(color) else (0, 0, 0))
                 _add_node(g, n, gpos, node_trace, node_extra_trace, labpos)
             else:
                 size, style, _, bwidth, _, labpos = _build_node_key(h, n)
-                node_trace = _build_node_false_trace(size, style, bwidth)
+                node_trace = _build_node_trace(size, style, (255, 255, 255, 0), bwidth, (255, 255, 255, 0), labpos, True)
                 node_extra_trace = _build_node_extra_trace((255, 255, 255, 0))
                 _add_node(h, n, hpos, node_trace, node_extra_trace, labpos)
             node_traces.append(node_trace)
@@ -1020,12 +983,12 @@ class Animation:
                     _add_edge(h, n, m, hpos, edge_trace, edge_label_trace, local_width, local_height, n_size, m_size, labflip, labdist, labfrac)
                 edge_traces.append(edge_trace)
 
-        data = [_build_graph_trace(g, origin)]
+        data = [graph_trace]
         data.extend(edge_traces)
         data.extend(node_traces)
+        data.extend(node_extra_traces)
         data.append(edge_label_trace)
         data.append(node_label_trace)
-        data.extend(node_extra_traces)
 
         frame = {
             'data': data,
@@ -1080,8 +1043,7 @@ class Animation:
             height = local_height
 
         union = nx.disjoint_union_all(self.graphs)
-        bounds = _build_graph_bounds(union)
-        origin = _build_graph_origin(union, bounds)
+        bounds, origin = _build_graph_plane(union)
 
         frames = []
         for i, g in enumerate(self.graphs):
