@@ -763,6 +763,7 @@ def interact(g, physics=False, path=None):
             'physics': physics,
             'shape': NODE_STYLES[style],
             'size': size // 2,
+            # parameters estimated from screenshots
             'x': round((x - 0.5) * (0.9 * local_width - 24)) + dx,
             'y': round((0.5 - y) * (0.9 * local_height - 24)) + dy,
         }
@@ -816,7 +817,6 @@ def interact(g, physics=False, path=None):
             raise ValueError('interact path must have write permission')
 
     iframe = network.show(path)
-
     # parameters estimated from screenshots
     iframe.width += 10
     iframe.height += 10
