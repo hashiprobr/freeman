@@ -1,4 +1,4 @@
-from random import random, uniform
+from random import uniform
 from wrapt import ObjectProxy
 
 from .drawing import *
@@ -140,7 +140,7 @@ def init(g):
             if X[i] is None:
                 X[i] = uniform(xmin, xmax)
     else:
-        X = [random() for x in X]
+        X = [uniform(-1, 1) for x in X]
 
     Ynum = [y for y in Y if y is not None]
     if Ynum:
@@ -153,7 +153,7 @@ def init(g):
             if Y[i] is None:
                 Y[i] = uniform(ymin, ymax)
     else:
-        Y = [random() for y in Y]
+        Y = [uniform(-1, 1) for y in Y]
 
     for n, x, y in zip(g.nodes, X, Y):
         g.nodes[n]['pos'] = (x, y)
