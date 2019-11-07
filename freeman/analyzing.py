@@ -1,3 +1,5 @@
+import sys
+
 import pandas as pd
 import networkx as nx
 
@@ -173,9 +175,19 @@ def _reltest(a, b, max_perm):
 
 
 def _crosstab(g, nodes, weight):
-    if any(g.degree(n) == 0 for n in g.nodes):
-        raise ValueError('graph must not have isolates')
+    try:
+        iter(nodes)
+    except TypeError:
+        raise TypeError('nodes must be iterable')
 
+    nodes = set(nodes)
+
+    if any(n not in g.nodes for n in nodes):
+        raise ValueError('nodes must be a subset of the graph nodes')
+    if len(nodes) == 0 or len(nodes) == g.number_of_nodes():
+        raise ValueError('nodes must be a non-empty proper subset of the graph nodes')
+
+    nodes = [n for n in g.nodes if n in nodes]
     other = [m for m in g.nodes if m not in nodes]
 
     for n, m in g.edges:
@@ -184,8 +196,16 @@ def _crosstab(g, nodes, weight):
         if isinstance(g, nx.DiGraph) and (n in other and m in nodes):
             raise ValueError('nodes must define a directed bipartition')
 
-    sparse = nx.bipartite.biadjacency_matrix(g, nodes, other, weight=weight)
-    matrix = sparse.toarray()
+    matrix = []
+    for n in nodes:
+        line = []
+        for m in other:
+            if g.has_edge(n, m):
+                value = g.edges[n, m].get(weight, 1)
+            else:
+                value = sys.float_info.epsilon
+            line.append(value)
+        matrix.append(line)
 
     return pd.DataFrame(matrix, nodes, other)
 

@@ -383,7 +383,7 @@ def heat_edges(g, map, lower=None, upper=None, middle=None, classic=False):
                 g.edges[n, m]['color'] = (*_transform(h, 1, 1), a)
 
 
-def stack_and_track(graphs, nodes=[]):
+def stack_and_track(graphs, subjects=[]):
     union = set.union(*(set(g.nodes) for g in graphs))
 
     step = 1 / len(graphs)
@@ -391,9 +391,9 @@ def stack_and_track(graphs, nodes=[]):
     h = nx.DiGraph()
 
     for j, n in enumerate(union):
-        frac = step
-
         prev = None
+
+        frac = step
 
         for i, g in enumerate(graphs):
             if g.has_node(n):
@@ -415,12 +415,15 @@ def stack_and_track(graphs, nodes=[]):
                 hue, sat, val = _assert_hsv(bcolor)
                 h.nodes[curr]['bcolor'] = _transform(hue, frac * sat, 1 - frac * (1 - val))
 
-                if prev is not None and n in nodes:
+                if prev is not None and n in subjects:
                     h.add_edge(prev, curr)
-
-                frac += step
+                    h.edges[prev, curr]['color'] = (0, 0, 0, (orig + frac) / 2)
 
                 prev = curr
+
+                orig = frac
+
+            frac += step
 
     return h
 

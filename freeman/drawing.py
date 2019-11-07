@@ -566,10 +566,10 @@ def _build_layout(width, height):
         'width': width,
         'height': height,
         'margin': {
-            'b': 0,
-            'l': 0,
-            'r': 0,
-            't': 0,
+            'b': 10,
+            'l': 10,
+            'r': 10,
+            't': 10,
         },
         'xaxis': {
             'showgrid': False,
@@ -582,6 +582,7 @@ def _build_layout(width, height):
             'showticklabels': False,
         },
         'plot_bgcolor': 'rgb(255, 255, 255)',
+        'hovermode': 'closest',
     }
 
 
@@ -1073,6 +1074,8 @@ class Animation:
             steps.append(step)
 
         layout = _build_layout(width, height)
+        layout['xaxis']['fixedrange'] = True
+        layout['yaxis']['fixedrange'] = True
         layout.update({
             'updatemenus': [
                 {
@@ -1106,7 +1109,7 @@ class Animation:
             'frames': frames,
         }
 
-        plotly.offline.iplot(figure, config={'staticPlot': True}, show_link=False)
+        plotly.offline.iplot(figure, config={'displayModeBar': False}, show_link=False)
 
 
 plotly.offline.init_notebook_mode(connected=True)

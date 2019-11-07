@@ -42,6 +42,17 @@ def _parse(value):
     return value
 
 
+def _burst(graphs, nodes, weight='weight'):
+    graphs = [g.copy() for g in graphs]
+
+    analyze_last_to_move_all(graphs, nodes, weight)
+
+    for g in graphs:
+        skin_seaborn(g, nodes)
+
+    return graphs
+
+
 def load(path):
     g = nx.read_gml(path, 'id')
 
@@ -240,6 +251,8 @@ def skin_seaborn(g, nodes=[]):
     g.graph['left'] = 0
     g.graph['right'] = 0
     g.graph['top'] = 0
+    g.graph['awidth'] = 1
+    g.graph['acolor'] = (135, 135, 138)
 
     set_all_nodes(g, 'size', 10)
     set_all_nodes(g, 'style', 'circle')
@@ -250,7 +263,7 @@ def skin_seaborn(g, nodes=[]):
 
     set_all_edges(g, 'width', 1)
     set_all_edges(g, 'style', 'solid')
-    set_all_edges(g, 'color', (135, 135, 138))
+    set_all_edges(g, 'color', (0, 0, 0))
     unset_edges(g, 'label')
 
 
@@ -282,6 +295,24 @@ def concat_edges(graphs, key):
         df['edge'] = g.edges
         dataframes[value] = df
     return concat(dataframes, key)
+
+
+def affiliation_animation(graphs, nodes, weight='weight', width=None, height=None):
+    graphs = _burst(graphs, nodes, weight)
+    a = Animation(width, height)
+    for g in graphs:
+        g.set_all_nodes('labpos', 'hover')
+        g.set_all_edges('color', (0, 0, 0, 0.0))
+        a.rec(g)
+    return a
+
+
+def affiliation_tracking(graphs, nodes, weight='weight', subjects=[]):
+    graphs = _burst(graphs, nodes, weight)
+    g = stack_and_track(graphs, subjects)
+    g.graph['awidth'] = 1
+    g.graph['acolor'] = (135, 135, 138)
+    return Graph(g)
 
 
 class Graph(ObjectProxy):
