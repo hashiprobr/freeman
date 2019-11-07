@@ -171,6 +171,38 @@ def triads(g, ordered=False):
     return combinations(g.nodes, 3)
 
 
+def nodes_where(g, filter):
+    return (n for n in g.nodes if filter(n))
+
+
+def nodes_with(g, **kwargs):
+    return nodes_where(g, lambda n: all(g.nodes[n][key] == value for key, value in kwargs.items()))
+
+
+def edges_where(g, filter):
+    return ((n, m) for n, m in g.edges if filter(n, m))
+
+
+def edges_with(g, **kwargs):
+    return edges_where(g, lambda n, m: all(g.edges[n, m][key] == value for key, value in kwargs.items()))
+
+
+def subgraph_where(g, filter):
+    return g.subgraph(g.nodes_where(filter))
+
+
+def subgraph_with(g, **kwargs):
+    return g.subgraph(g.nodes_with(**kwargs))
+
+
+def edge_subgraph_where(g, filter):
+    return g.edge_subgraph(g.edges_where(filter))
+
+
+def edge_subgraph_with(g, **kwargs):
+    return g.edge_subgraph(g.edges_with(**kwargs))
+
+
 def flip_existence(g, n, m):
     if g.has_edge(n, m):
         g.remove_edge(n, m)
@@ -457,6 +489,22 @@ class Graph(ObjectProxy):
         return dyads(self, ordered)
     def triads(self, ordered=False):
         return triads(self, ordered)
+    def nodes_where(self, filter):
+        return nodes_where(self, filter)
+    def nodes_with(self, **kwargs):
+        return nodes_with(self, **kwargs)
+    def edges_where(self, filter):
+        return edges_where(self, filter)
+    def edges_with(self, **kwargs):
+        return edges_with(self, **kwargs)
+    def subgraph_where(self, filter):
+        return Graph(subgraph_where(self, filter))
+    def subgraph_with(self, **kwargs):
+        return Graph(subgraph_with(self, **kwargs))
+    def edge_subgraph_where(self, filter):
+        return Graph(edge_subgraph_where(self, filter))
+    def edge_subgraph_with(self, **kwargs):
+        return Graph(edge_subgraph_with(self, **kwargs))
     def flip_existence(self, n, m):
         flip_existence(self, n, m)
     def flip_direction(self, n, m):
