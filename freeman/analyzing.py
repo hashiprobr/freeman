@@ -50,7 +50,7 @@ def _series(iterable):
     if isinstance(iterable, pd.Series):
         return iterable
     if isinstance(iterable, Log):
-        return _series(iterable.wrapped).apply(lambda v: log(v + iterable.shift))
+        return _series(iterable.wrapped).apply(lambda v: log(v) + iterable.shift)
     return pd.Series(iterable)
 
 
